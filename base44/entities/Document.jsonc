@@ -1,0 +1,63 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Document title"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "SOW",
+        "EOI",
+        "RFQ",
+        "RFP"
+      ],
+      "description": "Type of procurement document"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "complete",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "questionnaire_data": {
+      "type": "object",
+      "description": "Raw answers from the questionnaire steps"
+    },
+    "ai_enhanced_content": {
+      "type": "object",
+      "description": "AI-generated content sections keyed by section name"
+    },
+    "final_content": {
+      "type": "object",
+      "description": "Final edited content sections ready for PDF"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "project_name": {
+      "type": "string"
+    },
+    "organisation_name": {
+      "type": "string"
+    },
+    "subscription_tier": {
+      "type": "string",
+      "enum": [
+        "free",
+        "starter",
+        "professional"
+      ],
+      "default": "free"
+    }
+  },
+  "required": [
+    "document_type",
+    "title"
+  ]
+}
