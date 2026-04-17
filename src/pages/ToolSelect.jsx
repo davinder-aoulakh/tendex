@@ -13,8 +13,7 @@ const tools = [
     icon: FileText,
     title: 'Scope of Work (SOW)',
     description: 'Define project deliverables, timelines, and responsibilities for a specific engagement.',
-    color: 'bg-blue-50 text-blue-600 border-blue-200',
-    accentBg: 'bg-blue-50',
+    iconColor: 'text-blue-300',
     examples: ['IT system implementation', 'Marketing campaign', 'Consulting engagement'],
   },
   {
@@ -22,8 +21,7 @@ const tools = [
     icon: Lightbulb,
     title: 'Expression of Interest (EOI)',
     description: 'Invite suppliers to indicate their interest and capability for an upcoming opportunity.',
-    color: 'bg-purple-50 text-purple-600 border-purple-200',
-    accentBg: 'bg-purple-50',
+    iconColor: 'text-purple-300',
     examples: ['Pre-qualification of suppliers', 'Market sounding', 'Shortlisting vendors'],
   },
   {
@@ -31,8 +29,7 @@ const tools = [
     icon: ClipboardList,
     title: 'Request for Quotation (RFQ)',
     description: 'Solicit price quotes from suppliers for well-defined goods or services.',
-    color: 'bg-green-50 text-green-600 border-green-200',
-    accentBg: 'bg-green-50',
+    iconColor: 'text-green-300',
     examples: ['Office supplies procurement', 'Standard software licences', 'Routine maintenance'],
   },
   {
@@ -40,8 +37,7 @@ const tools = [
     icon: Search,
     title: 'Request for Proposal (RFP)',
     description: 'Invite detailed proposals from vendors for complex or innovative solutions.',
-    color: 'bg-orange-50 text-orange-600 border-orange-200',
-    accentBg: 'bg-orange-50',
+    iconColor: 'text-orange-300',
     examples: ['Enterprise software solution', 'Professional services', 'Strategic partnership'],
   },
 ];
@@ -75,41 +71,40 @@ export default function ToolSelect() {
   };
 
   const handleProceed = () => {
-    if (selected) {
-      navigate(`/questionnaire/${selected}`);
-    }
+    if (selected) navigate(`/questionnaire/${selected}`);
   };
 
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="font-display text-4xl font-semibold text-foreground mb-3">What document do you need?</h1>
-          <p className="text-muted-foreground text-lg">Choose a document type or describe your need and let AI guide you.</p>
+          <h1 className="font-display text-4xl font-semibold text-white mb-3">What document do you need?</h1>
+          <p className="text-blue-200/60 text-lg">Choose a document type or describe your need and let AI guide you.</p>
         </motion.div>
 
         {/* AI Assist */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-card border border-border rounded-2xl p-6 mb-8">
+          className="rounded-2xl border border-white/10 p-6 mb-8" style={{ background: 'rgba(255,255,255,0.05)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Bot className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold text-foreground">Not sure? Describe your need</h2>
+            <Bot className="w-5 h-5 text-blue-300" />
+            <h2 className="font-semibold text-white">Not sure? Describe your need</h2>
           </div>
           <div className="flex gap-3">
             <Textarea
               placeholder="e.g. I need to hire a web developer to build our e-commerce site..."
               value={aiQuery}
               onChange={e => setAiQuery(e.target.value)}
-              className="min-h-[80px] resize-none flex-1"
+              className="min-h-[80px] resize-none flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-blue-500/50"
             />
-            <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()} className="self-end gap-2 whitespace-nowrap">
+            <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()}
+              className="self-end gap-2 whitespace-nowrap bg-blue-500 hover:bg-blue-400 text-white border-0">
               {aiLoading ? <><Sparkles className="w-4 h-4 animate-spin" />Analysing...</> : <><Sparkles className="w-4 h-4" />Suggest Type</>}
             </Button>
           </div>
           {aiSuggestion && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 bg-accent rounded-lg text-sm">
-              <span className="font-semibold text-primary">Recommended: {aiSuggestion.type}</span>
-              <span className="text-muted-foreground ml-2">— {aiSuggestion.reason}</span>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm border border-blue-500/20" style={{ background: 'rgba(59,130,246,0.1)' }}>
+              <span className="font-semibold text-blue-300">Recommended: {aiSuggestion.type}</span>
+              <span className="text-blue-200/60 ml-2">— {aiSuggestion.reason}</span>
             </motion.div>
           )}
         </motion.div>
@@ -121,17 +116,18 @@ export default function ToolSelect() {
               onClick={() => setSelected(tool.id)}
               className={`text-left p-6 rounded-2xl border-2 transition-all ${
                 selected === tool.id
-                  ? 'border-primary bg-accent shadow-md'
-                  : 'border-border bg-card hover:border-primary/40 hover:shadow-sm'
-              }`}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${tool.accentBg}`}>
-                <tool.icon className={`w-5 h-5 ${selected === tool.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                  ? 'border-blue-400/60 shadow-lg shadow-blue-500/10'
+                  : 'border-white/10 hover:border-blue-400/30'
+              }`}
+              style={{ background: selected === tool.id ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
               </div>
-              <h3 className="font-semibold text-foreground mb-2">{tool.title}</h3>
-              <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{tool.description}</p>
+              <h3 className="font-semibold text-white mb-2">{tool.title}</h3>
+              <p className="text-sm text-blue-200/60 mb-3 leading-relaxed">{tool.description}</p>
               <div className="flex flex-wrap gap-1.5">
                 {tool.examples.map(ex => (
-                  <span key={ex} className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-md">{ex}</span>
+                  <span key={ex} className="text-xs border border-white/10 text-blue-200/50 px-2 py-1 rounded-md" style={{ background: 'rgba(255,255,255,0.05)' }}>{ex}</span>
                 ))}
               </div>
             </motion.button>
@@ -139,7 +135,8 @@ export default function ToolSelect() {
         </div>
 
         <div className="flex justify-end">
-          <Button size="lg" onClick={handleProceed} disabled={!selected} className="gap-2 px-8">
+          <Button size="lg" onClick={handleProceed} disabled={!selected}
+            className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
             Continue with {selected || '...'} <ArrowRight className="w-4 h-4" />
           </Button>
         </div>

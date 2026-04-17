@@ -18,12 +18,12 @@ export default function DocumentSection({ title, content, onChange }) {
   };
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden group">
-      <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-secondary/20">
-        <h3 className="font-semibold text-sm text-foreground">{title}</h3>
+    <div className="rounded-xl border border-white/10 overflow-hidden group" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div className="flex items-center justify-between px-5 py-3 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
+        <h3 className="font-semibold text-sm text-blue-100/80">{title}</h3>
         {!editing && (
           <Button variant="ghost" size="sm" onClick={() => { setDraft(content); setEditing(true); }}
-            className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+            className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity text-white/40 hover:text-white hover:bg-white/10">
             <Edit3 className="w-3.5 h-3.5" />Edit
           </Button>
         )}
@@ -34,16 +34,21 @@ export default function DocumentSection({ title, content, onChange }) {
             <Textarea
               value={draft}
               onChange={e => setDraft(e.target.value)}
-              className="min-h-[140px] text-sm leading-relaxed resize-none bg-background"
+              className="min-h-[140px] text-sm leading-relaxed resize-none bg-white/5 border-white/10 text-white focus-visible:ring-blue-500/50"
               autoFocus
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleSave} className="gap-1.5"><Check className="w-3.5 h-3.5" />Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancel} className="gap-1.5"><X className="w-3.5 h-3.5" />Cancel</Button>
+              <Button size="sm" onClick={handleSave} className="gap-1.5 bg-blue-500 hover:bg-blue-400 text-white border-0">
+                <Check className="w-3.5 h-3.5" />Save
+              </Button>
+              <Button size="sm" variant="ghost" onClick={handleCancel}
+                className="gap-1.5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                <X className="w-3.5 h-3.5" />Cancel
+              </Button>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{content}</p>
+          <p className="text-sm text-blue-100/70 leading-relaxed whitespace-pre-wrap">{content}</p>
         )}
       </div>
     </div>

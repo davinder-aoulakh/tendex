@@ -6,9 +6,9 @@ import { Label } from '@/components/ui/label';
 export default function QuestionField({ question, value, onChange }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={question.key} className="text-sm font-medium text-foreground">
+      <Label htmlFor={question.key} className="text-sm font-medium text-blue-100/80">
         {question.label}
-        {question.required && <span className="text-destructive ml-1">*</span>}
+        {question.required && <span className="text-red-400 ml-1">*</span>}
       </Label>
 
       {question.type === 'text' && (
@@ -17,7 +17,7 @@ export default function QuestionField({ question, value, onChange }) {
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={question.placeholder}
-          className="bg-background"
+          className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus-visible:ring-blue-500/50"
         />
       )}
 
@@ -27,13 +27,13 @@ export default function QuestionField({ question, value, onChange }) {
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={question.placeholder}
-          className="min-h-[110px] bg-background resize-none"
+          className="min-h-[110px] bg-white/5 border-white/10 text-white placeholder:text-white/25 focus-visible:ring-blue-500/50 resize-none"
         />
       )}
 
       {question.type === 'select' && (
         <Select value={value} onValueChange={onChange}>
-          <SelectTrigger className="bg-background">
+          <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-blue-500/50">
             <SelectValue placeholder="Select an option" />
           </SelectTrigger>
           <SelectContent>

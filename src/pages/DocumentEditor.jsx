@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw, Edit3 } from 'lucide-react';
+import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { generateDocumentContent, SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
@@ -31,7 +31,6 @@ export default function DocumentEditor() {
     select: (data) => data[0],
   });
 
-  // Auto-generate if coming fresh from questionnaire
   useEffect(() => {
     if (doc && searchParams.get('generating') === 'true' && !doc.ai_enhanced_content && !hasGenerated.current) {
       hasGenerated.current = true;
@@ -77,7 +76,7 @@ export default function DocumentEditor() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
         </div>
       </AppLayout>
     );
@@ -92,24 +91,30 @@ export default function DocumentEditor() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-3 transition-colors">
+            <button onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white mb-3 transition-colors">
               <ChevronLeft className="w-4 h-4" />Back to Dashboard
             </button>
-            <div className="flex items-center gap-3">
-              <h1 className="font-display text-2xl font-semibold text-foreground">{doc?.title || 'Document'}</h1>
-              <Badge variant="secondary">{doc?.document_type}</Badge>
-              <Badge variant={doc?.status === 'complete' ? 'default' : 'secondary'} className="capitalize">{doc?.status}</Badge>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="font-display text-2xl font-semibold text-white">{doc?.title || 'Document'}</h1>
+              <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">{doc?.document_type}</Badge>
+              <Badge className={`capitalize border ${doc?.status === 'complete' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-white/10 text-white/50 border-white/10'}`}>
+                {doc?.status}
+              </Badge>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleGenerate()} disabled={generating} className="gap-2">
+            <Button variant="ghost" size="sm" onClick={() => handleGenerate()} disabled={generating}
+              className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
               <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />Regenerate
             </Button>
-            <Button variant="outline" size="sm" onClick={handleSave} disabled={saving} className="gap-2">
-              {saved ? <Check className="w-4 h-4 text-green-500" /> : saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving}
+              className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
+              {saved ? <Check className="w-4 h-4 text-green-400" /> : saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saved ? 'Saved!' : 'Save'}
             </Button>
-            <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent} className="gap-2">
+            <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent}
+              className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
               <Download className="w-4 h-4" />Export PDF
             </Button>
           </div>
@@ -117,14 +122,14 @@ export default function DocumentEditor() {
 
         {/* Generating State */}
         {generating && (
-          <div className="bg-accent/50 rounded-2xl p-12 text-center border border-border mb-8">
-            <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-7 h-7 text-primary animate-pulse" />
+          <div className="rounded-2xl p-12 text-center border border-blue-400/20 mb-8" style={{ background: 'rgba(59,130,246,0.08)' }}>
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-400/20" style={{ background: 'rgba(59,130,246,0.15)' }}>
+              <Sparkles className="w-7 h-7 text-blue-300 animate-pulse" />
             </div>
-            <h2 className="font-display text-xl font-semibold text-foreground mb-2">AI is drafting your document...</h2>
-            <p className="text-muted-foreground text-sm">Using GPT-4o to generate professional procurement content. This takes 30-60 seconds.</p>
+            <h2 className="font-display text-xl font-semibold text-white mb-2">AI is drafting your document...</h2>
+            <p className="text-blue-200/50 text-sm">Using GPT-4o to generate professional procurement content. This takes 30–60 seconds.</p>
             <div className="mt-6 flex justify-center">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
             </div>
           </div>
         )}
@@ -144,7 +149,8 @@ export default function DocumentEditor() {
               )
             ))}
             <div className="flex justify-end pt-4">
-              <Button onClick={handleSave} disabled={saving} size="lg" className="gap-2 px-8">
+              <Button onClick={handleSave} disabled={saving} size="lg"
+                className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
                 {saved ? <><Check className="w-4 h-4" />Saved!</> : saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><Save className="w-4 h-4" />Save Changes</>}
               </Button>
             </div>
@@ -153,16 +159,17 @@ export default function DocumentEditor() {
 
         {/* Empty state */}
         {!generating && !hasContent && (
-          <div className="bg-card rounded-2xl border border-border p-16 text-center">
-            <Sparkles className="w-10 h-10 text-muted-foreground/40 mx-auto mb-4" />
-            <h3 className="font-semibold text-foreground mb-2">No content yet</h3>
-            <p className="text-muted-foreground mb-6">Generate AI content based on your questionnaire answers.</p>
-            <Button onClick={() => handleGenerate()} className="gap-2"><Sparkles className="w-4 h-4" />Generate Document</Button>
+          <div className="rounded-2xl border border-white/10 p-16 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            <Sparkles className="w-10 h-10 text-blue-300/30 mx-auto mb-4" />
+            <h3 className="font-semibold text-white mb-2">No content yet</h3>
+            <p className="text-blue-200/50 mb-6">Generate AI content based on your questionnaire answers.</p>
+            <Button onClick={() => handleGenerate()} className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
+              <Sparkles className="w-4 h-4" />Generate Document
+            </Button>
           </div>
         )}
       </div>
 
-      {/* PDF Modal */}
       {showPDF && doc && (
         <PDFExport doc={doc} content={editedContent} onClose={() => setShowPDF(false)} />
       )}

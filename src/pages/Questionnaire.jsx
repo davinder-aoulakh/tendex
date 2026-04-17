@@ -34,8 +34,6 @@ export default function Questionnaire() {
 
   const handleGenerate = async () => {
     setGenerating(true);
-
-    // Create document record
     const doc = await base44.entities.Document.create({
       title: answers.project_name || answers.title || `${type} Document - ${new Date().toLocaleDateString()}`,
       document_type: type,
@@ -45,8 +43,6 @@ export default function Questionnaire() {
       organisation_name: answers.organisation_name || '',
       industry: answers.industry || '',
     });
-
-    // Trigger AI content generation (pass doc ID)
     navigate(`/document/${doc.id}?generating=true`);
   };
 
@@ -55,14 +51,14 @@ export default function Questionnaire() {
       <div className="max-w-3xl mx-auto px-6 py-12">
         <div className="mb-10">
           <button onClick={() => currentStep === 0 ? navigate('/tool-select') : setCurrentStep(s => s - 1)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
+            className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white transition-colors mb-6">
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="flex items-center gap-3 mb-2">
-            <span className="bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">{type}</span>
-            <h1 className="font-display text-2xl font-semibold text-foreground">Tell us about your project</h1>
+            <span className="border border-blue-400/30 text-blue-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ background: 'rgba(59,130,246,0.1)' }}>{type}</span>
+            <h1 className="font-display text-2xl font-semibold text-white">Tell us about your project</h1>
           </div>
-          <p className="text-muted-foreground">Answer a few questions and AI will draft your document.</p>
+          <p className="text-blue-200/50">Answer a few questions and AI will draft your document.</p>
         </div>
 
         <StepIndicator currentStep={currentStep} totalSteps={steps} />
@@ -77,8 +73,9 @@ export default function Questionnaire() {
         </AnimatePresence>
 
         <div className="mt-10 flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">Step {currentStep + 1} of {steps}</span>
-          <Button size="lg" onClick={handleNext} disabled={generating} className="gap-2 px-8">
+          <span className="text-sm text-blue-200/40">Step {currentStep + 1} of {steps}</span>
+          <Button size="lg" onClick={handleNext} disabled={generating}
+            className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
             {generating ? (
               <><Loader2 className="w-4 h-4 animate-spin" />Generating Document...</>
             ) : isLastStep ? (
