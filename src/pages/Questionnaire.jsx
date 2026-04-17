@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import AppLayout from '@/components/layout/AppLayout';
 import { getVisiblePages, getVisibleFields, validatePage } from '@/lib/questionnaireConfig';
 import QuestionField from '@/components/questionnaire/QuestionField';
@@ -25,12 +26,30 @@ export default function Questionnaire() {
     } catch { return {}; }
   };
 
+  const [user, setUser] = useState(null);
   const [answers, setAnswers] = useState(loadSaved);
   const [currentStep, setCurrentStep] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [generatingDone, setGeneratingDone] = useState(false);
   const [createdDocId, setCreatedDocId] = useState(null);
   const [errors, setErrors] = useState([]);
+
+  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+
+  const { data: subscriptions = [] } = useQuery({
+    queryKey: ['subscription', user?.email],
+    queryFn: () => base44.entities.Subscription.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+  const { data: documents = [] } = useQuery({
+    queryKey: ['documents-count'],
+    queryFn: () => base44.entities.Document.list(),
+  });
+  const currentSub = subscriptions[0];
+  const currentPlan = currentSub?.plan || 'free';
+  const planLimits = { free: 3, starter: 20, professional: 999 };
+  const docsLimit = planLimits[currentPlan] || 3;
+  const atLimit = documents.length >= docsLimit && docsLimit !== 999;
 
   // Recompute visible pages whenever answers change
   const visiblePages = getVisiblePages(type, answers);
@@ -124,6 +143,18 @@ export default function Questionnaire() {
           <p className="text-blue-200/50 text-sm">Answer a few questions and AI will draft your document.</p>
         </div>
 
+        {/* Limit gate */}
+        {atLimit && (
+          <div className="mb-8 rounded-xl border border-red-400/30 p-5 text-center" style={{ background: 'rgba(239,68,68,0.08)' }}>
+            <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+            <h3 className="font-semibold text-white mb-1">Document limit reached</h3>
+            <p className="text-sm text-red-300/80 mb-4">You've used all {docsLimit} documents on your {currentPlan} plan. Upgrade to create more.</p>
+            <Link to="/billing">
+              <Button className="bg-blue-500 hover:bg-blue-400 text-white border-0">Upgrade Plan</Button>
+            </Link>
+          </div>
+        )}
+
         {/* Step indicator */}
         <div className="mb-8">
           <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
@@ -190,7 +221,7 @@ export default function Questionnaire() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Button>
 
-          <Button size="lg" onClick={handleNext} disabled={generating}
+          <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
             className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
             {generating ? (
               <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
