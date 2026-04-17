@@ -3,8 +3,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import EnhancedTextarea from './EnhancedTextarea';
 
-export default function QuestionField({ field, value, onChange, error }) {
+export default function QuestionField({ field, value, onChange, error, docType }) {
   const inputClass = cn(
     'bg-white/5 border-white/10 text-white placeholder:text-white/25 focus-visible:ring-blue-500/50',
     error && 'border-red-400/60 focus-visible:ring-red-400/40'
@@ -43,8 +44,7 @@ export default function QuestionField({ field, value, onChange, error }) {
       )}
 
       {field.type === 'textarea' && (
-        <Textarea id={field.key} value={value || ''} onChange={e => onChange(e.target.value)}
-          placeholder={field.placeholder} className={cn(inputClass, 'min-h-[110px] resize-none')} />
+        <EnhancedTextarea field={field} value={value} onChange={onChange} error={error} docType={docType} />
       )}
 
       {field.type === 'select' && (

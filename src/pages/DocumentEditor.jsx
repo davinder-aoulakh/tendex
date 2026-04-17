@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { generateDocumentContent, SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
 import DocumentSection from '@/components/document/DocumentSection';
 import PDFExport from '@/components/document/PDFExport';
+import GeneratingScreen from '@/components/document/GeneratingScreen';
 import AppLayout from '@/components/layout/AppLayout';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -19,6 +20,7 @@ export default function DocumentEditor() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [generating, setGenerating] = useState(false);
+  const [generatingDone, setGeneratingDone] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [editedContent, setEditedContent] = useState({});
@@ -47,6 +49,7 @@ export default function DocumentEditor() {
     const docToUse = document || doc;
     if (!docToUse) return;
     setGenerating(true);
+    setGeneratingDone(false);
     const content = await generateDocumentContent(docToUse.document_type, docToUse.questionnaire_data || {});
     await base44.entities.Document.update(docToUse.id, {
       ai_enhanced_content: content,
@@ -55,7 +58,9 @@ export default function DocumentEditor() {
     });
     setEditedContent(content);
     queryClient.invalidateQueries({ queryKey: ['document', id] });
-    setGenerating(false);
+    setGeneratingDone(true);
+    // Auto-dismiss the screen after 2s
+    setTimeout(() => setGenerating(false), 2000);
   };
 
   const handleSave = async () => {
@@ -120,19 +125,8 @@ export default function DocumentEditor() {
           </div>
         </div>
 
-        {/* Generating State */}
-        {generating && (
-          <div className="rounded-2xl p-12 text-center border border-blue-400/20 mb-8" style={{ background: 'rgba(59,130,246,0.08)' }}>
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-400/20" style={{ background: 'rgba(59,130,246,0.15)' }}>
-              <Sparkles className="w-7 h-7 text-blue-300 animate-pulse" />
-            </div>
-            <h2 className="font-display text-xl font-semibold text-white mb-2">AI is drafting your document...</h2>
-            <p className="text-blue-200/50 text-sm">Using GPT-4o to generate professional procurement content. This takes 30–60 seconds.</p>
-            <div className="mt-6 flex justify-center">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
-            </div>
-          </div>
-        )}
+        {/* Generating overlay */}
+        {generating && <GeneratingScreen done={generatingDone} documentId={id} />}
 
         {/* Content Sections */}
         {!generating && hasContent && (

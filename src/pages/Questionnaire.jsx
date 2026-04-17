@@ -9,6 +9,7 @@ import { getVisiblePages, getVisibleFields, validatePage } from '@/lib/questionn
 import QuestionField from '@/components/questionnaire/QuestionField';
 import MilestoneTable from '@/components/questionnaire/MilestoneTable';
 import StepIndicator from '@/components/questionnaire/StepIndicator';
+import GeneratingScreen from '@/components/document/GeneratingScreen';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
 
@@ -27,6 +28,8 @@ export default function Questionnaire() {
   const [answers, setAnswers] = useState(loadSaved);
   const [currentStep, setCurrentStep] = useState(0);
   const [generating, setGenerating] = useState(false);
+  const [generatingDone, setGeneratingDone] = useState(false);
+  const [createdDocId, setCreatedDocId] = useState(null);
   const [errors, setErrors] = useState([]);
 
   // Recompute visible pages whenever answers change
@@ -88,8 +91,8 @@ export default function Questionnaire() {
       organisation_name: answers.organisation_name || answers.company_name || '',
       industry: answers.industry || answers.service_type || answers.procurement_type || '',
     });
-    // Clear session storage after successful creation
     try { sessionStorage.removeItem(SESSION_KEY(type)); } catch {}
+    setCreatedDocId(doc.id);
     navigate(`/document/${doc.id}?generating=true`);
   };
 
@@ -172,6 +175,7 @@ export default function Questionnaire() {
                     value={answers[field.key]}
                     onChange={val => updateAnswer(field.key, val)}
                     error={errors.includes(field.key)}
+                    docType={type}
                   />
                 )
               ))}
