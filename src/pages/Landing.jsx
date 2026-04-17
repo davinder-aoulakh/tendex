@@ -98,23 +98,24 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className="py-24 px-6 bg-background">
+      <section className="py-24 px-6" style={{ background: 'linear-gradient(160deg, #080d24 0%, #0d1b4b 50%, #0a1535 100%)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <h2 className="font-display text-4xl font-semibold text-foreground mb-4">Procurement Simplified</h2>
-              <p className="text-muted-foreground text-lg max-w-xl mx-auto">Built for businesses navigating complex procurement — from first draft to final PDF.</p>
+              <h2 className="font-display text-4xl font-semibold text-white mb-4">Procurement Simplified</h2>
+              <p className="text-blue-200/50 text-lg max-w-xl mx-auto">Built for businesses navigating complex procurement — from first draft to final PDF.</p>
             </motion.div>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
-                  <f.icon className="w-5 h-5 text-primary" />
+                className="rounded-2xl p-6 border border-white/10 hover:border-blue-400/30 transition-all group"
+                style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 border border-blue-400/20">
+                  <f.icon className="w-5 h-5 text-blue-300" />
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-blue-200/50 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -122,35 +123,36 @@ export default function Landing() {
       </section>
 
       {/* Pricing */}
-      <section className="py-24 px-6 bg-secondary/30">
+      <section className="py-24 px-6" style={{ background: 'linear-gradient(160deg, #0a1535 0%, #0d1b4b 100%)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <h2 className="font-display text-4xl font-semibold text-foreground mb-4">Simple, transparent pricing</h2>
-              <p className="text-muted-foreground text-lg">Start free. Scale as you grow.</p>
+              <h2 className="font-display text-4xl font-semibold text-white mb-4">Simple, transparent pricing</h2>
+              <p className="text-blue-200/50 text-lg">Start free. Scale as you grow.</p>
             </motion.div>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-                className={`rounded-2xl p-8 border ${plan.highlight ? 'bg-primary text-primary-foreground border-primary shadow-xl scale-105' : 'bg-card border-border'}`}>
+                className={`rounded-2xl p-8 border ${plan.highlight ? 'border-blue-400/50 shadow-xl shadow-blue-500/10 scale-105' : 'border-white/10'}`}
+              style={{ background: plan.highlight ? 'rgba(59,130,246,0.18)' : 'rgba(255,255,255,0.05)' }}>
                 <div className="mb-6">
-                  <h3 className={`text-lg font-semibold mb-1 ${plan.highlight ? 'text-primary-foreground' : 'text-foreground'}`}>{plan.name}</h3>
+                  <h3 className="text-lg font-semibold mb-1 text-white">{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
-                    <span className={`text-4xl font-bold ${plan.highlight ? 'text-primary-foreground' : 'text-foreground'}`}>{plan.price}</span>
-                    <span className={`text-sm ${plan.highlight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{plan.period}</span>
+                    <span className="text-4xl font-bold text-white">{plan.price}</span>
+                    <span className="text-sm text-blue-200/50">{plan.period}</span>
                   </div>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feat, j) => (
                     <li key={j} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className={`w-4 h-4 flex-shrink-0 ${plan.highlight ? 'text-primary-foreground/80' : 'text-primary'}`} />
-                      <span className={plan.highlight ? 'text-primary-foreground/90' : 'text-foreground'}>{feat}</span>
+                      <CheckCircle className="w-4 h-4 flex-shrink-0 text-blue-400" />
+                      <span className="text-blue-100/70">{feat}</span>
                     </li>
                   ))}
                 </ul>
                 <Link to={plan.link}>
-                  <Button className="w-full" variant={plan.highlight ? 'secondary' : 'default'}>{plan.cta}</Button>
+                  <Button className={`w-full border-0 ${plan.highlight ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-white/10 hover:bg-white/15 text-white'}`}>{plan.cta}</Button>
                 </Link>
               </motion.div>
             ))}
@@ -159,15 +161,15 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-10 px-6">
+      <footer className="border-t border-white/10 py-10 px-6" style={{ background: '#080d24' }}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-              <FileText className="w-3 h-3 text-primary-foreground" />
+            <div className="w-6 h-6 bg-blue-500/20 rounded-md flex items-center justify-center border border-blue-400/20">
+              <FileText className="w-3 h-3 text-blue-300" />
             </div>
-            <span className="font-display font-semibold text-foreground">TendeX</span>
+            <span className="font-display font-semibold text-white">TendeX</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2026 TendeX. All rights reserved.</p>
+          <p className="text-sm text-blue-200/40">© 2026 TendeX. All rights reserved.</p>
         </div>
       </footer>
     </div>
