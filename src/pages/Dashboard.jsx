@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search } from 'lucide-react';
+import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import AppLayout from '@/components/layout/AppLayout';
+import OnboardingBanner from '@/components/dashboard/OnboardingBanner';
 
 const docTypeColors = {
   SOW: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -29,11 +30,28 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ['documents'],
     queryFn: () => base44.entities.Document.list('-updated_date'),
   });
+
+  const { data: subscriptions = [] } = useQuery({
+    queryKey: ['subscription', user?.email],
+    queryFn: () => base44.entities.Subscription.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const currentSub = subscriptions[0];
+  const currentPlan = currentSub?.plan || 'free';
+  const planLimits = { free: 3, starter: 20, professional: 999 };
+  const docsLimit = planLimits[currentPlan] || 3;
+  const usagePct = docsLimit === 999 ? 5 : Math.min((documents.length / docsLimit) * 100, 100);
+  const nearLimit = docsLimit !== 999 && documents.length >= docsLimit * 0.8;
+  const atLimit = docsLimit !== 999 && documents.length >= docsLimit;
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Document.delete(id),
@@ -62,18 +80,67 @@ export default function Dashboard() {
     <AppLayout>
       <div className="max-w-6xl mx-auto px-6 py-10">
 
+        <OnboardingBanner documentCount={documents.length} />
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-display text-3xl font-semibold text-white">My Documents</h1>
-            <p className="text-blue-200/50 mt-1">Manage your procurement documents</p>
+            <p className="text-blue-200/50 mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
           <Link to="/tool-select">
-            <Button className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+            <Button disabled={atLimit} className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20 disabled:opacity-50">
               <Plus className="w-4 h-4" /> New Document
             </Button>
           </Link>
         </div>
+
+        {/* Usage / upgrade banner */}
+        {atLimit ? (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between gap-3 rounded-xl border border-red-400/30 px-5 py-3.5 mb-6"
+            style={{ background: 'rgba(239,68,68,0.08)' }}>
+            <div className="flex items-center gap-2 text-sm text-red-300">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              You've reached your {docsLimit}-document limit on the <span className="font-semibold capitalize">{currentPlan}</span> plan.
+            </div>
+            <Link to="/billing"><Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white border-0 flex-shrink-0">Upgrade</Button></Link>
+          </motion.div>
+        ) : nearLimit ? (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/30 px-5 py-3.5 mb-6"
+            style={{ background: 'rgba(245,158,11,0.07)' }}>
+            <div className="flex items-center gap-2 text-sm text-amber-300">
+              <Zap className="w-4 h-4 flex-shrink-0" />
+              {documents.length} of {docsLimit} documents used — consider upgrading.
+            </div>
+            <Link to="/billing"><Button size="sm" variant="ghost" className="text-amber-300 hover:text-white border border-amber-400/30 hover:bg-white/10 flex-shrink-0 h-7 text-xs">View Plans</Button></Link>
+          </motion.div>
+        ) : null}
+
+        {/* Plan usage bar */}
+        {docsLimit !== 999 && (
+          <div className="rounded-xl border border-white/10 px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
+            <div className="flex-1">
+              <div className="flex justify-between text-xs mb-1.5">
+                <span className="text-blue-200/50 flex items-center gap-1.5">
+                  {currentPlan === 'free' ? <Zap className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
+                  <span className="capitalize">{currentPlan} plan</span>
+                </span>
+                <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
+              </div>
+              <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-amber-400' : 'bg-blue-500'}`}
+                  style={{ width: `${usagePct}%` }} />
+              </div>
+            </div>
+            {currentPlan === 'free' && (
+              <Link to="/billing">
+                <Button size="sm" className="text-xs bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 border border-blue-400/20 h-7">Upgrade</Button>
+              </Link>
+            )}
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
@@ -89,6 +156,7 @@ export default function Dashboard() {
             </motion.div>
           ))}
         </div>
+
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">

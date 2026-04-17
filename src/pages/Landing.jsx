@@ -12,9 +12,9 @@ const features = [
 ];
 
 const plans = [
-  { name: 'Free', price: '$0', period: 'forever', features: ['3 documents/month', 'SOW, EOI, RFQ/RFP', 'AI content generation', 'PDF export'], cta: 'Get Started', highlight: false },
-  { name: 'Starter', price: '$29', period: '/month', features: ['20 documents/month', 'All document types', 'Advanced AI enhancement', 'Priority support', 'Document history'], cta: 'Start Free Trial', highlight: true },
-  { name: 'Professional', price: '$79', period: '/month', features: ['Unlimited documents', 'All document types', 'Advanced AI enhancement', 'Dedicated support', 'Team collaboration'], cta: 'Get Professional', highlight: false },
+  { name: 'Free', price: '$0', period: 'forever', features: ['3 documents/month', 'SOW, EOI, RFQ/RFP', 'AI content generation', 'PDF export'], cta: 'Get Started Free', link: '/dashboard', highlight: false },
+  { name: 'Starter', price: '$29', period: '/month', features: ['20 documents/month', 'All document types', 'Advanced AI enhancement', 'Priority support', 'Document history'], cta: 'Get Starter', link: '/billing', highlight: true },
+  { name: 'Professional', price: '$79', period: '/month', features: ['Unlimited documents', 'All document types', 'Advanced AI enhancement', 'Dedicated support', 'Priority AI processing'], cta: 'Get Professional', link: '/billing', highlight: false },
 ];
 
 export default function Landing() {
@@ -149,7 +149,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/dashboard">
+                <Link to={plan.link}>
                   <Button className="w-full" variant={plan.highlight ? 'secondary' : 'default'}>{plan.cta}</Button>
                 </Link>
               </motion.div>
