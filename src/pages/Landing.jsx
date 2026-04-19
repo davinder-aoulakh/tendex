@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
 import { FileText, Zap, Shield, Download, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import NetworkCanvas from '@/components/landing/NetworkCanvas';
@@ -12,9 +13,9 @@ const features = [
 ];
 
 const plans = [
-  { name: 'Free', price: '$0', period: 'forever', features: ['3 documents/month', 'SOW, EOI, RFQ/RFP', 'AI content generation', 'PDF export'], cta: 'Get Started Free', link: '/dashboard', highlight: false },
-  { name: 'Starter', price: '$29', period: '/month', features: ['20 documents/month', 'All document types', 'Advanced AI enhancement', 'Priority support', 'Document history'], cta: 'Get Starter', link: '/billing', highlight: true },
-  { name: 'Professional', price: '$79', period: '/month', features: ['Unlimited documents', 'All document types', 'Advanced AI enhancement', 'Dedicated support', 'Priority AI processing'], cta: 'Get Professional', link: '/billing', highlight: false },
+  { name: 'Free', price: '$0', period: 'forever', features: ['3 documents/month', 'SOW, EOI, RFQ/RFP', 'AI content generation', 'PDF export'], cta: 'Get Started Free', highlight: false },
+  { name: 'Starter', price: '$29', period: '/month', features: ['20 documents/month', 'All document types', 'Advanced AI enhancement', 'Priority support', 'Document history'], cta: 'Get Starter', highlight: true },
+  { name: 'Professional', price: '$79', period: '/month', features: ['Unlimited documents', 'All document types', 'Advanced AI enhancement', 'Dedicated support', 'Priority AI processing'], cta: 'Get Professional', highlight: false },
 ];
 
 export default function Landing() {
@@ -31,12 +32,10 @@ export default function Landing() {
             <span className="font-display font-semibold text-xl text-white">TendeX</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10">Sign In</Button>
-            </Link>
-            <Link to="/dashboard">
-              <Button size="sm" className="bg-white text-slate-900 hover:bg-white/90">Get Started Free</Button>
-            </Link>
+            <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10"
+              onClick={() => base44.auth.redirectToLogin('/dashboard')}>Sign In</Button>
+            <Button size="sm" className="bg-white text-slate-900 hover:bg-white/90"
+              onClick={() => base44.auth.redirectToLogin('/dashboard')}>Get Started Free</Button>
           </div>
         </div>
       </nav>
@@ -77,11 +76,10 @@ export default function Landing() {
                   Create Your First Document <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="px-8 text-base border-white/20 text-white hover:bg-white/10 bg-transparent">
-                  View Dashboard
-                </Button>
-              </Link>
+              <Button size="lg" variant="outline" className="px-8 text-base border-white/20 text-white hover:bg-white/10 bg-transparent"
+                onClick={() => base44.auth.redirectToLogin('/dashboard')}>
+                View Dashboard
+              </Button>
             </div>
 
           </motion.div>
@@ -151,9 +149,8 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to={plan.link}>
-                  <Button className={`w-full border-0 ${plan.highlight ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-white/10 hover:bg-white/15 text-white'}`}>{plan.cta}</Button>
-                </Link>
+                <Button onClick={() => base44.auth.redirectToLogin('/dashboard')}
+                  className={`w-full border-0 ${plan.highlight ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-white/10 hover:bg-white/15 text-white'}`}>{plan.cta}</Button>
               </motion.div>
             ))}
           </div>
