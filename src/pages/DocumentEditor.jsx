@@ -13,7 +13,6 @@ import GeneratingScreen from '@/components/document/GeneratingScreen';
 import VersionHistory from '@/components/document/VersionHistory';
 import AppLayout from '@/components/layout/AppLayout';
 import { useToast } from '@/components/ui/use-toast';
-import { AnimatePresence } from 'framer-motion';
 
 export default function DocumentEditor() {
   const { id } = useParams();
