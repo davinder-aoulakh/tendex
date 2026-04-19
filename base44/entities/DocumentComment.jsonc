@@ -1,0 +1,35 @@
+{
+  "name": "DocumentComment",
+  "type": "object",
+  "properties": {
+    "document_id": {
+      "type": "string"
+    },
+    "section_key": {
+      "type": "string",
+      "description": "Which section this comment is on"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false
+    },
+    "parent_id": {
+      "type": "string",
+      "description": "For threaded replies"
+    }
+  },
+  "required": [
+    "document_id",
+    "text",
+    "author_email"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "DocumentPresence",
+  "type": "object",
+  "properties": {
+    "document_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "active_section": {
+      "type": "string"
+    },
+    "last_seen": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "document_id",
+    "user_email"
+  ]
+}

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw, History } from 'lucide-react';
+import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw, History, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { generateDocumentContent, SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
@@ -13,6 +13,9 @@ import PDFPreview from '@/components/document/PDFPreview';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
 import VersionHistory from '@/components/document/VersionHistory';
 import VersionCompare from '@/components/document/VersionCompare';
+import PresenceAvatars from '@/components/document/PresenceAvatars';
+import CommentsSidebar from '@/components/document/CommentsSidebar';
+import { usePresence } from '@/hooks/usePresence';
 import AppLayout from '@/components/layout/AppLayout';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -30,7 +33,9 @@ export default function DocumentEditor() {
   const [showPDF, setShowPDF] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const hasGenerated = useRef(false);
+  const { presence, me, setActiveSection } = usePresence(id);
 
   const { data: doc, isLoading } = useQuery({
     queryKey: ['document', id],
@@ -141,6 +146,11 @@ export default function DocumentEditor() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <PresenceAvatars presence={presence} />
+            <Button variant="ghost" size="sm" onClick={() => setShowComments(c => !c)}
+              className={`gap-2 border border-white/10 ${showComments ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}>
+              <MessageSquare className="w-4 h-4" />Comments
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => handleGenerate()} disabled={generating}
               className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
               <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />Regenerate
@@ -176,8 +186,12 @@ export default function DocumentEditor() {
                       <motion.div key={sectionKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                         <DocumentSection
                           title={SECTION_LABELS[sectionKey] || sectionKey}
+                          sectionKey={sectionKey}
                           content={editedContent[sectionKey]}
                           onChange={(val) => handleSectionChange(sectionKey, val)}
+                          onFocus={() => setActiveSection(sectionKey)}
+                          onBlur={() => setActiveSection('')}
+                          activeEditors={presence.filter(p => p.active_section === sectionKey)}
                         />
                       </motion.div>
                     )
@@ -214,6 +228,14 @@ export default function DocumentEditor() {
       )}
 
       <AnimatePresence>
+        {showComments && (
+          <CommentsSidebar
+            documentId={id}
+            sections={sections}
+            me={me}
+            onClose={() => setShowComments(false)}
+          />
+        )}
         {showCompare && doc && (
           <VersionCompare
             documentId={id}
