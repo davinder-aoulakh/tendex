@@ -3,15 +3,17 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { generateDocumentContent, SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
 import DocumentSection from '@/components/document/DocumentSection';
 import PDFExport from '@/components/document/PDFExport';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
+import VersionHistory from '@/components/document/VersionHistory';
 import AppLayout from '@/components/layout/AppLayout';
 import { useToast } from '@/components/ui/use-toast';
+import { AnimatePresence } from 'framer-motion';
 
 export default function DocumentEditor() {
   const { id } = useParams();
@@ -25,6 +27,7 @@ export default function DocumentEditor() {
   const [saved, setSaved] = useState(false);
   const [editedContent, setEditedContent] = useState({});
   const [showPDF, setShowPDF] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const hasGenerated = useRef(false);
 
   const { data: doc, isLoading } = useQuery({
@@ -45,6 +48,19 @@ export default function DocumentEditor() {
     }
   }, [doc]);
 
+  const saveVersion = async (content, source, label) => {
+    const existing = await base44.entities.DocumentVersion.filter({ document_id: id }, '-version_number', 1);
+    const nextVersion = existing.length > 0 ? (existing[0].version_number || 1) + 1 : 1;
+    await base44.entities.DocumentVersion.create({
+      document_id: id,
+      version_number: nextVersion,
+      label,
+      source,
+      content,
+    });
+    queryClient.invalidateQueries({ queryKey: ['versions', id] });
+  };
+
   const handleGenerate = async (document) => {
     const docToUse = document || doc;
     if (!docToUse) return;
@@ -56,16 +72,17 @@ export default function DocumentEditor() {
       final_content: content,
       status: 'complete',
     });
+    await saveVersion(content, 'ai_generated', 'AI Generated');
     setEditedContent(content);
     queryClient.invalidateQueries({ queryKey: ['document', id] });
     setGeneratingDone(true);
-    // Auto-dismiss the screen after 2s
     setTimeout(() => setGenerating(false), 2000);
   };
 
   const handleSave = async () => {
     setSaving(true);
     await base44.entities.Document.update(id, { final_content: editedContent });
+    await saveVersion(editedContent, 'manual_save', 'Manual Save');
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -118,6 +135,10 @@ export default function DocumentEditor() {
               {saved ? <Check className="w-4 h-4 text-green-400" /> : saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saved ? 'Saved!' : 'Save'}
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowHistory(h => !h)}
+              className={`gap-2 border border-white/10 ${showHistory ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}>
+              <History className="w-4 h-4" />History
+            </Button>
             <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent}
               className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
               <Download className="w-4 h-4" />Export PDF
@@ -167,6 +188,16 @@ export default function DocumentEditor() {
       {showPDF && doc && (
         <PDFExport doc={doc} content={editedContent} onClose={() => setShowPDF(false)} />
       )}
+
+      <AnimatePresence>
+        {showHistory && (
+          <VersionHistory
+            documentId={id}
+            onRestore={(content) => { setEditedContent(content); setShowHistory(false); toast({ title: 'Version restored', description: 'The document has been restored to the selected version.' }); }}
+            onClose={() => setShowHistory(false)}
+          />
+        )}
+      </AnimatePresence>
     </AppLayout>
   );
 }

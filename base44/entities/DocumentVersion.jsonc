@@ -1,0 +1,34 @@
+{
+  "name": "DocumentVersion",
+  "type": "object",
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "description": "ID of the parent document"
+    },
+    "version_number": {
+      "type": "number",
+      "description": "Incrementing version number"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label e.g. 'AI Generated', 'Manual Edit'"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "ai_generated",
+        "manual_save"
+      ],
+      "default": "manual_save"
+    },
+    "content": {
+      "type": "object",
+      "description": "Snapshot of final_content at this version"
+    }
+  },
+  "required": [
+    "document_id",
+    "content"
+  ]
+}
