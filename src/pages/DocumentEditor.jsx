@@ -36,16 +36,26 @@ export default function DocumentEditor() {
   });
 
   useEffect(() => {
-    if (doc && searchParams.get('generating') === 'true' && !doc.ai_enhanced_content && !hasGenerated.current) {
+    if (!doc) return;
+
+    // Auto-generate if navigated here fresh with ?generating=true
+    if (searchParams.get('generating') === 'true' && !doc.ai_enhanced_content && !hasGenerated.current) {
       hasGenerated.current = true;
       handleGenerate(doc);
+      return;
     }
-    if (doc?.final_content && Object.keys(doc.final_content).length > 0) {
-      setEditedContent(doc.final_content);
-    } else if (doc?.ai_enhanced_content && Object.keys(doc.ai_enhanced_content).length > 0) {
-      setEditedContent(doc.ai_enhanced_content);
+
+    // Load existing content — prefer final_content, fall back to ai_enhanced_content
+    const existing = doc.final_content && Object.keys(doc.final_content).length > 0
+      ? doc.final_content
+      : doc.ai_enhanced_content && Object.keys(doc.ai_enhanced_content).length > 0
+        ? doc.ai_enhanced_content
+        : null;
+
+    if (existing) {
+      setEditedContent(existing);
     }
-  }, [doc]);
+  }, [doc?.id, doc?.final_content, doc?.ai_enhanced_content]);
 
   const saveVersion = async (content, source, label) => {
     const existing = await base44.entities.DocumentVersion.filter({ document_id: id }, '-version_number', 1);
