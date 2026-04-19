@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { generateDocumentContent, SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
 import DocumentSection from '@/components/document/DocumentSection';
 import PDFExport from '@/components/document/PDFExport';
+import PDFPreview from '@/components/document/PDFPreview';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
 import VersionHistory from '@/components/document/VersionHistory';
 import AppLayout from '@/components/layout/AppLayout';
@@ -121,9 +122,9 @@ export default function DocumentEditor() {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="px-6 py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <button onClick={() => navigate('/dashboard')}
               className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white mb-3 transition-colors">
@@ -137,7 +138,7 @@ export default function DocumentEditor() {
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button variant="ghost" size="sm" onClick={() => handleGenerate()} disabled={generating}
               className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
               <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />Regenerate
@@ -161,38 +162,47 @@ export default function DocumentEditor() {
         {/* Generating overlay */}
         {generating && <GeneratingScreen done={generatingDone} documentId={id} />}
 
-        {/* Content Sections */}
-        {!generating && hasContent && (
-          <div className="space-y-5">
-            {sections.map((sectionKey, i) => (
-              editedContent[sectionKey] && (
-                <motion.div key={sectionKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <DocumentSection
-                    title={SECTION_LABELS[sectionKey] || sectionKey}
-                    content={editedContent[sectionKey]}
-                    onChange={(val) => handleSectionChange(sectionKey, val)}
-                  />
-                </motion.div>
-              )
-            ))}
-            <div className="flex justify-end pt-4">
-              <Button onClick={handleSave} disabled={saving} size="lg"
-                className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
-                {saved ? <><Check className="w-4 h-4" />Saved!</> : saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><Save className="w-4 h-4" />Save Changes</>}
-              </Button>
+        {/* Split layout: editor left, PDF preview right */}
+        {!generating && (
+          <div className="flex gap-6" style={{ minHeight: 'calc(100vh - 220px)' }}>
+            {/* Left: Editor */}
+            <div className="flex-1 min-w-0">
+              {hasContent ? (
+                <div className="space-y-5">
+                  {sections.map((sectionKey, i) => (
+                    editedContent[sectionKey] && (
+                      <motion.div key={sectionKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                        <DocumentSection
+                          title={SECTION_LABELS[sectionKey] || sectionKey}
+                          content={editedContent[sectionKey]}
+                          onChange={(val) => handleSectionChange(sectionKey, val)}
+                        />
+                      </motion.div>
+                    )
+                  ))}
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={handleSave} disabled={saving} size="lg"
+                      className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+                      {saved ? <><Check className="w-4 h-4" />Saved!</> : saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><Save className="w-4 h-4" />Save Changes</>}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-white/10 p-16 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <Sparkles className="w-10 h-10 text-blue-300/30 mx-auto mb-4" />
+                  <h3 className="font-semibold text-white mb-2">No content yet</h3>
+                  <p className="text-blue-200/50 mb-6">Generate AI content based on your questionnaire answers.</p>
+                  <Button onClick={() => handleGenerate()} className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
+                    <Sparkles className="w-4 h-4" />Generate Document
+                  </Button>
+                </div>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Empty state */}
-        {!generating && !hasContent && (
-          <div className="rounded-2xl border border-white/10 p-16 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-            <Sparkles className="w-10 h-10 text-blue-300/30 mx-auto mb-4" />
-            <h3 className="font-semibold text-white mb-2">No content yet</h3>
-            <p className="text-blue-200/50 mb-6">Generate AI content based on your questionnaire answers.</p>
-            <Button onClick={() => handleGenerate()} className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
-              <Sparkles className="w-4 h-4" />Generate Document
-            </Button>
+            {/* Right: PDF Preview */}
+            <div className="hidden lg:flex flex-col w-[480px] flex-shrink-0 rounded-xl border border-white/10 overflow-hidden sticky top-20" style={{ height: 'calc(100vh - 140px)', background: 'rgba(255,255,255,0.03)' }}>
+              <PDFPreview doc={doc} content={editedContent} />
+            </div>
           </div>
         )}
       </div>
