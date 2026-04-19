@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { History, RotateCcw, Sparkles, Pencil, ChevronRight, X, Clock } from 'lucide-react';
+import { History, RotateCcw, Sparkles, Pencil, ChevronRight, X, Clock, ArrowLeftRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
-export default function VersionHistory({ documentId, onRestore, onClose }) {
+export default function VersionHistory({ documentId, onRestore, onClose, onCompare }) {
   const [confirmId, setConfirmId] = useState(null);
   const queryClient = useQueryClient();
 
@@ -47,10 +47,18 @@ export default function VersionHistory({ documentId, onRestore, onClose }) {
           <History className="w-4 h-4 text-blue-400" />
           <h3 className="font-semibold text-white text-sm">Version History</h3>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}
-          className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/10">
-          <X className="w-4 h-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {onCompare && (
+            <Button variant="ghost" size="sm" onClick={onCompare}
+              className="h-7 px-2 text-xs gap-1.5 text-blue-300/60 hover:text-blue-200 hover:bg-white/10">
+              <ArrowLeftRight className="w-3.5 h-3.5" />Compare
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={onClose}
+            className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/10">
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Version list */}

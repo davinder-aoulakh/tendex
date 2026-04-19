@@ -12,6 +12,7 @@ import PDFExport from '@/components/document/PDFExport';
 import PDFPreview from '@/components/document/PDFPreview';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
 import VersionHistory from '@/components/document/VersionHistory';
+import VersionCompare from '@/components/document/VersionCompare';
 import AppLayout from '@/components/layout/AppLayout';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -28,6 +29,7 @@ export default function DocumentEditor() {
   const [editedContent, setEditedContent] = useState({});
   const [showPDF, setShowPDF] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
   const hasGenerated = useRef(false);
 
   const { data: doc, isLoading } = useQuery({
@@ -212,11 +214,19 @@ export default function DocumentEditor() {
       )}
 
       <AnimatePresence>
+        {showCompare && doc && (
+          <VersionCompare
+            documentId={id}
+            documentType={doc.document_type}
+            onClose={() => setShowCompare(false)}
+          />
+        )}
         {showHistory && (
           <VersionHistory
             documentId={id}
             onRestore={(content) => { setEditedContent(content); setShowHistory(false); toast({ title: 'Version restored', description: 'The document has been restored to the selected version.' }); }}
             onClose={() => setShowHistory(false)}
+            onCompare={() => { setShowHistory(false); setShowCompare(true); }}
           />
         )}
       </AnimatePresence>
