@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { X, Download, Loader2 } from 'lucide-react';
+import { X, Download, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
 import jsPDF from 'jspdf';
 
-const DOC_ID = () => `TDX-${Date.now().toString(36).toUpperCase()}`;
+const DOC_ID = (type) => `${type}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
 export default function PDFExport({ doc, content, onClose }) {
   const [exporting, setExporting] = useState(false);
+
+  const hasContent = content && Object.keys(content).length > 0;
 
   const handleExport = async () => {
     setExporting(true);
@@ -17,35 +19,43 @@ export default function PDFExport({ doc, content, onClose }) {
     const ph = pdf.internal.pageSize.getHeight();  // 297
     const margin = 20;
     const cw = pw - margin * 2;
-    const docId = DOC_ID();
+    const docId = DOC_ID(doc.document_type);
     const genDate = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+    const genDateShort = new Date().toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' });
     let y = 0;
 
+    const RED = [220, 30, 30];
+    const BLACK = [15, 15, 15];
+    const DARK_GRAY = [40, 40, 40];
+    const MID_GRAY = [100, 100, 100];
+    const LIGHT_GRAY = [180, 180, 180];
+    const VERY_LIGHT = [245, 245, 245];
+    const WHITE = [255, 255, 255];
+    const BLUE_DARK = [8, 13, 36];
+
     // ── COVER PAGE ──────────────────────────────────────────────
-    // Dark background
-    pdf.setFillColor(8, 13, 36);
+    // White background
+    pdf.setFillColor(...WHITE);
     pdf.rect(0, 0, pw, ph, 'F');
 
-    // Geometric accent shapes
-    pdf.setFillColor(13, 27, 75);
-    pdf.triangle(pw * 0.5, 0, pw, 0, pw, ph * 0.45, 'F');
-    pdf.setFillColor(10, 21, 53);
-    pdf.triangle(pw, ph * 0.3, pw, ph * 0.7, pw * 0.6, ph * 0.5, 'F');
+    // Top bar — thin dark line with logo area
+    pdf.setFillColor(...BLUE_DARK);
+    pdf.rect(0, 0, pw, 18, 'F');
 
-    // Top accent bar
-    pdf.setFillColor(59, 130, 246);
-    pdf.rect(0, 0, 6, ph, 'F');
-
-    // POWERED BY TendeX tag
+    // "POWERED BY TendeX" in top bar
     pdf.setFontSize(7);
     pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(99, 150, 255);
-    pdf.text('POWERED BY TendeX', margin + 2, 16);
-
-    // Document type (large)
-    pdf.setFontSize(36);
+    pdf.setTextColor(...LIGHT_GRAY);
+    pdf.text('POWERED BY', 14, 11);
     pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(255, 255, 255);
+    pdf.setTextColor(...WHITE);
+    pdf.text('TendeX', 35, 11);
+
+    // Red accent line below top bar
+    pdf.setFillColor(...RED);
+    pdf.rect(0, 18, pw, 1.2, 'F');
+
+    // Document type heading — large, centered, bold
     const docTypeText = {
       SOW: 'SCOPE OF WORK',
       EOI: 'EXPRESSION OF INTEREST',
@@ -53,141 +63,137 @@ export default function PDFExport({ doc, content, onClose }) {
       RFP: 'REQUEST FOR PROPOSAL',
     }[doc.document_type] || doc.document_type;
 
-    // Word-wrap if needed
-    const typeLines = pdf.splitTextToSize(docTypeText, cw - 10);
-    y = 55;
-    typeLines.forEach(line => { pdf.text(line, margin + 2, y); y += 14; });
-
-    // Title
-    y += 4;
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(160, 190, 255);
-    const titleLines = pdf.splitTextToSize(doc.title || 'Document', cw - 10);
-    titleLines.forEach(line => { pdf.text(line, margin + 2, y); y += 8; });
-
-    // Organisation
-    if (doc.organisation_name) {
-      y += 4;
-      pdf.setFontSize(12);
-      pdf.setTextColor(120, 160, 220);
-      pdf.text(doc.organisation_name, margin + 2, y);
-    }
-
-    // Metadata block at bottom of cover
-    pdf.setFillColor(13, 27, 75);
-    pdf.roundedRect(margin, ph - 70, cw, 48, 3, 3, 'F');
-    pdf.setFontSize(8);
-    pdf.setTextColor(120, 160, 220);
-    const meta = [
-      ['Document ID', docId],
-      ['Generated', genDate],
-      ['Document Type', doc.document_type],
-      ...(doc.organisation_name ? [['Prepared by', doc.organisation_name]] : []),
-    ];
-    let mx = margin + 6;
-    let my = ph - 58;
-    meta.forEach(([label, val]) => {
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(99, 150, 255);
-      pdf.text(label.toUpperCase(), mx, my);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(200, 220, 255);
-      pdf.text(String(val), mx, my + 5);
-      mx += cw / meta.length;
+    pdf.setFontSize(32);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...BLACK);
+    const typeLines = pdf.splitTextToSize(docTypeText, cw);
+    y = 80;
+    typeLines.forEach(line => {
+      pdf.text(line, pw / 2, y, { align: 'center' });
+      y += 18;
     });
 
-    // Cover footer
+    // Red separator line below title
+    pdf.setFillColor(...RED);
+    pdf.rect(margin + 20, y + 2, cw - 40, 0.8, 'F');
+    y += 14;
+
+    // Organisation / "FOR" line
+    if (doc.organisation_name) {
+      pdf.setFontSize(13);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(...MID_GRAY);
+      pdf.text(`FOR ${doc.organisation_name}`, pw / 2, y, { align: 'center' });
+      y += 16;
+    }
+
+    // Meta fields block centered
+    y += 12;
+    const metaFields = [
+      ['DOCUMENT ID', docId],
+      ['DATE', genDateShort],
+      ['DOCUMENT TYPE', doc.document_type],
+      ...(doc.industry ? [['TYPE', doc.industry]] : []),
+    ];
+
+    metaFields.forEach(([label, val]) => {
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(...DARK_GRAY);
+      pdf.text(label, pw / 2 - 40, y);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(...MID_GRAY);
+      pdf.text(String(val), pw / 2 + 10, y);
+      y += 8;
+    });
+
+    // Footer line
+    pdf.setDrawColor(...LIGHT_GRAY);
+    pdf.setLineWidth(0.3);
+    pdf.line(margin, ph - 16, pw - margin, ph - 16);
     pdf.setFontSize(7);
-    pdf.setTextColor(60, 90, 140);
-    pdf.text('CONFIDENTIAL — This document is intended solely for the named recipient(s).', margin + 2, ph - 10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(...LIGHT_GRAY);
+    pdf.text(`Confidential – TendeX Procurement System | Generated ${genDateShort}`, pw / 2, ph - 10, { align: 'center' });
 
     // ── CONTENT PAGES ────────────────────────────────────────────
     const sections = SECTION_SCHEMAS[doc.document_type] || [];
 
-    const addContentPage = () => {
+    const addPage = () => {
       pdf.addPage();
-      // White page
-      pdf.setFillColor(255, 255, 255);
+      pdf.setFillColor(...WHITE);
       pdf.rect(0, 0, pw, ph, 'F');
-      // Left accent bar
-      pdf.setFillColor(59, 130, 246);
-      pdf.rect(0, 0, 3, ph, 'F');
-      y = margin + 4;
+
+      // Compact header
+      pdf.setFillColor(...BLUE_DARK);
+      pdf.rect(0, 0, pw, 12, 'F');
+      pdf.setFontSize(6.5);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(...WHITE);
+      pdf.text('TendeX', 14, 8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(...LIGHT_GRAY);
+      pdf.text(`${doc.document_type} — ${doc.organisation_name || doc.title || ''}`, pw / 2, 8, { align: 'center' });
+      pdf.text(`Document ID: ${docId}`, pw - 14, 8, { align: 'right' });
+
+      // Red accent line
+      pdf.setFillColor(...RED);
+      pdf.rect(0, 12, pw, 0.7, 'F');
+
+      y = 22;
     };
 
     const drawFooter = (pageNum, total) => {
+      pdf.setDrawColor(...LIGHT_GRAY);
+      pdf.setLineWidth(0.3);
+      pdf.line(margin, ph - 14, pw - margin, ph - 14);
       pdf.setFontSize(7);
-      pdf.setTextColor(160, 160, 160);
-      pdf.text(`${doc.title || doc.document_type}`, margin + 4, ph - 8);
-      pdf.text(`Page ${pageNum} of ${total}  |  ${docId}  |  CONFIDENTIAL — TENDEX`, pw / 2, ph - 8, { align: 'center' });
-      pdf.text(genDate, pw - margin, ph - 8, { align: 'right' });
-      // Footer line
-      pdf.setDrawColor(220, 230, 245);
-      pdf.line(margin, ph - 12, pw - margin, ph - 12);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(...LIGHT_GRAY);
+      pdf.text(`${doc.title || doc.document_type}`, margin, ph - 8);
+      pdf.text(`Confidential – TendeX RFX System | Generated: ${genDateShort}`, pw / 2, ph - 8, { align: 'center' });
+      pdf.text(`Page ${pageNum}`, pw - margin, ph - 8, { align: 'right' });
     };
 
     const checkBreak = (height) => {
-      if (y + height > ph - 18) { addContentPage(); }
+      if (y + height > ph - 20) { addPage(); }
     };
 
-    addContentPage();
+    addPage();
 
-    // Table of contents header
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(8, 13, 36);
-    pdf.text('DOCUMENT CONTENTS', margin + 4, y);
-    y += 2;
-    pdf.setDrawColor(59, 130, 246);
-    pdf.setLineWidth(0.5);
-    pdf.line(margin + 4, y, margin + 4 + 50, y);
-    y += 8;
-
-    sections.forEach((key, idx) => {
-      const label = SECTION_LABELS[key] || key;
-      if (content[key]) {
-        pdf.setFontSize(8.5);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(80, 80, 80);
-        pdf.text(`${idx + 1}.  ${label}`, margin + 4, y);
-        y += 6;
-      }
-    });
-
-    y += 6;
-
-    // Sections
+    // Render each section
     sections.forEach((sectionKey) => {
       const sectionContent = content[sectionKey];
-      if (!sectionContent) return;
+      if (!sectionContent || String(sectionContent).trim() === '') return;
 
       const label = SECTION_LABELS[sectionKey] || sectionKey;
 
-      checkBreak(22);
+      checkBreak(18);
 
-      // Section heading strip
-      pdf.setFillColor(240, 246, 255);
-      pdf.rect(margin, y - 5, cw, 13, 'F');
-      pdf.setFillColor(59, 130, 246);
-      pdf.rect(margin, y - 5, 3, 13, 'F');
-      pdf.setFontSize(10.5);
+      // Section heading
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(8, 13, 80);
-      pdf.text(label.toUpperCase(), margin + 7, y + 3);
-      y += 14;
+      pdf.setTextColor(...BLACK);
+      pdf.text(label.toUpperCase(), margin, y);
+      y += 2;
+
+      // Red underline
+      pdf.setFillColor(...RED);
+      pdf.rect(margin, y, Math.min(label.length * 2.1, cw), 0.6, 'F');
+      y += 6;
 
       // Body text
       pdf.setFontSize(9.5);
       pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(30, 30, 30);
-      const lines = pdf.splitTextToSize(sectionContent, cw - 2);
+      pdf.setTextColor(...DARK_GRAY);
+      const bodyText = String(sectionContent).replace(/\n\n+/g, '\n');
+      const lines = pdf.splitTextToSize(bodyText, cw);
       lines.forEach(line => {
         checkBreak(6);
-        pdf.text(line, margin + 2, y);
+        pdf.text(line, margin, y);
         y += 5.5;
       });
-      y += 8;
+      y += 10;
     });
 
     // Draw footers on all content pages
@@ -197,7 +203,6 @@ export default function PDFExport({ doc, content, onClose }) {
       drawFooter(i - 1, totalPages - 1);
     }
 
-    // Save
     const orgSlug = (doc.organisation_name || 'TendeX').replace(/\s+/g, '_');
     const dateSlug = new Date().toISOString().slice(0, 10);
     pdf.save(`${doc.document_type}_${orgSlug}_${dateSlug}.pdf`);
@@ -217,13 +222,21 @@ export default function PDFExport({ doc, content, onClose }) {
           </Button>
         </div>
 
+        {!hasContent && (
+          <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 px-4 py-3 mb-5 text-sm text-amber-300"
+            style={{ background: 'rgba(245,158,11,0.07)' }}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            No content found. Please generate the document first before exporting.
+          </div>
+        )}
+
         <div className="rounded-xl border border-white/10 p-4 mb-6 space-y-2 text-sm"
           style={{ background: 'rgba(255,255,255,0.04)' }}>
           {[
             ['Document type', doc.document_type],
             ['Title', doc.title],
             ['Organisation', doc.organisation_name || '—'],
-            ['Sections', Object.keys(content).length],
+            ['Sections', Object.keys(content).filter(k => content[k]).length],
           ].map(([label, val]) => (
             <div key={label} className="flex justify-between">
               <span className="text-blue-200/50">{label}</span>
@@ -233,7 +246,7 @@ export default function PDFExport({ doc, content, onClose }) {
         </div>
 
         <p className="text-sm text-blue-200/40 mb-6">
-          Your document will be exported as a branded A4 PDF with a dark TendeX cover page, professional formatting, and a confidential footer.
+          Exports a professional branded A4 PDF with a TendeX cover page and clean white content pages.
         </p>
 
         <div className="flex gap-3">
@@ -241,8 +254,8 @@ export default function PDFExport({ doc, content, onClose }) {
             className="flex-1 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
             Cancel
           </Button>
-          <Button onClick={handleExport} disabled={exporting}
-            className="flex-1 gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
+          <Button onClick={handleExport} disabled={exporting || !hasContent}
+            className="flex-1 gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 disabled:opacity-50">
             {exporting
               ? <><Loader2 className="w-4 h-4 animate-spin" />Exporting...</>
               : <><Download className="w-4 h-4" />Download PDF</>}
