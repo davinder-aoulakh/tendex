@@ -13,6 +13,18 @@ import StepIndicator from '@/components/questionnaire/StepIndicator';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
+const ANON_ID_KEY = 'tendex_anonymous_user_id';
+
+const getOrCreateAnonId = () => {
+  try {
+    let id = localStorage.getItem(ANON_ID_KEY);
+    if (!id) {
+      id = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem(ANON_ID_KEY, id);
+    }
+    return id;
+  } catch { return null; }
+};
 
 export default function Questionnaire() {
   const { type } = useParams();
@@ -26,7 +38,8 @@ export default function Questionnaire() {
     } catch { return {}; }
   };
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined); // undefined = loading, null = not logged in
+  const [anonId] = useState(() => getOrCreateAnonId());
   const [answers, setAnswers] = useState(loadSaved);
   const [currentStep, setCurrentStep] = useState(0);
   const [generating, setGenerating] = useState(false);
@@ -34,17 +47,29 @@ export default function Questionnaire() {
   const [createdDocId, setCreatedDocId] = useState(null);
   const [errors, setErrors] = useState([]);
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+  useEffect(() => { base44.auth.me().then(setUser).catch(() => setUser(null)); }, []);
 
   const { data: subscriptions = [] } = useQuery({
     queryKey: ['subscription', user?.email],
     queryFn: () => base44.entities.Subscription.filter({ user_email: user?.email }),
     enabled: !!user?.email,
   });
+
+  // For authenticated users: fetch their documents; for anonymous: fetch by anon ID
   const { data: documents = [] } = useQuery({
-    queryKey: ['documents-count'],
-    queryFn: () => base44.entities.Document.list(),
+    queryKey: ['documents-count', user?.email, anonId],
+    queryFn: () => {
+      if (user?.email) {
+        return base44.entities.Document.filter({ created_by: user.email });
+      }
+      if (anonId) {
+        return base44.entities.Document.filter({ anonymous_user_id: anonId });
+      }
+      return [];
+    },
+    enabled: user !== undefined, // wait until auth check resolves
   });
+
   const currentSub = subscriptions[0];
   const currentPlan = currentSub?.plan || 'free';
   const planLimits = { free: 3, starter: 20, professional: 999 };
@@ -101,7 +126,7 @@ export default function Questionnaire() {
 
   const handleGenerate = async () => {
     setGenerating(true);
-    const doc = await base44.entities.Document.create({
+    const docData = {
       title: answers.project_name || answers.rfq_title || answers.eoi_title || `${type} Document — ${new Date().toLocaleDateString('en-AU')}`,
       document_type: type,
       status: 'draft',
@@ -109,7 +134,12 @@ export default function Questionnaire() {
       project_name: answers.project_name || answers.rfq_title || '',
       organisation_name: answers.organisation_name || answers.company_name || '',
       industry: answers.industry || answers.service_type || answers.procurement_type || '',
-    });
+    };
+    // Tag with anonymous ID if user is not logged in
+    if (!user && anonId) {
+      docData.anonymous_user_id = anonId;
+    }
+    const doc = await base44.entities.Document.create(docData);
     try { sessionStorage.removeItem(SESSION_KEY(type)); } catch {}
     setCreatedDocId(doc.id);
     navigate(`/document/${doc.id}?generating=true`);

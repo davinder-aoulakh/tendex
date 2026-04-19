@@ -54,6 +54,10 @@
         "professional"
       ],
       "default": "free"
+    },
+    "anonymous_user_id": {
+      "type": "string",
+      "description": "Unique ID for unauthenticated users, stored in localStorage"
     }
   },
   "required": [
