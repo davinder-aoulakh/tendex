@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Edit3, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import AITextAssist from './AITextAssist';
 
 export default function DocumentSection({ title, content, onChange }) {
   const [editing, setEditing] = useState(false);
@@ -37,6 +38,7 @@ export default function DocumentSection({ title, content, onChange }) {
               className="min-h-[140px] text-sm leading-relaxed resize-none bg-white/5 border-white/10 text-white focus-visible:ring-blue-500/50"
               autoFocus
             />
+            <AITextAssist text={draft} onApply={(val) => setDraft(val)} />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleSave} className="gap-1.5 bg-blue-500 hover:bg-blue-400 text-white border-0">
                 <Check className="w-3.5 h-3.5" />Save
