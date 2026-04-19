@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle } from 'lucide-react';
+import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle, Pencil, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { format } from 'date-fns';
 import AppLayout from '@/components/layout/AppLayout';
 import OnboardingBanner from '@/components/dashboard/OnboardingBanner';
+import VersionHistory from '@/components/document/VersionHistory';
+import { useToast } from '@/components/ui/use-toast';
 
 const docTypeColors = {
   SOW: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -28,9 +30,12 @@ const statusIcons = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [user, setUser] = useState(null);
+  const [versionsDocId, setVersionsDocId] = useState(null);
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
@@ -63,11 +68,22 @@ export default function Dashboard() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['documents'] }),
   });
 
+  // Version counts per document
+  const { data: allVersions = [] } = useQuery({
+    queryKey: ['all-versions'],
+    queryFn: () => base44.entities.DocumentVersion.list(),
+  });
+  const versionCountMap = allVersions.reduce((acc, v) => {
+    acc[v.document_id] = (acc[v.document_id] || 0) + 1;
+    return acc;
+  }, {});
+
   const filtered = documents.filter(d => {
     const matchSearch = d.title?.toLowerCase().includes(search.toLowerCase()) ||
       d.project_name?.toLowerCase().includes(search.toLowerCase());
     const matchType = filterType === 'all' || d.document_type === filterType;
-    return matchSearch && matchType;
+    const matchStatus = filterStatus === 'all' || d.status === filterStatus;
+    return matchSearch && matchType && matchStatus;
   });
 
   const stats = {
@@ -159,24 +175,39 @@ export default function Dashboard() {
 
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/40" />
-            <Input
-              placeholder="Search documents..."
-              className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-blue-500/50"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/40" />
+              <Input
+                placeholder="Search documents..."
+                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-blue-500/50"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <span className="text-xs text-blue-200/40 self-center hidden sm:block">Type:</span>
+              {['all', 'SOW', 'EOI', 'RFQ', 'RFP'].map(type => (
+                <Button key={type} size="sm"
+                  onClick={() => setFilterType(type)}
+                  className={`text-xs transition-colors ${filterType === type
+                    ? 'bg-blue-500 text-white border-0 hover:bg-blue-400'
+                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
+                  {type === 'all' ? 'All Types' : type}
+                </Button>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-2">
-            {['all', 'SOW', 'EOI', 'RFQ', 'RFP'].map(type => (
-              <Button key={type} size="sm"
-                onClick={() => setFilterType(type)}
-                className={`text-xs transition-colors ${filterType === type
+          <div className="flex gap-2 flex-wrap">
+            <span className="text-xs text-blue-200/40 self-center">Status:</span>
+            {['all', 'draft', 'complete', 'archived'].map(s => (
+              <Button key={s} size="sm"
+                onClick={() => setFilterStatus(s)}
+                className={`text-xs capitalize transition-colors ${filterStatus === s
                   ? 'bg-blue-500 text-white border-0 hover:bg-blue-400'
                   : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
-                {type === 'all' ? 'All' : type}
+                {s === 'all' ? 'All Statuses' : s}
               </Button>
             ))}
           </div>
@@ -216,16 +247,31 @@ export default function Dashboard() {
                         <h3 className="font-medium text-white truncate">{doc.title}</h3>
                         <Badge className={`text-xs border ${docTypeColors[doc.document_type] || 'bg-white/10 text-white/60'}`}>{doc.document_type}</Badge>
                       </div>
-                      <div className="flex items-center gap-3 mt-1">
-                        <StatusIcon className={`w-3.5 h-3.5 ${doc.status === 'complete' ? 'text-green-400' : doc.status === 'archived' ? 'text-white/30' : 'text-amber-400'}`} />
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        <StatusIcon className={`w-3.5 h-3.5 flex-shrink-0 ${doc.status === 'complete' ? 'text-green-400' : doc.status === 'archived' ? 'text-white/30' : 'text-amber-400'}`} />
                         <span className="text-xs text-blue-200/50 capitalize">{doc.status}</span>
-                        {doc.updated_date && <span className="text-xs text-blue-200/40">{format(new Date(doc.updated_date), 'MMM d, yyyy')}</span>}
+                        {doc.organisation_name && <span className="text-xs text-blue-200/40 truncate max-w-[160px]">{doc.organisation_name}</span>}
+                        {doc.updated_date && <span className="text-xs text-blue-200/30">{format(new Date(doc.updated_date), 'MMM d, yyyy')}</span>}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                    <Button variant="ghost" size="sm" className="text-white/50 hover:text-white hover:bg-white/10"
-                      onClick={() => navigate(`/document/${doc.id}`)}>Open</Button>
+                    {/* Version count badge */}
+                    {versionCountMap[doc.id] > 0 && (
+                      <span className="hidden sm:inline-flex items-center gap-1 text-xs text-blue-300/50 border border-white/10 rounded-full px-2 py-0.5">
+                        <History className="w-3 h-3" />{versionCountMap[doc.id]}v
+                      </span>
+                    )}
+                    <Button variant="ghost" size="sm"
+                      className="hidden sm:flex gap-1.5 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
+                      onClick={() => navigate(`/document/${doc.id}`)}>
+                      <Pencil className="w-3.5 h-3.5" />Edit
+                    </Button>
+                    <Button variant="ghost" size="sm"
+                      className="hidden sm:flex gap-1.5 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
+                      onClick={() => setVersionsDocId(doc.id)}>
+                      <History className="w-3.5 h-3.5" />Versions
+                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="w-8 h-8 text-white/40 hover:text-white hover:bg-white/10">
@@ -233,6 +279,12 @@ export default function Dashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
+                          <Pencil className="w-4 h-4 mr-2" />Edit Document
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setVersionsDocId(doc.id)}>
+                          <History className="w-4 h-4 mr-2" />View Versions
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => archiveMutation.mutate(doc.id)}>
                           <Archive className="w-4 h-4 mr-2" />Archive
                         </DropdownMenuItem>
@@ -248,6 +300,18 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Version history slide-in panel */}
+      {versionsDocId && (
+        <VersionHistory
+          documentId={versionsDocId}
+          onRestore={(content) => {
+            setVersionsDocId(null);
+            toast({ title: 'Version restored', description: 'Open the document to see the restored version.' });
+          }}
+          onClose={() => setVersionsDocId(null)}
+        />
+      )}
     </AppLayout>
   );
 }
