@@ -36,6 +36,7 @@ export default function Landing() {
               onClick={() => base44.auth.redirectToLogin('/dashboard')}>Sign In</Button>
             <Button size="sm" className="bg-white text-slate-900 hover:bg-white/90"
               onClick={() => base44.auth.redirectToLogin('/dashboard')}>Get Started Free</Button>
+
           </div>
         </div>
       </nav>
@@ -76,10 +77,7 @@ export default function Landing() {
                   Create Your First Document <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="px-8 text-base border-white/20 text-white hover:bg-white/10 bg-transparent"
-                onClick={() => base44.auth.redirectToLogin('/dashboard')}>
-                View Dashboard
-              </Button>
+
             </div>
 
           </motion.div>

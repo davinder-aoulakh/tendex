@@ -55,7 +55,8 @@ export default function DocumentEditor() {
     if (existing) {
       setEditedContent(existing);
     }
-  }, [doc?.id, doc?.final_content, doc?.ai_enhanced_content]);
+  // Use JSON stringify so the effect fires when content actually changes, not just reference
+  }, [doc?.id, JSON.stringify(doc?.final_content), JSON.stringify(doc?.ai_enhanced_content)]);
 
   const saveVersion = async (content, source, label) => {
     const existing = await base44.entities.DocumentVersion.filter({ document_id: id }, '-version_number', 1);
