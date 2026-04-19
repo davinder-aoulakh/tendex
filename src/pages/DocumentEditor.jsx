@@ -46,12 +46,14 @@ export default function DocumentEditor() {
     }
 
     // Load existing content — prefer final_content, fall back to ai_enhanced_content
-    const existing = doc.final_content && Object.keys(doc.final_content).length > 0
-      ? doc.final_content
-      : doc.ai_enhanced_content && Object.keys(doc.ai_enhanced_content).length > 0
-        ? doc.ai_enhanced_content
-        : null;
+    // Unwrap nested { response: { ... } } if the LLM returned that structure
+    const unwrap = (obj) => {
+      if (!obj || Object.keys(obj).length === 0) return null;
+      if (obj.response && typeof obj.response === 'object') return obj.response;
+      return obj;
+    };
 
+    const existing = unwrap(doc.final_content) || unwrap(doc.ai_enhanced_content);
     if (existing) {
       setEditedContent(existing);
     }

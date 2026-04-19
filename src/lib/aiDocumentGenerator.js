@@ -124,6 +124,10 @@ export async function generateDocumentContent(docType, questionnaireData) {
     model: 'claude_sonnet_4_6',
   });
 
+  // Unwrap nested { response: { ... } } if the LLM returned that structure
+  if (result && result.response && typeof result.response === 'object') {
+    return result.response;
+  }
   return result;
 }
 
