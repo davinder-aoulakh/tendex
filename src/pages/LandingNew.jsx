@@ -91,7 +91,7 @@ export default function LandingNew() {
                   Start your first procurement free
                 </Button>
               </Link>
-              <button className="font-dm-sans font-400 text-base px-6 py-2.5 rounded-lg text-[#00C9A7] border border-[#00C9A7] hover:border-[#00E0BA] transition-all flex items-center gap-2 group">
+              <button onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })} className="font-dm-sans font-400 text-base px-6 py-2.5 rounded-lg text-[#00C9A7] border border-[#00C9A7] hover:border-[#00E0BA] transition-all flex items-center gap-2 group">
                 See how it works <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
