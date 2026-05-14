@@ -65,13 +65,13 @@ Responses addressed to: ${d.eoi_addressed_to || 'N/A'}
 Contact for queries: ${d.eoi_contact_name || 'N/A'} — ${d.eoi_contact_email || 'N/A'}
 Submission method: ${submissionMethod}
 
-Scope of Work context (from previous SOW — always list as Attachment 1):
-${d.summary_of_services || d.concept_details || d.product_description || 'Refer to Attachment 1 — Scope of Work'}
+Scope of Work context (from previous SOW or uploaded document — always list as Attachment 1):
+${d.own_scope_document ? `[User uploaded their own scope document: ${d.own_scope_document}]` : (d.summary_of_services || d.concept_details || d.product_description || 'Refer to Attachment 1 — Scope of Work')}
 
-Provider responsibilities: ${d.provider_responsibilities || d.supplier_responsibilities || 'N/A'}
-Requester responsibilities: ${d.requester_responsibilities || 'N/A'}
-Timeline: ${d.timeline || 'N/A'}
-Key deliverables: ${d.key_deliverables || 'N/A'}
+Provider responsibilities: ${d.provider_responsibilities || d.supplier_responsibilities || 'As per Attachment 1'}
+Requester responsibilities: ${d.requester_responsibilities || 'As per Attachment 1'}
+Timeline: ${d.timeline || 'As per Attachment 1'}
+Key deliverables: ${d.key_deliverables || 'As per Attachment 1'}
 Project milestones: ${JSON.stringify(d.milestones || [])}
 Company representative: ${d.representative_name || d.eoi_addressed_to || 'N/A'}
 Project start: ${d.project_start_date || 'N/A'}
@@ -79,7 +79,7 @@ Project end: ${d.project_end_date || 'N/A'}
 
 Generate all 14 sections in order. Use formal Australian government procurement language throughout. Each section must be 1–3 paragraphs of complete, professional prose. Do not use markdown headings inside the values.
 
-IMPORTANT: In the attachments_list section, always list "Attachment 1 — Scope of Work" as the first attachment.`;
+IMPORTANT: In the attachments_list section, always list "Attachment 1 — Scope of Work" as the first attachment. ${d.own_scope_document ? 'This is the user\'s uploaded scope document.' : ''}`;
 };
 
 const RFQ_PROMPT = (d) => {
@@ -153,12 +153,12 @@ OFFER VALIDITY (Section 3): ${validityLabel}
 
 SITE MEETING (Section 4): ${siteMeetingText}
 
-SPECIFICATION (Section 7 — full scope from SOW, do not ask user to re-enter):
-${scopeContent}
-Provider responsibilities: ${d.provider_responsibilities || 'As specified'}
-Requester responsibilities: ${d.requester_responsibilities || 'As specified'}
-Key deliverables: ${d.key_deliverables || 'N/A'}
-Timeline: ${d.timeline || 'N/A'}
+SPECIFICATION (Section 7 — full scope from SOW or uploaded document, do not ask user to re-enter):
+${d.own_scope_document ? `[User uploaded their own scope document: ${d.own_scope_document}]` : scopeContent}
+Provider responsibilities: ${d.provider_responsibilities || 'As specified in scope'}
+Requester responsibilities: ${d.requester_responsibilities || 'As specified in scope'}
+Key deliverables: ${d.key_deliverables || 'As specified in scope'}
+Timeline: ${d.timeline || 'As specified in scope'}
 
 EVALUATION (feeds into Section 10):
 - Evaluation method: ${evalMap[r.rfq_evaluation_method] || r.rfq_evaluation_method || 'Best value'}
@@ -169,6 +169,8 @@ COMMERCIAL TERMS (feeds into Section 10):
 - Payment terms: ${paymentMap[r.rfq_payment_terms] || r.rfq_payment_terms || 'N/A'}
 
 Generate all 10 sections in order. Use formal Australian government procurement language throughout. Each section must be 1–3 paragraphs of complete, professional prose. Do not use markdown headings inside the values.
+
+${d.own_scope_document ? 'NOTE: The user has uploaded their own scope document. Reference it as "Attachment 1 — Scope of Work" throughout this RFQ.' : ''}
 
 For section 'request_conditions', write standard TendeX request conditions covering: no obligation to accept, right to reject all offers, no reimbursement of costs, confidentiality obligations, and the right to shortlist or negotiate.
 For section 'identity_of_respondent', write a supplier completion statement (in table format described as prose) asking for: company name, ABN, registered address, contact name and title, phone and email, signature and date.
@@ -277,12 +279,12 @@ OFFER VALIDITY (Section 3): ${validityLabel}
 
 BRIEFING SESSION (Section 4): ${briefingText}
 
-SPECIFICATION (Section 7 — full scope from SOW, do not ask user to re-enter):
-${scopeContent}
-Provider responsibilities: ${d.provider_responsibilities || 'As specified'}
-Requester responsibilities: ${d.requester_responsibilities || 'As specified'}
-Key deliverables: ${d.key_deliverables || 'N/A'}
-Timeline: ${d.timeline || 'N/A'}
+SPECIFICATION (Section 7 — full scope from SOW or uploaded document, do not ask user to re-enter):
+${d.own_scope_document ? `[User uploaded their own scope document: ${d.own_scope_document}]` : scopeContent}
+Provider responsibilities: ${d.provider_responsibilities || 'As specified in scope'}
+Requester responsibilities: ${d.requester_responsibilities || 'As specified in scope'}
+Key deliverables: ${d.key_deliverables || 'As specified in scope'}
+Timeline: ${d.timeline || 'As specified in scope'}
 
 EVALUATION MATRIX (Section 7 — weighted criteria table):
 Criterion | Weighting %
@@ -303,6 +305,8 @@ COMPLIANCE (Section 6):
 - Required declarations: ${declarations}
 
 Generate all 10 sections in order. Use formal Australian government procurement language throughout. Each section must be 1–3 paragraphs of complete, professional prose. Do not use markdown headings inside the values.
+
+${d.own_scope_document ? 'NOTE: The user has uploaded their own scope document. Reference it as "Attachment 1 — Scope of Work" throughout this RFP.' : ''}
 
 For section 'background': introduce the organisation and the purpose of this RFP.
 For section 'submission_of_offer': detail submission requirements, closing date/time, format, and addressing.

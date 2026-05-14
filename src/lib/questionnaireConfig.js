@@ -86,13 +86,42 @@ export const SOW_PAGES = [
     ],
   },
 
+  // ── S3-BYPASS: Own scope document (shown after S2, replaces S3-S4 if user provides scope) ──
+  {
+    id: 's3_own_scope_option',
+    title: 'Do You Have a Scope Document?',
+    description: 'Tell us if you already have a scope of work document, or if you need help building one.',
+    sectionLabel: 'Scope Source',
+    condition: (a) => !!a.procurement_type,
+    fields: [
+      {
+        key: 'has_own_scope',
+        label: 'Do you already have a scope of work document?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes — I have my own scope document', description: 'Upload your existing scope document and skip the scope-building questions' },
+          { value: 'no',  label: 'No — help me build one', description: 'Answer questions to help us build a scope for you' },
+        ],
+      },
+      {
+        key: 'own_scope_document',
+        label: 'Upload Your Scope Document',
+        type: 'scope-upload', // custom field type, handled in Questionnaire.jsx
+        required: true,
+        helpText: 'PDF or Word (.docx) documents only, maximum 20MB.',
+        condition: (a) => a.has_own_scope === 'yes',
+      },
+    ],
+  },
+
   // ── S5: Combined intent (both only — shown before S3/S4) ──
   {
     id: 's5_combined_intent',
     title: 'Combined Procurement Intent',
     description: 'Because you are procuring goods and services together, help us understand how they are linked.',
     sectionLabel: 'Combined Scope',
-    condition: IS_BOTH,
+    condition: (a) => IS_BOTH(a) && a.has_own_scope !== 'yes',
     fields: [
       {
         key: 'combined_scope_description',
@@ -112,13 +141,13 @@ export const SOW_PAGES = [
     ],
   },
 
-  // ── S3: Goods list (goods | both) ──
+  // ── S3: Goods list (goods | both, skip if user has own scope) ──
   {
     id: 's3_goods_list',
     title: 'Goods Specification',
     description: 'Describe the goods you need supplied.',
     sectionLabel: 'Goods',
-    condition: HAS_GOODS,
+    condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
     fields: [
       { key: 'product_description', label: 'Product Description', type: 'textarea', placeholder: 'Describe the product(s) in detail...', required: true },
       { key: 'product_size', label: 'Product Size / Dimensions', type: 'text', placeholder: 'e.g. 30cm x 20cm x 10cm', required: false },
@@ -156,13 +185,13 @@ export const SOW_PAGES = [
     ],
   },
 
-  // ── S4a: Service type selector (services | both) ──
+  // ── S4a: Service type selector (services | both, skip if user has own scope) ──
   {
     id: 's4a_service_type',
     title: 'Service Type',
     description: 'What category of service are you procuring?',
     sectionLabel: 'Services',
-    condition: HAS_SERVICES,
+    condition: (a) => HAS_SERVICES(a) && a.has_own_scope !== 'yes',
     fields: [
       {
         key: 'service_type',
@@ -183,13 +212,13 @@ export const SOW_PAGES = [
     ],
   },
 
-  // ── S4b: Construction sub-branch (only when service_type === 'construction_trades') ──
+  // ── S4b: Construction sub-branch (skip if user has own scope) ──
   {
     id: 's4b_construction_type',
     title: 'Construction Type',
     description: 'Select the specific type of construction or trades work required.',
     sectionLabel: 'Construction Detail',
-    condition: (a) => HAS_SERVICES(a) && a.service_type === 'construction_trades',
+    condition: (a) => HAS_SERVICES(a) && a.service_type === 'construction_trades' && a.has_own_scope !== 'yes',
     fields: [
       {
         key: 'construction_type',
@@ -209,13 +238,13 @@ export const SOW_PAGES = [
     ],
   },
 
-  // ── S4c: Service details (services | both, after type is selected) ──
+  // ── S4c: Service details (skip if user has own scope) ──
   {
     id: 's4c_service_details',
     title: 'Service Details',
     description: 'Provide detailed information about the services required.',
     sectionLabel: 'Service Scope',
-    condition: (a) => HAS_SERVICES(a) && !!a.service_type,
+    condition: (a) => HAS_SERVICES(a) && !!a.service_type && a.has_own_scope !== 'yes',
     fields: [
       { key: 'summary_of_services', label: 'Summary of Services Required', type: 'textarea', placeholder: 'Describe what you need the service provider to do...', required: true },
       { key: 'provider_responsibilities', label: 'Responsibilities of Service Provider', type: 'textarea', placeholder: 'What will the supplier be responsible for?', required: true },

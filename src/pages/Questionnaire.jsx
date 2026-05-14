@@ -21,6 +21,8 @@ import RFPEvaluationCriteria from '@/components/questionnaire/RFPEvaluationCrite
 import RFPMethodologyDraft from '@/components/questionnaire/RFPMethodologyDraft';
 import ABNLookup from '@/components/questionnaire/ABNLookup';
 import LogoUpload from '@/components/questionnaire/LogoUpload';
+import ScopeUpload from '@/components/questionnaire/ScopeUpload';
+import FallbackScopeQuestions from '@/components/questionnaire/FallbackScopeQuestions';
 import { useAutoSave } from '@/hooks/useAutoSave';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
@@ -45,6 +47,70 @@ const getOrCreateAnonId = () => {
     }
     return id;
   } catch { return null; }
+};
+
+// Analyze uploaded scope document and recommend document type
+const analyzeUploadedScope = async (docUrl, procurementType) => {
+  if (!docUrl) {
+    // Fallback: ask 3 simple questions if document can't be read
+    return {
+      score: 0,
+      recommendation: 'EOI',
+      dimensions: {},
+      fallbackQuestions: true,
+    };
+  }
+
+  try {
+    // For now, we can't directly read PDF/DOCX in the frontend
+    // So we ask fallback questions instead
+    // In production, this would extract text from the document and pass it to LLM
+    return {
+      score: 0,
+      recommendation: 'EOI',
+      dimensions: {},
+      fallbackQuestions: true,
+    };
+  } catch {
+    // Fallback on error
+    return {
+      score: 0,
+      recommendation: 'EOI',
+      dimensions: {},
+      fallbackQuestions: true,
+    };
+  }
+};
+
+// Recommend document type from fallback scope questions
+const recommendDocTypeFromFallback = (responses) => {
+  const { has_known_suppliers, scope_detail_level } = responses;
+
+  let recommendation = 'EOI';
+
+  // Logic: 
+  // - EOI: No known suppliers, OR high-level scope
+  // - RFQ: Known suppliers + goods-focused
+  // - RFP: Known suppliers + detailed scope + services/complex
+  if (has_known_suppliers === 'yes') {
+    if (scope_detail_level === 'detailed') {
+      recommendation = 'RFP';
+    } else {
+      recommendation = 'RFQ';
+    }
+  } else {
+    recommendation = 'EOI';
+  }
+
+  return {
+    score: 75,
+    recommendation,
+    reasoning: `Based on your answers: ${has_known_suppliers === 'yes' ? 'You have known suppliers' : 'You want to explore the market'}, and your scope is ${scope_detail_level === 'detailed' ? 'detailed and comprehensive' : 'still being refined'}. ${recommendation} is the recommended document type.`,
+    dimensions: {
+      supplier_readiness: has_known_suppliers === 'yes' ? 1 : 0,
+      scope_completeness: scope_detail_level === 'detailed' ? 1 : 0.5,
+    },
+  };
 };
 
 export default function Questionnaire() {
@@ -94,9 +160,15 @@ export default function Questionnaire() {
   // 'purpose'      → Assist 1: scope purpose statement (shown after S2)
   // 'deliverables' → Assist 3: deliverable chips (shown after S4c service description)
   // 'sow_review'   → Assist 4: full SOW document review (shown after S6)
-  const [aiStep, setAiStep] = useState(null); // null | 'purpose' | 'deliverables' | 'sow_review'
+  // 'fallback_scope_questions' → Fallback if uploaded scope can't be read
+  const [aiStep, setAiStep] = useState(null);
   const [purposeConfirmed, setPurposeConfirmed] = useState(false);
   const [deliverablesShown, setDeliverablesShown] = useState(false);
+  const [fallbackScopeAnswers, setFallbackScopeAnswers] = useState({
+    has_known_suppliers: null,
+    procurement_type_detail: null,
+    scope_detail_level: null,
+  });
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -214,14 +286,34 @@ export default function Questionnaire() {
     saveNow(); // auto-save on navigation
 
     if (type === 'SOW') {
-      // Assist 1: after S2 basics, show scope purpose
-      if (page?.id === 's2_basics' && !purposeConfirmed) {
+      // Own scope bypass: after S3 own scope option step, if user has own scope, skip to scoring
+      if (page?.id === 's3_own_scope_option' && answers.has_own_scope === 'yes') {
+        // User has uploaded their own scope — skip all scope-building questions
+        // Attempt to analyze, fallback to questions if needed
+        analyzeUploadedScope(answers.own_scope_document, answers.procurement_type).then(result => {
+          if (result.fallbackQuestions) {
+            // Can't read the document — ask fallback questions
+            setAiStep('fallback_scope_questions');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            // Successfully analyzed — show scoring
+            setShowScoring(true);
+            setScoring(true);
+            setScoreData(result);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+        return;
+      }
+
+      // Assist 1: after S2 basics, show scope purpose (skip if own scope)
+      if (page?.id === 's2_basics' && !purposeConfirmed && answers.has_own_scope !== 'yes') {
         setAiStep('purpose');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
-      // Assist 3: after S4c service details, show deliverable chips (services/both only)
-      if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both')) {
+      // Assist 3: after S4c service details, show deliverable chips (services/both only, skip if own scope)
+      if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both') && answers.has_own_scope !== 'yes') {
         setAiStep('deliverables');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -443,12 +535,42 @@ export default function Questionnaire() {
           </div>
         )}
 
+        {/* ── FALLBACK SCOPE QUESTIONS (if document can't be read) ── */}
+        {aiStep === 'fallback_scope_questions' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Help Us Understand Your Scope</h2>
+              <p className="text-sm text-blue-200/50">We couldn't automatically read your document. Please answer a few quick questions so we can recommend the right document type.</p>
+            </div>
+            <FallbackScopeQuestions
+              answers={answers}
+              onSubmit={(responses) => {
+                setFallbackScopeAnswers(responses);
+                setAiStep(null);
+                // Now proceed to scoring with these responses
+                setShowScoring(true);
+                setScoring(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const result = recommendDocTypeFromFallback(responses);
+                setScoreData(result);
+                setScoring(false);
+              }}
+            />
+            <div className="mt-8">
+              <Button variant="ghost" onClick={() => setAiStep(null)}
+                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* ── SCOPE SCORING STEP ── */}
         {showScoring && !aiStep && (
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">AI Scope Review</h2>
-              <p className="text-sm text-blue-200/50">We've analysed your answers to recommend the best next step.</p>
+              <p className="text-sm text-blue-200/50">We've analysed your scope to recommend the best document type.</p>
             </div>
 
             {scoring ? (
@@ -545,6 +667,27 @@ export default function Questionnaire() {
                             value={answers.logo_url || null}
                             onChange={url => updateAnswer('logo_url', url)}
                           />
+                        </div>
+                      );
+                    }
+
+                    // Special field: Scope document upload
+                    if (field.type === 'scope-upload') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">
+                            {field.label}
+                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                          </div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <ScopeUpload
+                            value={answers.own_scope_document || null}
+                            onChange={url => updateAnswer('own_scope_document', url)}
+                            error={errors.includes(field.key)}
+                          />
+                          {errors.includes(field.key) && (
+                            <p className="text-xs text-red-400">Please upload your scope document before continuing.</p>
+                          )}
                         </div>
                       );
                     }
