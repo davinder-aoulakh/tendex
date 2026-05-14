@@ -469,9 +469,9 @@ export default function LandingNew() {
                   Start free trial →
                 </Button>
               </Link>
-              <button className="font-syne font-700 text-base px-8 py-3 rounded-lg border transition-all" style={{ borderColor: 'rgba(255,255,255,0.12)', color: '#E8F0F8' }}>
+              <a href="mailto:hello@tendex.com.au" className="font-syne font-700 text-base px-8 py-3 rounded-lg border transition-all inline-block" style={{ borderColor: 'rgba(255,255,255,0.12)', color: '#E8F0F8' }}>
                 Book a demo
-              </button>
+              </a>
             </div>
           </motion.div>
         </div>
