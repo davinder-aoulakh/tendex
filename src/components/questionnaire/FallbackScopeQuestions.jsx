@@ -32,7 +32,7 @@ export default function FallbackScopeQuestions({ answers, onSubmit }) {
       key: 'scope_detail_level',
       title: 'How detailed is your scope description?',
       options: [
-        { value: 'detailed',     label: 'Detailed — I've defined requirements clearly', description: 'Specifications are clear and comprehensive' },
+        { value: 'detailed',     label: "Detailed — I've defined requirements clearly", description: 'Specifications are clear and comprehensive' },
         { value: 'high_level',   label: 'High-level — I have a general idea',        description: 'I need market input to refine requirements' },
       ],
     },
