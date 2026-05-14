@@ -13,11 +13,11 @@ export default function PlanSelection() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
-        if (!currentUser) {
-          navigate('/');
-          return;
-        }
+         const currentUser = await base44.auth.me();
+         if (!currentUser) {
+           base44.auth.redirectToLogin('/plan-selection');
+           return;
+         }
         setUser(currentUser);
 
         // Check if user already has a subscription
@@ -32,7 +32,7 @@ export default function PlanSelection() {
         }
       } catch (err) {
         console.error('Error checking user:', err);
-        navigate('/');
+        base44.auth.redirectToLogin('/plan-selection');
       } finally {
         setLoading(false);
       }

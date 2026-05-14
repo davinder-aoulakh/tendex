@@ -85,12 +85,13 @@ export default function LandingNew() {
             </motion.p>
 
             {/* CTA Buttons */}
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link to="/plan-selection">
-                <Button className="font-syne font-700 text-base px-6 py-2.5 rounded-lg primary-btn-hover" style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
-                  Start your first procurement free
-                </Button>
-              </Link>
+             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
+               <Button
+                 onClick={() => base44.auth.redirectToLogin('/plan-selection')}
+                 className="font-syne font-700 text-base px-6 py-2.5 rounded-lg primary-btn-hover"
+                 style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
+                 Start your first procurement free
+               </Button>
               <button onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })} className="font-dm-sans font-400 text-base px-6 py-2.5 rounded-lg text-[#00C9A7] border border-[#00C9A7] hover:border-[#00E0BA] transition-all flex items-center gap-2 group">
                 See how it works <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -345,11 +346,12 @@ export default function LandingNew() {
                 ))}
               </div>
 
-              <Link to="/plan-selection">
-                <Button className="w-full font-syne font-700 text-base" style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
-                  Start free trial →
-                </Button>
-              </Link>
+              <Button
+                 onClick={() => base44.auth.redirectToLogin('/plan-selection')}
+                 className="w-full font-syne font-700 text-base"
+                 style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
+                 Start free trial →
+               </Button>
             </motion.div>
 
             {/* Professional Plan Card */}
@@ -464,11 +466,12 @@ export default function LandingNew() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/plan-selection">
-                <Button className="font-syne font-700 text-base px-8 py-3 rounded-lg primary-btn-hover" style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
-                  Start free trial →
-                </Button>
-              </Link>
+               <Button
+                 onClick={() => base44.auth.redirectToLogin('/plan-selection')}
+                 className="font-syne font-700 text-base px-8 py-3 rounded-lg primary-btn-hover"
+                 style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
+                 Start free trial →
+               </Button>
               <a href="mailto:hello@tendex.com.au" className="font-syne font-700 text-base px-8 py-3 rounded-lg border transition-all inline-block" style={{ borderColor: 'rgba(255,255,255,0.12)', color: '#E8F0F8' }}>
                 Book a demo
               </a>
