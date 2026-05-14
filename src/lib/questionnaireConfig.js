@@ -529,34 +529,277 @@ export const RFQ_PAGES = [
 
 // ─────────────────────────────────────────────
 // RFP — Request for Proposal
-// Shares the same R1/R2/R3 pages as RFQ but stores answers under rfp_ prefix
-// The AI prompt remaps rfp_ → rfq_ keys before building the document
+// P1: Submission & Contact (same as RFQ R1, rfp_ prefix, briefing instead of site)
+// P2: Evaluation Criteria (unique — ranking + weighted criteria)
+// P3: Compliance & Declarations (unique)
+// P4: Commercial Terms (reuses RFQ R3 structure, rfp_ prefix)
 // ─────────────────────────────────────────────
 
-// Helper: build a condition that remaps rfp_ keys to rfq_ before evaluating the original RFQ condition
-const remapConditionForRFP = (cond) => {
-  if (!cond) return undefined;
-  return (a) => {
-    const remapped = { ...a };
-    Object.entries(a).forEach(([k, v]) => {
-      if (k.startsWith('rfp_')) remapped[k.replace(/^rfp_/, 'rfq_')] = v;
-    });
-    return cond(remapped);
-  };
-};
+const RFP_HAS_BRIEFING     = (a) => a.rfp_briefing_session === 'mandatory' || a.rfp_briefing_session === 'optional';
+const RFP_HAS_PORTAL       = (a) => a.rfp_submission_method === 'portal';
+const RFP_HAS_CASE_STUDIES = (a) => a.rfp_case_studies === 'yes';
+const RFP_HAS_METHODOLOGY  = (a) => a.rfp_methodology === 'yes';
+const RFP_HAS_PERSONNEL    = (a) => a.rfp_key_personnel === 'yes';
+const RFP_HAS_MODERN_SLAVERY = (a) => a.rfp_modern_slavery === 'yes';
+const RFP_HAS_PRIVACY      = (a) => a.rfp_privacy === 'yes';
+const RFP_HAS_CUSTOM_VALIDITY = (a) => a.rfp_validity === 'custom';
+const RFP_HAS_PROGRESS_PAYMENTS = (a) => a.rfp_payment_terms === 'progress';
+const RFP_HAS_DEPOSIT      = (a) => a.rfp_payment_terms === 'deposit';
+const RFP_INS = (type) => (a) => Array.isArray(a.rfp_insurance_types) && a.rfp_insurance_types.includes(type);
 
-export const RFP_PAGES = RFQ_PAGES.map(page => ({
-  ...page,
-  id: page.id.replace(/^r/, 'rfp_r'),
-  sectionLabel: page.sectionLabel,
-  fields: page.fields.map(f => ({
-    ...f,
-    key: f.key.replace(/^rfq_/, 'rfp_'),
-    label: f.label?.replace(/\bRFQ\b/g, 'RFP'),
-    placeholder: f.placeholder?.replace(/\bRFQ\b/g, 'RFP'),
-    condition: remapConditionForRFP(f.condition),
-  })),
-}));
+export const RFP_PAGES = [
+  // ── P1: Submission & Contact (mirrors RFQ R1, briefing instead of site meeting) ──
+  {
+    id: 'p1_submission',
+    title: 'Submission & Contact',
+    description: 'Set the closing details and nominate the key contacts for this RFP.',
+    sectionLabel: 'Submission',
+    fields: [
+      { key: 'rfp_closing_date', label: 'Closing date for proposal submissions', type: 'date', required: true },
+      { key: 'rfp_closing_time', label: 'Closing time (local time)', type: 'text', placeholder: 'e.g. 2:00 PM AWST', required: true },
+      { key: 'rfp_commencement_date', label: 'Expected commencement date', type: 'text', placeholder: 'e.g. 1 July 2025 or "within 4 weeks of award"', required: false },
+      { key: 'rfp_addressed_to', label: 'Who should proposals be addressed to?', type: 'text', placeholder: 'Full name and title', required: true },
+      { key: 'rfp_contact_name', label: 'Query contact during advertising', type: 'text', placeholder: 'Full name', required: true },
+      { key: 'rfp_contact_title', label: 'Query contact position / title', type: 'text', placeholder: 'e.g. Procurement Manager', required: true },
+      { key: 'rfp_contact_email', label: 'Query contact email', type: 'email', placeholder: 'procurement@yourorg.com', required: true },
+      { key: 'rfp_contact_phone', label: 'Query contact phone', type: 'text', placeholder: '+61 4xx xxx xxx', required: false },
+      {
+        key: 'rfp_briefing_session',
+        label: 'Will there be a mandatory briefing session for respondents?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'mandatory', label: 'Yes — Mandatory', description: 'Non-attendance disqualifies the supplier' },
+          { value: 'optional',  label: 'Yes — Optional',  description: 'Attendance is recommended but not required' },
+          { value: 'no',        label: 'No',              description: 'No briefing session required' },
+        ],
+      },
+      { key: 'rfp_briefing_date', label: 'Briefing session date', type: 'date', required: true, condition: RFP_HAS_BRIEFING },
+      { key: 'rfp_briefing_time', label: 'Briefing session time', type: 'text', placeholder: 'e.g. 10:00 AM AWST', required: true, condition: RFP_HAS_BRIEFING },
+      { key: 'rfp_briefing_location', label: 'Briefing location or link', type: 'text', placeholder: 'e.g. 123 Main St, Perth or https://zoom.us/...', required: true, condition: RFP_HAS_BRIEFING },
+      {
+        key: 'rfp_submission_method',
+        label: 'How should suppliers submit their proposal?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'email',  label: 'By email to the nominated address', description: 'Proposals sent directly to the contact email above' },
+          { value: 'portal', label: 'Via an online portal',              description: 'Proposals submitted through a procurement portal' },
+        ],
+      },
+      { key: 'rfp_portal_url', label: 'Portal URL', type: 'text', placeholder: 'https://portal.youragency.gov.au/rfp/…', required: true, condition: RFP_HAS_PORTAL },
+    ],
+  },
+
+  // ── P2: Evaluation Criteria ──
+  {
+    id: 'p2_evaluation',
+    title: 'Evaluation Criteria',
+    description: 'Define how you will assess and score proposals.',
+    sectionLabel: 'Evaluation',
+    fields: [
+      {
+        key: 'rfp_criteria_ranking',
+        label: 'What matters most to you in selecting a supplier?',
+        type: 'criteria-ranking', // handled by special component in Questionnaire.jsx
+        required: false,
+        helpText: 'Drag to rank from most important (top) to least important (bottom). Then use AI to suggest weightings.',
+      },
+      {
+        key: 'rfp_case_studies',
+        label: 'Do you need suppliers to demonstrate similar work?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes — require case studies', description: 'Suppliers must submit evidence of similar completed work' },
+          { value: 'no',  label: 'No', description: 'Case studies are not required' },
+        ],
+      },
+      {
+        key: 'rfp_case_studies_count',
+        label: 'How many case studies must suppliers provide?',
+        type: 'radio-cards',
+        required: true,
+        condition: RFP_HAS_CASE_STUDIES,
+        options: [
+          { value: '1', label: '1 case study', description: '' },
+          { value: '2', label: '2 case studies', description: '' },
+          { value: '3', label: '3 case studies', description: '' },
+        ],
+      },
+      {
+        key: 'rfp_case_studies_referees',
+        label: 'Must referee contact details be included with each case study?',
+        type: 'radio-cards',
+        required: true,
+        condition: RFP_HAS_CASE_STUDIES,
+        options: [
+          { value: 'yes', label: 'Yes — referees required', description: 'Supplier must provide a contact who can verify the work' },
+          { value: 'no',  label: 'No', description: 'Case studies only — no referee contact required' },
+        ],
+      },
+      {
+        key: 'rfp_methodology',
+        label: 'Do you need suppliers to describe how they will deliver this work?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes — include methodology question', description: 'AI will draft a methodology question based on your service type' },
+          { value: 'no',  label: 'No', description: 'No methodology response required' },
+        ],
+      },
+      {
+        key: 'rfp_methodology_question',
+        label: 'Methodology question for suppliers',
+        type: 'methodology-draft', // handled by special component in Questionnaire.jsx
+        required: false,
+        condition: RFP_HAS_METHODOLOGY,
+        helpText: 'AI will draft this based on your service type. You can edit it.',
+      },
+      {
+        key: 'rfp_key_personnel',
+        label: 'Do you need suppliers to name key personnel?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes — name personnel and provide qualifications', description: 'Suppliers must identify team members and their credentials' },
+          { value: 'no',  label: 'No', description: 'No key personnel requirement' },
+        ],
+      },
+    ],
+  },
+
+  // ── P3: Compliance & Declarations ──
+  {
+    id: 'p3_compliance',
+    title: 'Compliance & Declarations',
+    description: 'Set the compliance requirements and declarations suppliers must meet.',
+    sectionLabel: 'Compliance',
+    fields: [
+      {
+        key: 'rfp_licences',
+        label: 'What specific licences or registrations must the supplier hold? (optional)',
+        type: 'text',
+        placeholder: 'e.g. QBCC licence, electrical contractor registration…',
+        required: false,
+      },
+      {
+        key: 'rfp_insurance_types',
+        label: 'What insurance must the supplier hold?',
+        type: 'checkbox-multi',
+        required: false,
+        options: [
+          { value: 'public_liability',        label: 'Public liability insurance' },
+          { value: 'workers_comp',            label: 'Workers compensation' },
+          { value: 'product_liability',       label: 'Product liability insurance' },
+          { value: 'professional_indemnity',  label: 'Professional indemnity insurance' },
+          { value: 'motor_vehicle',           label: 'Motor vehicle' },
+          { value: 'ctp',                     label: 'CTP insurance' },
+          { value: 'none',                    label: 'No specific insurance requirements' },
+        ],
+      },
+      { key: 'rfp_ins_public_liability_amt',       label: 'Public liability — minimum insured amount (AUD)', type: 'text', placeholder: '$20,000,000', required: false, condition: RFP_INS('public_liability') },
+      { key: 'rfp_ins_workers_comp_amt',           label: 'Workers compensation — minimum insured amount (AUD)', type: 'text', placeholder: 'Statutory minimum', required: false, condition: RFP_INS('workers_comp') },
+      { key: 'rfp_ins_product_liability_amt',      label: 'Product liability — minimum insured amount (AUD)', type: 'text', placeholder: '$20,000,000', required: false, condition: RFP_INS('product_liability') },
+      { key: 'rfp_ins_professional_indemnity_amt', label: 'Professional indemnity — minimum insured amount (AUD)', type: 'text', placeholder: '$10,000,000', required: false, condition: RFP_INS('professional_indemnity') },
+      { key: 'rfp_ins_motor_vehicle_amt',          label: 'Motor vehicle — minimum insured amount (AUD)', type: 'text', placeholder: '$5,000,000', required: false, condition: RFP_INS('motor_vehicle') },
+      { key: 'rfp_ins_ctp_amt',                   label: 'CTP — minimum insured amount (AUD)', type: 'text', placeholder: 'Statutory minimum', required: false, condition: RFP_INS('ctp') },
+      {
+        key: 'rfp_modern_slavery',
+        label: 'Do you require a modern slavery compliance declaration?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes', description: 'A standard modern slavery clause will be inserted into the document' },
+          { value: 'no',  label: 'No',  description: 'Modern slavery declaration not required' },
+        ],
+      },
+      {
+        key: 'rfp_privacy',
+        label: 'Will the supplier have access to personal, sensitive, or confidential information?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes', description: 'A standard privacy and data handling clause will be inserted' },
+          { value: 'no',  label: 'No',  description: 'No personal or sensitive information involved' },
+        ],
+      },
+      {
+        key: 'rfp_declarations',
+        label: 'Do you require suppliers to make any declarations?',
+        type: 'checkbox-multi',
+        required: false,
+        options: [
+          { value: 'conflict_of_interest',    label: 'Conflict of interest declaration' },
+          { value: 'criminal_convictions',    label: 'Criminal convictions declaration' },
+          { value: 'subcontracting',          label: 'Subcontracting disclosure' },
+          { value: 'none',                    label: 'No declarations required' },
+        ],
+      },
+      {
+        key: 'rfp_ip_ownership',
+        label: 'Who will own the intellectual property created through this engagement?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'client_owns',    label: 'Our organisation owns all IP', description: 'All IP created vests in our organisation upon creation' },
+          { value: 'supplier_owns',  label: 'Supplier retains IP — we receive a licence', description: 'Supplier retains ownership; we get a licence to use' },
+          { value: 'shared',         label: 'Shared ownership — to be negotiated', description: 'IP ownership and licencing to be agreed at contract stage' },
+          { value: 'not_applicable', label: 'Not applicable', description: 'No IP is expected to be created' },
+        ],
+      },
+    ],
+  },
+
+  // ── P4: Commercial Terms (mirrors RFQ R3, rfp_ prefix) ──
+  {
+    id: 'p4_commercial',
+    title: 'Commercial Terms',
+    description: 'Define the pricing and payment structure for this RFP.',
+    sectionLabel: 'Commercial',
+    fields: [
+      {
+        key: 'rfp_pricing_structure',
+        label: 'What pricing structure are you seeking?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'lump_sum',         label: 'Lump sum (fixed price)',           description: 'Supplier quotes a single total price for the full scope' },
+          { value: 'schedule_of_rates', label: 'Schedule of rates',               description: 'Supplier quotes rates per unit, hour, or item — total varies by usage' },
+          { value: 'not_specified',    label: 'Not specified — open to supplier', description: 'Suppliers may propose their preferred pricing model' },
+        ],
+      },
+      {
+        key: 'rfp_payment_terms',
+        label: 'What payment terms are you proposing?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: '30_days',  label: '30 days from invoice',                         description: 'Standard 30-day payment terms' },
+          { value: '14_days',  label: '14 days from invoice',                         description: 'Faster 14-day payment terms' },
+          { value: 'progress', label: 'Progress payments — milestone-based',          description: 'Payments tied to agreed milestones' },
+          { value: 'deposit',  label: 'Upfront deposit plus balance on completion',   description: 'A deposit is paid before work commences' },
+          { value: 'negotiate', label: 'To be negotiated',                            description: 'Terms agreed with successful supplier' },
+        ],
+      },
+      { key: 'rfp_payment_milestones', label: 'Describe the payment milestones', type: 'textarea', placeholder: 'e.g. 25% on commencement, 25% at week 4, 50% on completion...', required: true, condition: RFP_HAS_PROGRESS_PAYMENTS },
+      { key: 'rfp_deposit_percent', label: 'Deposit percentage (%)', type: 'text', placeholder: 'e.g. 20', required: true, condition: RFP_HAS_DEPOSIT },
+      {
+        key: 'rfp_validity',
+        label: 'How long must supplier proposals remain valid?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: '30',     label: '30 days', description: '' },
+          { value: '60',     label: '60 days', description: '' },
+          { value: '90',     label: '90 days', description: '' },
+          { value: 'custom', label: 'I will specify', description: '' },
+        ],
+      },
+      { key: 'rfp_validity_custom', label: 'Specify validity period', type: 'text', placeholder: 'e.g. 45 days', required: true, condition: RFP_HAS_CUSTOM_VALIDITY },
+    ],
+  },
+];
 
 // ─────────────────────────────────────────────
 // Public API
@@ -592,6 +835,8 @@ export const validatePage = (page, answers) => {
       if (!val || !Array.isArray(val) || val.length === 0) {
         errors.push(field.key);
       }
+    } else if (field.type === 'criteria-ranking' || field.type === 'methodology-draft') {
+      // These are always optional from a required-field perspective (rendered as custom components)
     } else if (field.type === 'checkbox-multi' || field.type === 'radio-cards') {
       if (!val || (Array.isArray(val) && val.length === 0)) {
         errors.push(field.key);

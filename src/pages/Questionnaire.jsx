@@ -17,6 +17,8 @@ import AIScopePurpose from '@/components/questionnaire/AIScopePurpose';
 import AIDeliverableChips from '@/components/questionnaire/AIDeliverableChips';
 import SOWDocumentReview from '@/components/questionnaire/SOWDocumentReview';
 import AIGoodsSpecSuggestion from '@/components/questionnaire/AIGoodsSpecSuggestion';
+import RFPEvaluationCriteria from '@/components/questionnaire/RFPEvaluationCriteria';
+import RFPMethodologyDraft from '@/components/questionnaire/RFPMethodologyDraft';
 import { useAutoSave } from '@/hooks/useAutoSave';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
@@ -246,7 +248,7 @@ export default function Questionnaire() {
   const handleGenerate = async (finalDocType, overrideDocType) => {
     setGenerating(true);
     const resolvedType = overrideDocType || finalDocType || type;
-    const title = answers.project_name || answers.rfq_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`;
+    const title = answers.project_name || answers.rfq_title || answers.rfp_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`;
     const orgName = answers.organisation_name || answers.company_name || '';
     const updateData = {
       title,
@@ -484,20 +486,63 @@ export default function Questionnaire() {
                 )}
 
                 <div className="space-y-6">
-                  {visibleFields.map(field => (
-                    field.type === 'milestone-table' ? (
-                      <div key={field.key} className="space-y-2">
-                        <div className="text-sm font-medium text-blue-100/80">
-                          {field.label}
-                          {field.required && <span className="text-red-400 ml-1">*</span>}
+                  {visibleFields.map(field => {
+                    // Special field: RFP criteria ranking + AI weightings
+                    if (field.type === 'criteria-ranking') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">
+                            {field.label}
+                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                          </div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <RFPEvaluationCriteria
+                            ranking={answers.rfp_criteria_ranking}
+                            weightings={answers.rfp_criteria_weightings}
+                            onChange={({ ranking, weightings }) => {
+                              updateAnswer('rfp_criteria_ranking', ranking);
+                              updateAnswer('rfp_criteria_weightings', weightings);
+                            }}
+                          />
+                          {errors.includes(field.key) && <p className="text-xs text-red-400">This field is required.</p>}
                         </div>
-                        <MilestoneTable
-                          value={answers[field.key]}
-                          onChange={val => updateAnswer(field.key, val)}
-                          error={errors.includes(field.key)}
-                        />
-                      </div>
-                    ) : (
+                      );
+                    }
+
+                    // Special field: RFP methodology AI draft
+                    if (field.type === 'methodology-draft') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <RFPMethodologyDraft
+                            answers={answers}
+                            value={answers.rfp_methodology_question}
+                            onChange={val => updateAnswer('rfp_methodology_question', val)}
+                          />
+                        </div>
+                      );
+                    }
+
+                    // Milestone table
+                    if (field.type === 'milestone-table') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">
+                            {field.label}
+                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                          </div>
+                          <MilestoneTable
+                            value={answers[field.key]}
+                            onChange={val => updateAnswer(field.key, val)}
+                            error={errors.includes(field.key)}
+                          />
+                        </div>
+                      );
+                    }
+
+                    // Default
+                    return (
                       <div key={field.key}>
                         <QuestionField
                           field={field}
@@ -517,8 +562,8 @@ export default function Questionnaire() {
                           </div>
                         )}
                       </div>
-                    )
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
             </AnimatePresence>

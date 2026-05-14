@@ -176,14 +176,144 @@ For section 'compliance_matrix', write a structured section covering pre-qualifi
 };
 
 const RFP_PROMPT = (d) => {
-  // Remap rfp_ keys to rfq_ so the shared prompt builder works
-  const remapped = { ...d };
-  Object.entries(d).forEach(([k, v]) => {
-    if (k.startsWith('rfp_')) remapped[k.replace(/^rfp_/, 'rfq_')] = v;
-  });
-  return RFQ_PROMPT(remapped)
-    .replace(/Request for Quotation \(RFQ\)/g, 'Request for Proposal (RFP)')
-    .replace(/\bRFQ\b/g, 'RFP');
+  const r = d; // RFP keys are already rfp_ prefixed
+
+  const paymentMap = {
+    '30_days':  '30 days from invoice',
+    '14_days':  '14 days from invoice',
+    progress:   `Progress payments — milestone-based: ${r.rfp_payment_milestones || 'TBC'}`,
+    deposit:    `Upfront deposit (${r.rfp_deposit_percent || 'TBC'}%) plus balance on completion`,
+    negotiate:  'To be negotiated with successful supplier',
+  };
+  const validityLabel = r.rfp_validity === 'custom' ? (r.rfp_validity_custom || 'TBC') : `${r.rfp_validity || '60'} days`;
+  const submissionMethod = r.rfp_submission_method === 'portal'
+    ? `Via online portal: ${r.rfp_portal_url || 'TBC'}`
+    : `By email to: ${r.rfp_contact_email || 'N/A'}`;
+
+  const briefingText = r.rfp_briefing_session === 'no' || !r.rfp_briefing_session
+    ? 'No briefing session required.'
+    : `${r.rfp_briefing_session === 'mandatory' ? 'MANDATORY' : 'Optional'} briefing session — ${r.rfp_briefing_date || 'TBC'} at ${r.rfp_briefing_time || 'TBC'}, ${r.rfp_briefing_location || 'TBC'}. ${r.rfp_briefing_session === 'mandatory' ? 'Non-attendance disqualifies the respondent.' : ''}`;
+
+  const insuranceLines = Array.isArray(r.rfp_insurance_types)
+    ? r.rfp_insurance_types.filter(t => t !== 'none').map(t => {
+        const amtKey = `rfp_ins_${t}_amt`;
+        const amt = r[amtKey];
+        const labels = {
+          public_liability: 'Public Liability', workers_comp: 'Workers Compensation',
+          product_liability: 'Product Liability', professional_indemnity: 'Professional Indemnity',
+          motor_vehicle: 'Motor Vehicle', ctp: 'CTP',
+        };
+        return `${labels[t] || t}${amt ? ` (min ${amt})` : ''}`;
+      }).join('; ')
+    : 'None specified';
+
+  // Weighted criteria table
+  const criteriaRanking = r.rfp_criteria_ranking || {};
+  const criteriaWeightings = r.rfp_criteria_weightings || {};
+  const criteriaLabels = {
+    price: 'Price and value for money',
+    experience: 'Demonstrated experience in similar work',
+    methodology: 'Quality of proposed approach or methodology',
+    team: 'Team capability and key personnel',
+    timeline: 'Ability to meet the timeline',
+    values: 'Alignment with our values or culture',
+  };
+  const rankingOrder = Array.isArray(criteriaRanking) ? criteriaRanking : Object.keys(criteriaLabels);
+  const criteriaTable = rankingOrder
+    .map(id => `${criteriaLabels[id] || id} | ${criteriaWeightings[id] || 'TBC'}%`)
+    .join('\n');
+
+  // IP ownership
+  const ipMap = {
+    client_owns:    'All intellectual property created through this engagement vests in our organisation upon creation.',
+    supplier_owns:  'The supplier retains ownership of all intellectual property. Our organisation receives a perpetual, royalty-free licence to use the deliverables.',
+    shared:         'Intellectual property ownership and licencing arrangements will be negotiated and agreed at the contract stage.',
+    not_applicable: 'No intellectual property is expected to be created through this engagement.',
+  };
+
+  // Declarations
+  const declarations = Array.isArray(r.rfp_declarations)
+    ? r.rfp_declarations.filter(d => d !== 'none').map(d => ({
+        conflict_of_interest: 'Conflict of interest declaration',
+        criminal_convictions: 'Criminal convictions declaration',
+        subcontracting: 'Subcontracting disclosure',
+      }[d] || d)).join('; ')
+    : 'None required';
+
+  // Scope carried from SOW
+  const scopeContent = d.summary_of_services || d.product_description || d.statement_of_requirements || 'Refer to specification section';
+
+  const pricingStructureMap = {
+    lump_sum: 'Lump sum (fixed price)',
+    schedule_of_rates: 'Schedule of rates',
+    not_specified: 'Open to supplier — any pricing structure accepted',
+  };
+
+  return `You are an expert Australian procurement consultant. Generate a professional, formal Request for Proposal (RFP) document suitable for release to market.
+
+Organisation: ${d.organisation_name || 'N/A'}
+Project / RFP Reference: ${d.project_name || 'N/A'}
+Industry: ${d.industry || d.procurement_type || 'N/A'}
+
+=== SECTION DATA ===
+
+SUBMISSION & CONTACT (Section 2 — Submission of Offer):
+- Closing date & time: ${r.rfp_closing_date || 'N/A'} at ${r.rfp_closing_time || 'N/A'}
+- Proposals addressed to: ${r.rfp_addressed_to || 'N/A'}
+- Submission method: ${submissionMethod}
+
+CONTACT PERSONS (Section 5):
+- Query contact: ${r.rfp_contact_name || 'N/A'}, ${r.rfp_contact_title || 'N/A'}
+- Email: ${r.rfp_contact_email || 'N/A'}
+- Phone: ${r.rfp_contact_phone || 'N/A'}
+
+REQUEST DETAILS (Section 6):
+- Organisation: ${d.organisation_name || 'N/A'}
+- Commencement date: ${r.rfp_commencement_date || 'N/A'}
+- Pricing structure: ${pricingStructureMap[r.rfp_pricing_structure] || 'N/A'}
+- Payment terms: ${paymentMap[r.rfp_payment_terms] || r.rfp_payment_terms || 'N/A'}
+
+OFFER VALIDITY (Section 3): ${validityLabel}
+
+BRIEFING SESSION (Section 4): ${briefingText}
+
+SPECIFICATION (Section 7 — full scope from SOW, do not ask user to re-enter):
+${scopeContent}
+Provider responsibilities: ${d.provider_responsibilities || 'As specified'}
+Requester responsibilities: ${d.requester_responsibilities || 'As specified'}
+Key deliverables: ${d.key_deliverables || 'N/A'}
+Timeline: ${d.timeline || 'N/A'}
+
+EVALUATION MATRIX (Section 7 — weighted criteria table):
+Criterion | Weighting %
+${criteriaTable}
+
+QUALITATIVE REQUIREMENTS (Section 8):
+- Case studies required: ${r.rfp_case_studies === 'yes' ? `Yes — ${r.rfp_case_studies_count || '2'} case study/studies, referees ${r.rfp_case_studies_referees === 'yes' ? 'required' : 'not required'}` : 'No'}
+- Methodology response required: ${r.rfp_methodology === 'yes' ? 'Yes' : 'No'}
+${r.rfp_methodology === 'yes' && r.rfp_methodology_question ? `- Methodology question: "${r.rfp_methodology_question}"` : ''}
+- Key personnel required: ${r.rfp_key_personnel === 'yes' ? 'Yes — suppliers must name key personnel and provide qualifications' : 'No'}
+
+COMPLIANCE (Section 6):
+- Required licences/registrations: ${r.rfp_licences || 'None specified'}
+- Insurance requirements: ${insuranceLines}
+- IP ownership: ${ipMap[r.rfp_ip_ownership] || 'Not specified'}
+- Modern slavery declaration: ${r.rfp_modern_slavery === 'yes' ? 'Required' : 'Not required'}
+- Privacy/data handling clause: ${r.rfp_privacy === 'yes' ? 'Required — supplier will access personal/sensitive information' : 'Not required'}
+- Required declarations: ${declarations}
+
+Generate all 10 sections in order. Use formal Australian government procurement language throughout. Each section must be 1–3 paragraphs of complete, professional prose. Do not use markdown headings inside the values.
+
+For section 'background': introduce the organisation and the purpose of this RFP.
+For section 'submission_of_offer': detail submission requirements, closing date/time, format, and addressing.
+For section 'offer_validity': state the validity period and conditions.
+For section 'site_meeting': write the briefing session details: ${briefingText}
+For section 'contact_persons': list contact details for queries.
+For section 'request_details': include evaluation matrix table (Criterion | Weighting % | Description) based on the weighted criteria above. If pricing structure is Schedule of Rates, note that suppliers must complete a Schedule of Rates table.
+For section 'specification': write the full scope of work, responsibilities, deliverables, timeline, and qualitative requirements (case studies, methodology, key personnel as applicable). Include IP ownership clause: ${ipMap[r.rfp_ip_ownership] || ''}. ${r.rfp_privacy === 'yes' ? 'Include a privacy and data handling clause requiring compliance with applicable privacy legislation.' : ''} ${r.rfp_modern_slavery === 'yes' ? 'Include a modern slavery compliance declaration requiring the supplier to confirm their supply chain is free from modern slavery.' : ''}
+For section 'request_conditions': write standard TendeX request conditions covering: no obligation to accept, right to reject all offers, no reimbursement of costs, confidentiality obligations, and the right to shortlist or negotiate.
+For section 'identity_of_respondent': write a supplier completion statement (described as prose) asking for: company name, ABN, registered address, contact name and title, phone and email, required declarations (${declarations}), signature and date.
+For section 'compliance_matrix': write a structured section covering pre-qualification requirements, insurance table (listing each required insurance with minimum amounts), ${r.rfp_pricing_structure === 'schedule_of_rates' ? 'a schedule of rates table template instruction (item, unit of measure, rate per unit, estimated quantity, total)' : 'a lump sum pricing table template instruction'}. Include evaluation criteria weightings summary.`;
 };
 
 // ─────────────────────────────────────────────
