@@ -15,10 +15,9 @@ const DOC_TYPE_LABELS = {
   RFP: 'Request for Proposal',
 };
 
-// TendeX brand blue
-const BLUE = [59, 130, 246];
-const BLACK = [15, 23, 42];
-const DARK = [30, 41, 59];
+// TendeX brand teal
+const TEAL = [0, 201, 167];
+const DARK = [8, 14, 26];
 const GRAY = [100, 116, 139];
 const LIGHT = [203, 213, 225];
 const WHITE = [255, 255, 255];
@@ -88,14 +87,14 @@ export default function PDFExport({ doc, content, onClose }) {
           // Fallback: org name text
           pdf.setFontSize(7);
           pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(...BLUE);
+          pdf.setTextColor(...TEAL);
           pdf.text(doc.organisation_name || 'Organisation', margin, 9);
         }
       } else {
         // "Powered by TendeX" in brand style
         pdf.setFontSize(7);
         pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(...BLUE);
+        pdf.setTextColor(...TEAL);
         pdf.text('Powered by TendeX', margin, 9);
       }
 
@@ -106,7 +105,7 @@ export default function PDFExport({ doc, content, onClose }) {
       const rightText = `${docId}  |  ${genDate}  |  ${DOC_TYPE_LABELS[doc.document_type] || doc.document_type}`;
       pdf.text(rightText, pw - margin, 9, { align: 'right' });
       // Brand accent line
-      pdf.setFillColor(...BLUE);
+      pdf.setFillColor(...TEAL);
       pdf.rect(0, 16, pw, 0.8, 'F');
     };
 
@@ -145,13 +144,13 @@ export default function PDFExport({ doc, content, onClose }) {
       pdf.setTextColor(...GRAY);
       pdf.text('POWERED BY', pw / 2, 52, { align: 'center' });
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(...BLUE);
+      pdf.setTextColor(...TEAL);
       pdf.text('TendeX', pw / 2 + 18, 52, { align: 'center' });
 
       // Large doc type title
       pdf.setFontSize(30);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(...BLACK);
+      pdf.setTextColor(...DARK);
       const titleLines = pdf.splitTextToSize(docTypeLabel, cw - 20);
       y = 80;
       titleLines.forEach(line => {
@@ -160,7 +159,7 @@ export default function PDFExport({ doc, content, onClose }) {
       });
 
       // Brand accent line below title
-      pdf.setFillColor(...BLUE);
+      pdf.setFillColor(...TEAL);
       pdf.rect(margin + 10, y + 4, cw - 20, 1, 'F');
       y += 16;
 
@@ -224,12 +223,12 @@ export default function PDFExport({ doc, content, onClose }) {
       // Section heading
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(...BLACK);
+      pdf.setTextColor(...DARK);
       pdf.text(label.toUpperCase(), margin, y);
       y += 2.5;
 
-      // Blue underline
-      pdf.setFillColor(...BLUE);
+      // Teal underline
+      pdf.setFillColor(...TEAL);
       pdf.rect(margin, y, Math.min(pdf.getStringUnitWidth(label.toUpperCase()) * 11 / pdf.internal.scaleFactor, cw), 0.7, 'F');
       y += 7;
 
@@ -363,7 +362,8 @@ export default function PDFExport({ doc, content, onClose }) {
           <Button
             onClick={handleExportPDF}
             disabled={exportingPdf || exportingDocx || !hasContent}
-            className="w-full gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 disabled:opacity-50"
+            className="w-full gap-2 text-white border-0 disabled:opacity-50"
+            style={{ backgroundColor: '#00C9A7' }}
           >
             {exportingPdf
               ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF...</>

@@ -51,9 +51,9 @@ const DOC_TYPE_LABELS = {
   RFP: 'Request for Proposal',
 };
 
-// TendeX brand blue: #3B82F6 → RGB 59, 130, 246
-const BRAND_COLOR = '3B82F6';
-const DARK_COLOR = '0F172A';
+// TendeX brand teal: #00C9A7 → RGB 0, 201, 167
+const BRAND_COLOR = '00C9A7';
+const DARK_COLOR = '080E1A';
 const GRAY_COLOR = '64748B';
 
 const EMU_PER_CM = 914400 / 2.54;
