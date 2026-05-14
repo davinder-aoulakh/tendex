@@ -10,110 +10,103 @@
 
 // ─────────────────────────────────────────────
 // SOW — Scope of Work
+// Branching logic:
+//   S1  → procurement_type (goods | services | both)
+//   S2  → procurement basics (always shown after S1)
+//   S3  → goods list        (goods | both)
+//   S4a → service type      (services | both)
+//   S4b → construction type (services|both + service_type === 'construction_trades')
+//   S4c → service details   (services | both)
+//   S5  → combined intent   (both only — shown BEFORE S3/S4)
+//   S6  → known suppliers   (always shown last)
 // ─────────────────────────────────────────────
+
+const IS_GOODS    = (a) => a.procurement_type === 'goods';
+const IS_SERVICES = (a) => a.procurement_type === 'services';
+const IS_BOTH     = (a) => a.procurement_type === 'both';
+const HAS_GOODS   = (a) => IS_GOODS(a) || IS_BOTH(a);
+const HAS_SERVICES= (a) => IS_SERVICES(a) || IS_BOTH(a);
+
 export const SOW_PAGES = [
+  // ── S1: Procurement type (Q1.1) ──
   {
-    id: 'procurement_type',
+    id: 's1_procurement_type',
     title: 'What type of procurement is this?',
-    description: 'Select whether you are procuring goods or services.',
+    description: 'Select the category that best describes what you need to procure.',
+    sectionLabel: 'Procurement Type',
     fields: [
       {
         key: 'procurement_type',
-        label: 'Procurement Type',
+        label: 'What best describes what you need to procure?',
         type: 'radio-cards',
         required: true,
         options: [
-          { value: 'goods', label: 'Goods', description: 'Physical products, equipment, or materials' },
-          { value: 'services', label: 'Services', description: 'Professional services, labour, or expertise' },
+          { value: 'goods',    label: 'Goods — supply only',            description: 'Physical products, equipment, or materials supplied by a vendor' },
+          { value: 'services', label: 'Services — labour or expertise only', description: 'Professional services, labour, consulting, or trades' },
+          { value: 'both',     label: 'Both — goods and services together', description: 'A procurement that requires the supplier to provide goods AND deliver services as part of the same engagement' },
         ],
       },
     ],
   },
 
-  // ── GOODS PATH ──
+  // ── S2: Procurement basics (always shown) ──
   {
-    id: 'goods_purchase_type',
-    title: 'Purchase Type',
-    description: 'How will you be purchasing these goods?',
-    condition: (a) => a.procurement_type === 'goods',
+    id: 's2_basics',
+    title: 'Procurement Basics',
+    description: 'Tell us about your organisation and this procurement.',
+    sectionLabel: 'Basics',
+    condition: (a) => !!a.procurement_type,
     fields: [
+      { key: 'organisation_name', label: 'Organisation Name', type: 'text', placeholder: 'Your organisation', required: true },
+      { key: 'project_name', label: 'Project Name', type: 'text', placeholder: 'e.g. Office Fit-Out 2027', required: true },
       {
         key: 'purchase_type',
         label: 'Purchase Type',
         type: 'radio-cards',
         required: true,
         options: [
-          { value: 'once_off', label: 'Once-Off Purchase', description: 'A single, one-time purchase' },
-          { value: 'bulk', label: 'Wholesale / Bulk Purchase', description: 'Recurring or large-volume purchase' },
+          { value: 'once_off', label: 'Once-Off', description: 'A single, one-time engagement' },
+          { value: 'ongoing',  label: 'Ongoing / Panel', description: 'Recurring or standing arrangement' },
         ],
       },
     ],
   },
+
+  // ── S5: Combined intent (both only — shown before S3/S4) ──
   {
-    id: 'goods_delivery_warranty',
-    title: 'Delivery & Warranty',
-    description: 'Tell us about delivery and warranty requirements.',
-    condition: (a) => a.procurement_type === 'goods',
+    id: 's5_combined_intent',
+    title: 'Combined Procurement Intent',
+    description: 'Because you are procuring goods and services together, help us understand how they are linked.',
+    sectionLabel: 'Combined Scope',
+    condition: IS_BOTH,
     fields: [
       {
-        key: 'include_delivery',
-        label: 'Does your purchase include delivery?',
-        type: 'toggle',
-        required: false,
-      },
-      {
-        key: 'include_warranty',
-        label: 'Does your purchase include warranty requirements?',
-        type: 'toggle',
-        required: false,
-      },
-      {
-        key: 'warranty_description',
-        label: 'Warranty Requirements',
+        key: 'combined_scope_description',
+        label: 'Describe how the goods and services are connected',
         type: 'textarea',
-        placeholder: 'Describe the warranty requirements in detail...',
+        placeholder: 'e.g. We need a supplier to both manufacture custom signage (goods) and install it on-site across our network of venues (services)...',
         required: true,
-        helpText: 'Detail the expected warranty terms and conditions.',
-        condition: (a) => a.include_warranty === true,
+        helpText: 'This helps AI understand that these are linked — not two separate procurements.',
+      },
+      {
+        key: 'combined_primary_outcome',
+        label: 'What is the primary outcome you are trying to achieve?',
+        type: 'textarea',
+        placeholder: 'e.g. Fully installed, branded signage across all locations within 90 days...',
+        required: true,
       },
     ],
   },
+
+  // ── S3: Goods list (goods | both) ──
   {
-    id: 'goods_delivery_info',
-    title: 'Delivery Information',
-    description: 'Provide details about where and when goods should be delivered.',
-    condition: (a) => a.procurement_type === 'goods' && a.include_delivery === true,
+    id: 's3_goods_list',
+    title: 'Goods Specification',
+    description: 'Describe the goods you need supplied.',
+    sectionLabel: 'Goods',
+    condition: HAS_GOODS,
     fields: [
-      {
-        key: 'delivery_address',
-        label: 'Delivery Address',
-        type: 'text',
-        placeholder: 'Street address, suburb, state, postcode',
-        required: true,
-        helpText: 'Enter the full delivery address.',
-      },
-      {
-        key: 'delivery_date',
-        label: 'Required Delivery Date',
-        type: 'date',
-        required: true,
-      },
-      {
-        key: 'delivery_notes',
-        label: 'Additional Delivery Notes',
-        type: 'textarea',
-        placeholder: 'Any special delivery instructions...',
-        required: false,
-      },
-    ],
-  },
-  {
-    id: 'goods_specifications',
-    title: 'Specification Details',
-    description: 'Describe the goods you need in detail.',
-    condition: (a) => a.procurement_type === 'goods',
-    fields: [
-      { key: 'product_description', label: 'Product Description', type: 'textarea', placeholder: 'Describe the product...', required: true },
+      { key: 'product_description', label: 'Product Description', type: 'textarea', placeholder: 'Describe the product(s) in detail...', required: true },
       { key: 'product_size', label: 'Product Size / Dimensions', type: 'text', placeholder: 'e.g. 30cm x 20cm x 10cm', required: false },
       { key: 'material_colour', label: 'Material and Colour', type: 'text', placeholder: 'e.g. Stainless steel, black finish', required: false },
       { key: 'quantity', label: 'Quantity Required', type: 'number', placeholder: '100', required: true },
@@ -121,73 +114,117 @@ export const SOW_PAGES = [
       { key: 'customisation', label: 'Customisation & Branding Requirements', type: 'textarea', placeholder: 'e.g. Logo embroidered, custom packaging...', required: false },
       { key: 'technical_specs', label: 'Technical Specifications', type: 'textarea', placeholder: 'Any technical standards or compliance requirements...', required: false },
       { key: 'packaging', label: 'Packaging Requirements', type: 'textarea', placeholder: 'e.g. Individually wrapped, pallet delivery...', required: false },
-    ],
-  },
-  {
-    id: 'goods_supplier',
-    title: 'Supplier Information',
-    description: 'If you have a supplier in mind, provide their details (optional).',
-    condition: (a) => a.procurement_type === 'goods',
-    fields: [
-      { key: 'supplier_name', label: 'Supplier Name', type: 'text', placeholder: 'Company name', required: false },
-      { key: 'supplier_contact', label: 'Contact Person', type: 'text', placeholder: 'Full name', required: false },
-      { key: 'supplier_email', label: 'Email Address', type: 'email', placeholder: 'supplier@company.com', required: false },
-      { key: 'supplier_phone', label: 'Phone Number', type: 'text', placeholder: '+61 4xx xxx xxx', required: false },
+      { key: 'include_delivery', label: 'Does this include delivery to site?', type: 'toggle', required: false },
+      {
+        key: 'delivery_address',
+        label: 'Delivery Address',
+        type: 'text',
+        placeholder: 'Street address, suburb, state, postcode',
+        required: true,
+        condition: (a) => a.include_delivery === true,
+      },
+      {
+        key: 'delivery_date',
+        label: 'Required Delivery Date',
+        type: 'date',
+        required: true,
+        condition: (a) => a.include_delivery === true,
+      },
+      { key: 'include_warranty', label: 'Are warranty requirements included?', type: 'toggle', required: false },
+      {
+        key: 'warranty_description',
+        label: 'Warranty Requirements',
+        type: 'textarea',
+        placeholder: 'Describe the expected warranty terms...',
+        required: true,
+        condition: (a) => a.include_warranty === true,
+      },
     ],
   },
 
-  // ── SERVICES PATH ──
+  // ── S4a: Service type selector (services | both) ──
   {
-    id: 'services_type',
-    title: 'Select Service Type',
-    description: 'What type of service are you procuring?',
-    condition: (a) => a.procurement_type === 'services',
+    id: 's4a_service_type',
+    title: 'Service Type',
+    description: 'What category of service are you procuring?',
+    sectionLabel: 'Services',
+    condition: HAS_SERVICES,
     fields: [
       {
         key: 'service_type',
-        label: 'Service Type',
+        label: 'Select Service Type',
         type: 'radio-cards',
         required: true,
         options: [
-          { value: 'design', label: 'Design Services', description: 'Graphic, product, or UX design' },
-          { value: 'marketing', label: 'Marketing Services', description: 'Campaigns, media, branding' },
+          { value: 'design',                 label: 'Design Services',          description: 'Graphic, product, or UX design' },
+          { value: 'marketing',              label: 'Marketing Services',        description: 'Campaigns, media, branding' },
+          { value: 'construction_trades',    label: 'Construction and trades',   description: 'Builders, trades, civil works, installations' },
           { value: 'construction_professional', label: 'Construction — Professional', description: 'Architects, engineers, project managers' },
-          { value: 'construction_building', label: 'Construction — Building', description: 'Builders, trades, civil works' },
-          { value: 'it', label: 'IT Services', description: 'Software, infrastructure, support' },
-          { value: 'transport', label: 'Transport Services', description: 'Logistics, freight, fleet' },
-          { value: 'safety', label: 'Safety & Risk Services', description: 'WHS, risk assessment, compliance' },
-          { value: 'other', label: 'Other Professional Services', description: 'Consulting, legal, finance, etc.' },
+          { value: 'it',                     label: 'IT Services',              description: 'Software, infrastructure, support' },
+          { value: 'transport',              label: 'Transport Services',        description: 'Logistics, freight, fleet' },
+          { value: 'safety',                 label: 'Safety & Risk Services',    description: 'WHS, risk assessment, compliance' },
+          { value: 'other',                  label: 'Other Professional Services', description: 'Consulting, legal, finance, etc.' },
         ],
       },
     ],
   },
+
+  // ── S4b: Construction sub-branch (only when service_type === 'construction_trades') ──
   {
-    id: 'services_details',
-    title: 'Service Details',
-    description: 'Provide detailed information about the services required.',
-    condition: (a) => a.procurement_type === 'services' && !!a.service_type,
+    id: 's4b_construction_type',
+    title: 'Construction Type',
+    description: 'Select the specific type of construction or trades work required.',
+    sectionLabel: 'Construction Detail',
+    condition: (a) => HAS_SERVICES(a) && a.service_type === 'construction_trades',
     fields: [
-      { key: 'organisation_name', label: 'Organisation Name', type: 'text', placeholder: 'Your organisation', required: true },
-      { key: 'project_name', label: 'Project Name', type: 'text', placeholder: 'e.g. IT Infrastructure Upgrade', required: true },
-      { key: 'summary_of_services', label: 'Summary of Services', type: 'textarea', placeholder: 'Describe what you need the service provider to do...', required: true },
-      { key: 'provider_responsibilities', label: 'Responsibilities of Service Provider', type: 'textarea', placeholder: 'What will the supplier be responsible for?', required: true },
-      { key: 'requester_responsibilities', label: 'Responsibilities of Service Requester', type: 'textarea', placeholder: 'What will your organisation provide or be responsible for?', required: true },
-      { key: 'timeline', label: 'Timeline', type: 'text', placeholder: 'e.g. 6 months commencing July 2027', required: true },
-      { key: 'key_deliverables', label: 'Key Deliverables', type: 'textarea', placeholder: 'List the specific outputs expected...', required: true },
-      { key: 'key_personnel', label: 'Key Personnel', type: 'textarea', placeholder: 'Roles and experience required from the supplier...', required: false },
-      { key: 'additional_info', label: 'Relevant Additional Information', type: 'textarea', placeholder: 'Any other relevant context...', required: false },
+      {
+        key: 'construction_type',
+        label: 'Type of Construction / Trades Work',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'new_build',       label: 'New Build',            description: 'Construction of a new structure or facility' },
+          { value: 'fit_out',         label: 'Fit-Out / Refurbishment', description: 'Interior fit-out, renovation, or upgrade' },
+          { value: 'civil',           label: 'Civil Works',           description: 'Roads, drainage, earthworks, utilities' },
+          { value: 'mechanical',      label: 'Mechanical & HVAC',     description: 'Heating, ventilation, air conditioning, plumbing' },
+          { value: 'electrical',      label: 'Electrical',            description: 'Electrical installation or maintenance' },
+          { value: 'maintenance',     label: 'Maintenance & Repair',  description: 'Ongoing or reactive maintenance of existing assets' },
+          { value: 'other_trades',    label: 'Other Trades',          description: 'Painting, tiling, landscaping, or other specialist trades' },
+        ],
+      },
     ],
   },
+
+  // ── S4c: Service details (services | both, after type is selected) ──
   {
-    id: 'services_supplier',
-    title: 'Supplier Information',
-    description: 'If you have a supplier in mind, provide their details (optional).',
-    condition: (a) => a.procurement_type === 'services',
+    id: 's4c_service_details',
+    title: 'Service Details',
+    description: 'Provide detailed information about the services required.',
+    sectionLabel: 'Service Scope',
+    condition: (a) => HAS_SERVICES(a) && !!a.service_type,
     fields: [
-      { key: 'supplier_name', label: 'Supplier Name', type: 'text', placeholder: 'Company name', required: false },
-      { key: 'supplier_contact', label: 'Contact Person', type: 'text', placeholder: 'Full name', required: false },
-      { key: 'supplier_email', label: 'Email Address', type: 'email', placeholder: 'supplier@company.com', required: false },
-      { key: 'supplier_phone', label: 'Phone Number', type: 'text', placeholder: '+61 4xx xxx xxx', required: false },
+      { key: 'summary_of_services', label: 'Summary of Services Required', type: 'textarea', placeholder: 'Describe what you need the service provider to do...', required: true },
+      { key: 'provider_responsibilities', label: 'Responsibilities of Service Provider', type: 'textarea', placeholder: 'What will the supplier be responsible for?', required: true },
+      { key: 'requester_responsibilities', label: 'Responsibilities of Your Organisation', type: 'textarea', placeholder: 'What will your organisation provide or be responsible for?', required: true },
+      { key: 'timeline', label: 'Timeline', type: 'text', placeholder: 'e.g. 6 months commencing July 2027', required: true },
+      { key: 'key_deliverables', label: 'Key Deliverables', type: 'textarea', placeholder: 'List the specific outputs or milestones expected...', required: true },
+      { key: 'key_personnel', label: 'Key Personnel Requirements', type: 'textarea', placeholder: 'Roles and experience required from the supplier...', required: false },
+      { key: 'additional_info', label: 'Relevant Additional Information', type: 'textarea', placeholder: 'Any other relevant context or requirements...', required: false },
+    ],
+  },
+
+  // ── S6: Known suppliers (always last) ──
+  {
+    id: 's6_supplier',
+    title: 'Known Suppliers',
+    description: 'If you have a supplier in mind, provide their details (optional).',
+    sectionLabel: 'Suppliers',
+    condition: (a) => !!a.procurement_type,
+    fields: [
+      { key: 'supplier_name',    label: 'Supplier Name',   type: 'text',  placeholder: 'Company name',           required: false },
+      { key: 'supplier_contact', label: 'Contact Person',  type: 'text',  placeholder: 'Full name',              required: false },
+      { key: 'supplier_email',   label: 'Email Address',   type: 'email', placeholder: 'supplier@company.com',   required: false },
+      { key: 'supplier_phone',   label: 'Phone Number',    type: 'text',  placeholder: '+61 4xx xxx xxx',         required: false },
     ],
   },
 ];

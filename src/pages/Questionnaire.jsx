@@ -13,6 +13,9 @@ import StepIndicator from '@/components/questionnaire/StepIndicator';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
+// Persists the full answers (including procurement_type branch) to localStorage
+// so the user resumes on the correct path across sessions.
+const LOCAL_KEY = (type) => `tendex_answers_${type}`;
 const ANON_ID_KEY = 'tendex_anonymous_user_id';
 
 const getOrCreateAnonId = () => {
@@ -30,12 +33,15 @@ export default function Questionnaire() {
   const { type } = useParams();
   const navigate = useNavigate();
 
-  // Load from session storage if available
+  // Load from sessionStorage first, fall back to localStorage (cross-session persistence)
   const loadSaved = () => {
     try {
-      const saved = sessionStorage.getItem(SESSION_KEY(type));
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
+      const session = sessionStorage.getItem(SESSION_KEY(type));
+      if (session) return JSON.parse(session);
+      const local = localStorage.getItem(LOCAL_KEY(type));
+      if (local) return JSON.parse(local);
+    } catch {}
+    return {};
   };
 
   const [user, setUser] = useState(undefined); // undefined = loading, null = not logged in
@@ -82,9 +88,13 @@ export default function Questionnaire() {
   const page = visiblePages[currentStep] || visiblePages[0];
   const isLastStep = currentStep === totalSteps - 1;
 
-  // Persist to session storage on every answer change
+  // Persist to both sessionStorage and localStorage on every answer change
   useEffect(() => {
-    try { sessionStorage.setItem(SESSION_KEY(type), JSON.stringify(answers)); } catch {}
+    try {
+      const blob = JSON.stringify(answers);
+      sessionStorage.setItem(SESSION_KEY(type), blob);
+      localStorage.setItem(LOCAL_KEY(type), blob);
+    } catch {}
   }, [answers, type]);
 
   // Reset step if visible pages shrink
@@ -130,6 +140,8 @@ export default function Questionnaire() {
       title: answers.project_name || answers.rfq_title || answers.eoi_title || `${type} Document — ${new Date().toLocaleDateString('en-AU')}`,
       document_type: type,
       status: 'draft',
+      // Full answers snapshot — includes procurement_type branch key so the
+      // user can resume on the correct path in a later session.
       questionnaire_data: answers,
       project_name: answers.project_name || answers.rfq_title || '',
       organisation_name: answers.organisation_name || answers.company_name || '',
@@ -140,7 +152,10 @@ export default function Questionnaire() {
       docData.anonymous_user_id = anonId;
     }
     const doc = await base44.entities.Document.create(docData);
-    try { sessionStorage.removeItem(SESSION_KEY(type)); } catch {}
+    try {
+      sessionStorage.removeItem(SESSION_KEY(type));
+      localStorage.removeItem(LOCAL_KEY(type));
+    } catch {}
     setCreatedDocId(doc.id);
     navigate(`/document/${doc.id}?generating=true`);
   };
@@ -187,7 +202,7 @@ export default function Questionnaire() {
 
         {/* Step indicator */}
         <div className="mb-8">
-          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} visiblePages={visiblePages} />
         </div>
 
         {/* Page */}
