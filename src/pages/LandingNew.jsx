@@ -497,10 +497,10 @@ export default function LandingNew() {
           <div>
             <h4 className="font-syne font-700 text-xs text-white uppercase tracking-wide mb-4">Product</h4>
             <div className="space-y-2 font-dm-sans font-400 text-sm text-[#5C7A99]">
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
+              <a href="#how" className="block hover:text-[#00C9A7] transition-colors">
                 Features
               </a>
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
+              <a href="#pricing" className="block hover:text-[#00C9A7] transition-colors">
                 Pricing
               </a>
               <a href="#" className="block hover:text-[#00C9A7] transition-colors">
@@ -513,13 +513,13 @@ export default function LandingNew() {
           <div>
             <h4 className="font-syne font-700 text-xs text-white uppercase tracking-wide mb-4">Company</h4>
             <div className="space-y-2 font-dm-sans font-400 text-sm text-[#5C7A99]">
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
+              <a href="#about" className="block hover:text-[#00C9A7] transition-colors">
                 About
               </a>
               <a href="#" className="block hover:text-[#00C9A7] transition-colors">
                 Blog
               </a>
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
+              <a href="mailto:hello@tendex.com.au" className="block hover:text-[#00C9A7] transition-colors">
                 Contact
               </a>
             </div>
