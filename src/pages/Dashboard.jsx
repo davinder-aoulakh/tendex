@@ -15,10 +15,10 @@ import VersionHistory from '@/components/document/VersionHistory';
 import { useToast } from '@/components/ui/use-toast';
 
 const docTypeColors = {
-  SOW: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  SOW: 'bg-[#00C9A7]/20 text-[#00C9A7] border-[#00C9A7]/30',
   EOI: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   RFQ: 'bg-green-500/20 text-green-300 border-green-500/30',
-  RFP: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+  RFP: 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/30',
 };
 
 // Map document type + status to procurement status label
@@ -114,11 +114,11 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display text-3xl font-semibold text-white">My Documents</h1>
-            <p className="text-blue-200/50 mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
+            <h1 className="font-syne font-800 text-3xl text-white">My Documents</h1>
+            <p className="text-[#8FA5C0] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
           <Link to="/tool-select">
-            <Button disabled={atLimit} className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20 disabled:opacity-50">
+            <Button disabled={atLimit} className="gap-2 bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0 shadow-lg disabled:opacity-50" style={{ boxShadow: '0 0 20px rgba(0, 201, 167, 0.3)' }}>
               <Plus className="w-4 h-4" /> New Document
             </Button>
           </Link>
@@ -133,7 +133,7 @@ export default function Dashboard() {
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               You've reached your {docsLimit}-document limit on the <span className="font-semibold capitalize">{currentPlan}</span> plan.
             </div>
-            <Link to="/billing"><Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white border-0 flex-shrink-0">Upgrade</Button></Link>
+            <Link to="/billing"><Button size="sm" className="bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0 flex-shrink-0">Upgrade</Button></Link>
           </motion.div>
         ) : nearLimit ? (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
@@ -143,33 +143,33 @@ export default function Dashboard() {
               <Zap className="w-4 h-4 flex-shrink-0" />
               {documents.length} of {docsLimit} documents used — consider upgrading.
             </div>
-            <Link to="/billing"><Button size="sm" variant="ghost" className="text-amber-300 hover:text-white border border-amber-400/30 hover:bg-white/10 flex-shrink-0 h-7 text-xs">View Plans</Button></Link>
+            <Link to="/billing"><Button size="sm" variant="ghost" className="text-[#F59E0B] hover:text-white border border-[#F59E0B]/30 hover:bg-white/10 flex-shrink-0 h-7 text-xs">View Plans</Button></Link>
           </motion.div>
         ) : null}
 
         {/* Plan usage bar */}
         {docsLimit !== 999 && (
-          <div className="rounded-xl border border-white/10 px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
-            <div className="flex-1">
-              <div className="flex justify-between text-xs mb-1.5">
-                <span className="text-blue-200/50 flex items-center gap-1.5">
-                  {currentPlan === 'free' ? <Zap className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
-                  <span className="capitalize">{currentPlan} plan</span>
-                </span>
-                <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
-              </div>
-              <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-amber-400' : 'bg-blue-500'}`}
-                  style={{ width: `${usagePct}%` }} />
-              </div>
-            </div>
-            {currentPlan === 'free' && (
-              <Link to="/billing">
-                <Button size="sm" className="text-xs bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 border border-blue-400/20 h-7">Upgrade</Button>
-              </Link>
-            )}
-          </div>
-        )}
+           <div className="rounded-xl border border-white/10 px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
+             <div className="flex-1">
+               <div className="flex justify-between text-xs mb-1.5">
+                 <span className="text-[#8FA5C0] flex items-center gap-1.5">
+                   {currentPlan === 'free' ? <Zap className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
+                   <span className="capitalize">{currentPlan} plan</span>
+                 </span>
+                 <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
+               </div>
+               <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                 <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-[#F59E0B]' : 'bg-[#00C9A7]'}`}
+                   style={{ width: `${usagePct}%` }} />
+               </div>
+             </div>
+             {currentPlan === 'free' && (
+               <Link to="/billing">
+                 <Button size="sm" className="text-xs bg-[#00C9A7]/20 hover:bg-[#00C9A7]/40 text-[#00C9A7] border border-[#00C9A7]/30 h-7">Upgrade</Button>
+               </Link>
+             )}
+           </div>
+         )}
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
@@ -189,23 +189,23 @@ export default function Dashboard() {
         {/* Filters */}
         <div className="flex flex-col gap-3 mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/40" />
-              <Input
-                placeholder="Search by title or document ID..."
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-blue-500/50"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
+           <div className="relative flex-1">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00C9A7]/40" />
+             <Input
+               placeholder="Search by title or document ID..."
+               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#00C9A7]/50"
+               value={search}
+               onChange={e => setSearch(e.target.value)}
+             />
+           </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <span className="text-xs text-blue-200/40 self-center">Filter:</span>
+           <span className="text-xs text-[#8FA5C0] self-center">Filter:</span>
             {['all', 'draft', 'complete'].map(s => (
               <Button key={s} size="sm"
                 onClick={() => setFilterStatus(s)}
                 className={`text-xs capitalize transition-colors ${filterStatus === s
-                  ? 'bg-blue-500 text-white border-0 hover:bg-blue-400'
+                  ? 'bg-[#00C9A7] text-[#080E1A] border-0 hover:bg-[#00E0BA]'
                   : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
                 {s === 'all' ? 'All Status' : s === 'draft' ? 'In Progress' : 'Completed'}
               </Button>
@@ -220,20 +220,20 @@ export default function Dashboard() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
-            <FileText className="w-12 h-12 text-blue-300/20 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">
-              {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
-            </h3>
-            <p className="text-blue-200/50 mb-6">
-              {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
-            </p>
-            {documents.length === 0 && (
-              <Link to="/tool-select">
-                <Button className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
-                  <Plus className="w-4 h-4" />Start a new procurement
-                </Button>
-              </Link>
-            )}
+           <FileText className="w-12 h-12 text-[#00C9A7]/20 mx-auto mb-4" />
+           <h3 className="text-lg font-medium text-white mb-2">
+             {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
+           </h3>
+           <p className="text-[#8FA5C0] mb-6">
+             {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
+           </p>
+           {documents.length === 0 && (
+             <Link to="/tool-select">
+               <Button className="gap-2 bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0">
+                 <Plus className="w-4 h-4" />Start a new procurement
+               </Button>
+             </Link>
+           )}
           </div>
         ) : (
           <>
@@ -242,13 +242,13 @@ export default function Dashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Title</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Last Modified</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Actions</th>
-                  </tr>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Title</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">ID</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Type</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Status</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Last Modified</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Actions</th>
+                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((doc, i) => (
@@ -261,8 +261,8 @@ export default function Dashboard() {
                         </button>
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="text-xs font-mono text-blue-300/60">{doc.procurement_id || '—'}</span>
-                      </td>
+                         <span className="text-xs font-mono text-[#8FA5C0]">{doc.procurement_id || '—'}</span>
+                       </td>
                       <td className="px-6 py-3.5">
                         <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
                       </td>
@@ -272,15 +272,15 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="text-xs text-blue-200/50">
-                          {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
-                        </span>
-                      </td>
+                         <span className="text-xs text-[#8FA5C0]">
+                           {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
+                         </span>
+                       </td>
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                           {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                             <Button variant="ghost" size="sm"
-                              className="gap-1 text-xs text-green-300 hover:text-white hover:bg-green-500/20 border border-green-400/20 h-7"
+                                className="gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
                               onClick={() => {
                                 try {
                                   localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -295,7 +295,7 @@ export default function Dashboard() {
                           )}
                           {doc.status === 'complete' && (
                             <Button variant="ghost" size="sm"
-                              className="gap-1 text-xs text-blue-300 hover:text-white hover:bg-blue-500/20 border border-blue-400/20 h-7"
+                              className="gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
                               onClick={() => navigate(`/document/${doc.id}`)}>
                               <FileText className="w-3 h-3" />View
                             </Button>
@@ -357,21 +357,21 @@ export default function Dashboard() {
 
                   {/* ID + Type Row */}
                   <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="font-mono text-blue-300/60">{doc.procurement_id || '—'}</span>
+                    <span className="font-mono text-[#8FA5C0]">{doc.procurement_id || '—'}</span>
                     <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
                   </div>
 
                   {/* Status + Last Modified Row */}
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="text-blue-200/50">Status:</span>
+                      <span className="text-[#8FA5C0]">Status:</span>
                       <div className={`mt-0.5 font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
                         {getProcurementStatus(doc)}
                       </div>
                     </div>
                     <div>
-                      <span className="text-blue-200/50">Modified:</span>
-                      <div className="mt-0.5 text-blue-200/60">
+                      <span className="text-[#8FA5C0]">Modified:</span>
+                      <div className="mt-0.5 text-[#8FA5C0]">
                         {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d') : '—'}
                       </div>
                     </div>
@@ -381,7 +381,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-green-300 hover:text-white hover:bg-green-500/20 border border-green-400/20 h-7"
+                        className="flex-1 gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
                         onClick={() => {
                           try {
                             localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -396,7 +396,7 @@ export default function Dashboard() {
                     )}
                     {doc.status === 'complete' && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-blue-300 hover:text-white hover:bg-blue-500/20 border border-blue-400/20 h-7"
+                        className="flex-1 gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
                         onClick={() => navigate(`/document/${doc.id}`)}>
                         <FileText className="w-3 h-3" />View
                       </Button>

@@ -59,15 +59,15 @@ export default function AppLayout({ children }) {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #080d24 0%, #0d1b4b 50%, #0a1535 100%)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#080E1A' }}>
       {/* Top nav */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/10 backdrop-blur-md" style={{ background: 'rgba(8,13,36,0.7)' }}>
+      <nav className="fixed top-0 w-full z-50 blur-nav">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-400/20">
-              <FileText className="w-4 h-4 text-blue-300" />
+            <div className="w-8 h-8 bg-[#00C9A7]/20 rounded-lg flex items-center justify-center border border-[#00C9A7]/30">
+              <FileText className="w-4 h-4 text-[#00C9A7]" />
             </div>
-            <span className="font-display font-semibold text-lg text-white">TendeX</span>
+            <span className="font-syne font-800 text-lg text-white">TendeX</span>
           </Link>
           <div className="flex items-center gap-1">
             {isAuthenticated ? (
@@ -75,7 +75,7 @@ export default function AppLayout({ children }) {
                 {/* Upgrade button for trial users */}
                 {subscription?.plan === 'free' && (
                   <Link to="/billing">
-                    <Button size="sm" className="gap-2 ml-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30">
+                    <Button size="sm" className="gap-2 ml-1 bg-[#F59E0B]/20 hover:bg-[#F59E0B]/30 text-[#F59E0B] border border-[#F59E0B]/30">
                       <Zap className="w-4 h-4" />Upgrade
                     </Button>
                   </Link>
@@ -96,7 +96,7 @@ export default function AppLayout({ children }) {
                    );
                  })}
                  <Link to="/tool-select">
-                   <Button size="sm" className="gap-2 ml-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+                   <Button size="sm" className="gap-2 ml-2 bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0 shadow-lg" style={{ boxShadow: '0 0 20px rgba(0, 201, 167, 0.3)' }}>
                      <Plus className="w-4 h-4" />New
                    </Button>
                  </Link>
