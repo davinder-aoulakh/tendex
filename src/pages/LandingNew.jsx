@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, TrendingUp, FileText, Shield, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -43,11 +44,21 @@ export default function LandingNew() {
               About
             </a>
           </div>
-          <Link to="/plan-selection">
-            <Button className="font-syne font-700 text-sm" style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => base44.auth.redirectToLogin('/dashboard')}
+              className="font-dm-sans text-sm text-[#8FA5C0] hover:text-[#00C9A7] transition-colors"
+            >
+              Log in
+            </button>
+            <Button
+              onClick={() => base44.auth.redirectToLogin('/plan-selection')}
+              className="font-syne font-700 text-sm"
+              style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}
+            >
               Start free trial →
             </Button>
-          </Link>
+          </div>
         </div>
       </nav>
 
