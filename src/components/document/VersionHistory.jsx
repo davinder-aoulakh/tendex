@@ -44,13 +44,13 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <History className="w-4 h-4 text-blue-400" />
+          <History className="w-4 h-4" style={{ color: '#00C9A7' }} />
           <h3 className="font-semibold text-white text-sm">Version History</h3>
         </div>
         <div className="flex items-center gap-1">
           {onCompare && (
             <Button variant="ghost" size="sm" onClick={onCompare}
-              className="h-7 px-2 text-xs gap-1.5 text-blue-300/60 hover:text-blue-200 hover:bg-white/10">
+              className="h-7 px-2 text-xs gap-1.5 hover:bg-white/10" style={{ color: 'rgba(0,201,167,0.6)', '--tw-text-opacity': 1 }} onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(0,201,167,0.9)'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(0,201,167,0.6)'}>
               <ArrowLeftRight className="w-3.5 h-3.5" />Compare
             </Button>
           )}
@@ -71,9 +71,9 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
           </div>
         ) : versions.length === 0 ? (
           <div className="text-center py-12">
-            <Clock className="w-8 h-8 text-blue-300/20 mx-auto mb-3" />
-            <p className="text-sm text-blue-200/40">No versions yet.</p>
-            <p className="text-xs text-blue-200/30 mt-1">Versions are saved each time you save or regenerate.</p>
+            <Clock className="w-8 h-8 mx-auto mb-3" style={{ color: 'rgba(0,201,167,0.2)' }} />
+            <p className="text-sm" style={{ color: 'rgba(0,201,167,0.4)' }}>No versions yet.</p>
+            <p className="text-xs mt-1" style={{ color: 'rgba(0,201,167,0.3)' }}>Versions are saved each time you save or regenerate.</p>
           </div>
         ) : (
           versions.map((v, i) => (
@@ -83,8 +83,8 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   {v.source === 'ai_generated'
-                    ? <Sparkles className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                    : <Pencil className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />}
+                    ? <Sparkles className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#00C9A7' }} />
+                    : <Pencil className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#A78BFA' }} />}
                   <span className="text-sm font-medium text-white">
                     {v.label || (v.source === 'ai_generated' ? 'AI Generated' : 'Manual Save')}
                   </span>
@@ -93,7 +93,7 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
                   <Badge className="text-xs bg-green-500/20 text-green-300 border-green-500/30 flex-shrink-0">Latest</Badge>
                 )}
               </div>
-              <p className="text-xs text-blue-200/40 mb-3 flex items-center gap-1">
+              <p className="text-xs mb-3 flex items-center gap-1" style={{ color: 'rgba(0,201,167,0.4)' }}>
                 <Clock className="w-3 h-3" />
                 {v.created_date ? format(new Date(v.created_date), 'dd MMM yyyy, h:mm a') : '—'}
               </p>
@@ -101,10 +101,10 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
               {confirmId === v.id ? (
                 <div className="flex gap-2">
                   <Button size="sm" onClick={() => restoreMutation.mutate(v)}
-                    disabled={restoreMutation.isPending}
-                    className="flex-1 h-7 text-xs bg-blue-500 hover:bg-blue-400 text-white border-0">
-                    Confirm Restore
-                  </Button>
+                      disabled={restoreMutation.isPending}
+                      className="flex-1 h-7 text-xs text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
+                      Confirm Restore
+                    </Button>
                   <Button size="sm" variant="ghost" onClick={() => setConfirmId(null)}
                     className="h-7 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
                     Cancel
@@ -122,10 +122,10 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
       </div>
 
       <div className="px-4 py-3 border-t border-white/10">
-        <p className="text-xs text-blue-200/30 text-center">
-          Versions are saved automatically on each save or AI regeneration.
-        </p>
-      </div>
+         <p className="text-xs text-center" style={{ color: 'rgba(0,201,167,0.3)' }}>
+           Versions are saved automatically on each save, regeneration, or custom snapshots.
+         </p>
+       </div>
     </motion.div>
   );
 }

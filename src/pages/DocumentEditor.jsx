@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw, History, MessageSquare } from 'lucide-react';
+import { Loader2, Sparkles, Download, ChevronLeft, Save, Check, RefreshCw, History, MessageSquare, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { generateDocumentContent, SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
@@ -32,10 +32,13 @@ export default function DocumentEditor() {
   const [editedContent, setEditedContent] = useState({});
   const [showPDF, setShowPDF] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showCompare, setShowCompare] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const hasGenerated = useRef(false);
-  const { presence, me, setActiveSection } = usePresence(id);
+   const [showCompare, setShowCompare] = useState(false);
+   const [showComments, setShowComments] = useState(false);
+   const [showSnapshotDialog, setShowSnapshotDialog] = useState(false);
+   const [snapshotName, setSnapshotName] = useState('');
+   const [savingSnapshot, setSavingSnapshot] = useState(false);
+   const hasGenerated = useRef(false);
+   const { presence, me, setActiveSection } = usePresence(id);
 
   const { data: doc, isLoading } = useQuery({
     queryKey: ['document', id],
@@ -114,11 +117,24 @@ export default function DocumentEditor() {
     setEditedContent(prev => ({ ...prev, [sectionKey]: value }));
   };
 
+  const handleSaveSnapshot = async () => {
+    if (!snapshotName.trim()) {
+      toast({ title: 'Snapshot name required', description: 'Please enter a name for your snapshot.', variant: 'destructive' });
+      return;
+    }
+    setSavingSnapshot(true);
+    await saveVersion(editedContent, 'manual_save', snapshotName);
+    setSavingSnapshot(false);
+    setSnapshotName('');
+    setShowSnapshotDialog(false);
+    toast({ title: 'Snapshot saved', description: `Saved snapshot: "${snapshotName}"` });
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00C9A7' }} />
         </div>
       </AppLayout>
     );
@@ -134,12 +150,12 @@ export default function DocumentEditor() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <button onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white mb-3 transition-colors">
+              className="flex items-center gap-1.5 text-sm transition-colors mb-3" style={{ color: 'rgba(0,201,167,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(0,201,167,0.5)'}>
               <ChevronLeft className="w-4 h-4" />Back to Dashboard
             </button>
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="font-display text-2xl font-semibold text-white">{doc?.title || 'Document'}</h1>
-              <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">{doc?.document_type}</Badge>
+              <Badge style={{ background: 'rgba(0,201,167,0.2)', color: '#00C9A7', borderColor: 'rgba(0,201,167,0.3)', border: '1px solid' }}>{doc?.document_type}</Badge>
               <Badge className={`capitalize border ${doc?.status === 'complete' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-white/10 text-white/50 border-white/10'}`}>
                 {doc?.status}
               </Badge>
@@ -160,12 +176,16 @@ export default function DocumentEditor() {
               {saved ? <Check className="w-4 h-4 text-green-400" /> : saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saved ? 'Saved!' : 'Save'}
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowSnapshotDialog(true)}
+              className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
+              <Camera className="w-4 h-4" />Snapshot
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setShowHistory(h => !h)}
               className={`gap-2 border border-white/10 ${showHistory ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}>
               <History className="w-4 h-4" />History
             </Button>
             <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent}
-              className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+              className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
               <Download className="w-4 h-4" />Export
             </Button>
           </div>
@@ -198,17 +218,17 @@ export default function DocumentEditor() {
                   ))}
                   <div className="flex justify-end pt-4">
                     <Button onClick={handleSave} disabled={saving} size="lg"
-                      className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+                      className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
                       {saved ? <><Check className="w-4 h-4" />Saved!</> : saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><Save className="w-4 h-4" />Save Changes</>}
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="rounded-2xl border border-white/10 p-16 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <Sparkles className="w-10 h-10 text-blue-300/30 mx-auto mb-4" />
+                  <Sparkles className="w-10 h-10 mx-auto mb-4" style={{ color: 'rgba(0,201,167,0.3)' }} />
                   <h3 className="font-semibold text-white mb-2">No content yet</h3>
-                  <p className="text-blue-200/50 mb-6">Generate AI content based on your questionnaire answers.</p>
-                  <Button onClick={() => handleGenerate()} className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
+                  <p className="mb-6" style={{ color: 'rgba(0,201,167,0.5)' }}>Generate AI content based on your questionnaire answers.</p>
+                  <Button onClick={() => handleGenerate()} className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
                     <Sparkles className="w-4 h-4" />Generate Document
                   </Button>
                 </div>
