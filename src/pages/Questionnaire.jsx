@@ -13,6 +13,9 @@ import StepIndicator from '@/components/questionnaire/StepIndicator';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
 import ScopeScoreResult from '@/components/questionnaire/ScopeScoreResult';
 import { scoreScopeAnswers } from '@/lib/scopeScorer';
+import AIScopePurpose from '@/components/questionnaire/AIScopePurpose';
+import AIDeliverableChips from '@/components/questionnaire/AIDeliverableChips';
+import SOWDocumentReview from '@/components/questionnaire/SOWDocumentReview';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
 // Persists the full answers (including procurement_type branch) to localStorage
@@ -58,6 +61,14 @@ export default function Questionnaire() {
   const [showScoring, setShowScoring] = useState(false);
   const [scoring, setScoring] = useState(false);
   const [scoreData, setScoreData] = useState(null);
+
+  // AI Assist steps (SOW only)
+  // 'purpose'      → Assist 1: scope purpose statement (shown after S2)
+  // 'deliverables' → Assist 3: deliverable chips (shown after S4c service description)
+  // 'sow_review'   → Assist 4: full SOW document review (shown after S6)
+  const [aiStep, setAiStep] = useState(null); // null | 'purpose' | 'deliverables' | 'sow_review'
+  const [purposeConfirmed, setPurposeConfirmed] = useState(false);
+  const [deliverablesShown, setDeliverablesShown] = useState(false);
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => setUser(null)); }, []);
 
@@ -122,11 +133,31 @@ export default function Questionnaire() {
       return;
     }
     setErrors([]);
+
+    if (type === 'SOW') {
+      // Assist 1: after S2 basics, show scope purpose
+      if (page?.id === 's2_basics' && !purposeConfirmed) {
+        setAiStep('purpose');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      // Assist 3: after S4c service details, show deliverable chips (services/both only)
+      if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both')) {
+        setAiStep('deliverables');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
     if (!isLastStep) {
       setCurrentStep(s => s + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (type === 'SOW' && aiStep !== 'sow_review') {
+      // Assist 4: after last SOW page (S6), show full SOW review
+      setAiStep('sow_review');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (type === 'SOW' && !showScoring) {
-      // SOW: run scoring before generating
+      // Then run scoring
       setShowScoring(true);
       setScoring(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -219,15 +250,108 @@ export default function Questionnaire() {
           </div>
         )}
 
-        {/* Step indicator — hidden during scoring step */}
-        {!showScoring && (
+        {/* Step indicator — hidden during AI assist or scoring steps */}
+        {!showScoring && !aiStep && (
           <div className="mb-8">
             <StepIndicator currentStep={currentStep} totalSteps={totalSteps} visiblePages={visiblePages} />
           </div>
         )}
 
-        {/* ── SCOPE SCORING STEP (SOW only, after last page) ── */}
-        {showScoring ? (
+        {/* ── AI ASSIST 1: Scope Purpose Statement ── */}
+        {aiStep === 'purpose' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Scope Purpose</h2>
+              <p className="text-sm text-blue-200/50">AI has drafted a scope purpose statement based on your answers.</p>
+            </div>
+            <AIScopePurpose
+              answers={answers}
+              value={answers._scope_purpose}
+              onChange={val => updateAnswer('_scope_purpose', val)}
+              onConfirm={(val) => {
+                updateAnswer('_scope_purpose', val);
+                setPurposeConfirmed(true);
+                setAiStep(null);
+                setCurrentStep(s => s + 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+            <div className="mt-6">
+              <Button variant="ghost" onClick={() => { setAiStep(null); }}
+                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Questions
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── AI ASSIST 3: Deliverable Chips ── */}
+        {aiStep === 'deliverables' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Key Deliverables</h2>
+              <p className="text-sm text-blue-200/50">AI has suggested deliverables based on your service description. Edit as needed.</p>
+            </div>
+            <AIDeliverableChips
+              answers={answers}
+              value={answers.key_deliverables}
+              onChange={val => updateAnswer('key_deliverables', val)}
+            />
+            <div className="mt-6 flex justify-between">
+              <Button variant="ghost" onClick={() => setAiStep(null)}
+                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => {
+                  setDeliverablesShown(true);
+                  setAiStep(null);
+                  setCurrentStep(s => s + 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20"
+              >
+                Continue <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── AI ASSIST 4: Full SOW Document Review ── */}
+        {aiStep === 'sow_review' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Generate Scope of Work</h2>
+              <p className="text-sm text-blue-200/50">AI is assembling your complete Scope of Work from all your answers.</p>
+            </div>
+            <SOWDocumentReview
+              answers={answers}
+              onConfirm={(reviewedSections) => {
+                updateAnswer('_sow_sections', reviewedSections);
+                setAiStep(null);
+                // Trigger scoring step
+                setShowScoring(true);
+                setScoring(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                scoreScopeAnswers(answers).then(result => {
+                  setScoreData(result);
+                  setScoring(false);
+                });
+              }}
+              onBack={() => setAiStep(null)}
+            />
+            <div className="mt-4">
+              <Button variant="ghost" onClick={() => setAiStep(null)}
+                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Questions
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── SCOPE SCORING STEP ── */}
+        {showScoring && !aiStep && (
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">AI Scope Review</h2>
@@ -247,7 +371,6 @@ export default function Questionnaire() {
               />
             )}
 
-            {/* Back to questionnaire */}
             {!scoring && (
               <div className="mt-8">
                 <Button variant="ghost" onClick={() => { setShowScoring(false); setScoreData(null); }}
@@ -257,9 +380,11 @@ export default function Questionnaire() {
               </div>
             )}
           </div>
-        ) : (
+        )}
+
+        {/* ── MAIN QUESTIONNAIRE ── */}
+        {!showScoring && !aiStep && (
           <>
-            {/* Page */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={page?.id || currentStep}
@@ -268,13 +393,11 @@ export default function Questionnaire() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Page header */}
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold text-white mb-1">{page?.title}</h2>
                   {page?.description && <p className="text-sm text-blue-200/50">{page.description}</p>}
                 </div>
 
-                {/* Validation banner */}
                 {errors.length > 0 && (
                   <div className="mb-5 flex items-center gap-2 text-sm text-red-400 border border-red-400/30 rounded-lg px-4 py-3"
                     style={{ background: 'rgba(239,68,68,0.08)' }}>
@@ -283,7 +406,6 @@ export default function Questionnaire() {
                   </div>
                 )}
 
-                {/* Fields */}
                 <div className="space-y-6">
                   {visibleFields.map(field => (
                     field.type === 'milestone-table' ? (
@@ -313,7 +435,6 @@ export default function Questionnaire() {
               </motion.div>
             </AnimatePresence>
 
-            {/* Navigation */}
             <div className="mt-10 flex justify-between items-center">
               <Button variant="ghost" onClick={handleBack}
                 className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
@@ -325,7 +446,7 @@ export default function Questionnaire() {
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (
-                  <><Sparkles className="w-4 h-4" />Review Scope</>
+                  <><Sparkles className="w-4 h-4" />Generate Scope of Work</>
                 ) : (
                   <>Next <ArrowRight className="w-4 h-4" /></>
                 )}
