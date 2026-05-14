@@ -11,6 +11,8 @@ import QuestionField from '@/components/questionnaire/QuestionField';
 import MilestoneTable from '@/components/questionnaire/MilestoneTable';
 import StepIndicator from '@/components/questionnaire/StepIndicator';
 import GeneratingScreen from '@/components/document/GeneratingScreen';
+import ScopeScoreResult from '@/components/questionnaire/ScopeScoreResult';
+import { scoreScopeAnswers } from '@/lib/scopeScorer';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
 // Persists the full answers (including procurement_type branch) to localStorage
@@ -52,6 +54,10 @@ export default function Questionnaire() {
   const [generatingDone, setGeneratingDone] = useState(false);
   const [createdDocId, setCreatedDocId] = useState(null);
   const [errors, setErrors] = useState([]);
+  // Scope scoring step (SOW only, after last questionnaire page)
+  const [showScoring, setShowScoring] = useState(false);
+  const [scoring, setScoring] = useState(false);
+  const [scoreData, setScoreData] = useState(null);
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => setUser(null)); }, []);
 
@@ -119,6 +125,14 @@ export default function Questionnaire() {
     if (!isLastStep) {
       setCurrentStep(s => s + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (type === 'SOW' && !showScoring) {
+      // SOW: run scoring before generating
+      setShowScoring(true);
+      setScoring(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const result = await scoreScopeAnswers(answers);
+      setScoreData(result);
+      setScoring(false);
     } else {
       await handleGenerate();
     }
@@ -134,20 +148,25 @@ export default function Questionnaire() {
     }
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (finalDocType, overrideDocType) => {
     setGenerating(true);
+    const resolvedType = overrideDocType || finalDocType || type;
     const docData = {
-      title: answers.project_name || answers.rfq_title || answers.eoi_title || `${type} Document — ${new Date().toLocaleDateString('en-AU')}`,
-      document_type: type,
+      title: answers.project_name || answers.rfq_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`,
+      document_type: resolvedType,
       status: 'draft',
       // Full answers snapshot — includes procurement_type branch key so the
       // user can resume on the correct path in a later session.
-      questionnaire_data: answers,
+      questionnaire_data: {
+        ...answers,
+        // Log AI recommendation and any override with timestamp
+        ...(scoreData ? { _ai_recommended_type: scoreData.recommendation } : {}),
+        ...(overrideDocType ? { _user_override_type: overrideDocType, _override_timestamp: new Date().toISOString() } : {}),
+      },
       project_name: answers.project_name || answers.rfq_title || '',
       organisation_name: answers.organisation_name || answers.company_name || '',
       industry: answers.industry || answers.service_type || answers.procurement_type || '',
     };
-    // Tag with anonymous ID if user is not logged in
     if (!user && anonId) {
       docData.anonymous_user_id = anonId;
     }
@@ -200,83 +219,120 @@ export default function Questionnaire() {
           </div>
         )}
 
-        {/* Step indicator */}
-        <div className="mb-8">
-          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} visiblePages={visiblePages} />
-        </div>
+        {/* Step indicator — hidden during scoring step */}
+        {!showScoring && (
+          <div className="mb-8">
+            <StepIndicator currentStep={currentStep} totalSteps={totalSteps} visiblePages={visiblePages} />
+          </div>
+        )}
 
-        {/* Page */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={page?.id || currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.25 }}
-          >
-            {/* Page header */}
+        {/* ── SCOPE SCORING STEP (SOW only, after last page) ── */}
+        {showScoring ? (
+          <div>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">{page?.title}</h2>
-              {page?.description && <p className="text-sm text-blue-200/50">{page.description}</p>}
+              <h2 className="text-xl font-semibold text-white mb-1">AI Scope Review</h2>
+              <p className="text-sm text-blue-200/50">We've analysed your answers to recommend the best next step.</p>
             </div>
 
-            {/* Validation banner */}
-            {errors.length > 0 && (
-              <div className="mb-5 flex items-center gap-2 text-sm text-red-400 border border-red-400/30 rounded-lg px-4 py-3"
-                style={{ background: 'rgba(239,68,68,0.08)' }}>
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                Please complete all required fields before continuing.
+            {scoring ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-4">
+                <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                <p className="text-blue-200/50 text-sm">Evaluating your scope...</p>
+              </div>
+            ) : (
+              <ScopeScoreResult
+                scoreData={scoreData}
+                onProceed={(recommendedType) => handleGenerate(recommendedType, null)}
+                onOverride={(chosenType) => handleGenerate(scoreData?.recommendation, chosenType)}
+              />
+            )}
+
+            {/* Back to questionnaire */}
+            {!scoring && (
+              <div className="mt-8">
+                <Button variant="ghost" onClick={() => { setShowScoring(false); setScoreData(null); }}
+                  className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                  <ArrowLeft className="w-4 h-4 mr-2" /> Back to Questions
+                </Button>
               </div>
             )}
+          </div>
+        ) : (
+          <>
+            {/* Page */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={page?.id || currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                {/* Page header */}
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-white mb-1">{page?.title}</h2>
+                  {page?.description && <p className="text-sm text-blue-200/50">{page.description}</p>}
+                </div>
 
-            {/* Fields */}
-            <div className="space-y-6">
-              {visibleFields.map(field => (
-                field.type === 'milestone-table' ? (
-                  <div key={field.key} className="space-y-2">
-                    <div className="text-sm font-medium text-blue-100/80">
-                      {field.label}
-                      {field.required && <span className="text-red-400 ml-1">*</span>}
-                    </div>
-                    <MilestoneTable
-                      value={answers[field.key]}
-                      onChange={val => updateAnswer(field.key, val)}
-                      error={errors.includes(field.key)}
-                    />
+                {/* Validation banner */}
+                {errors.length > 0 && (
+                  <div className="mb-5 flex items-center gap-2 text-sm text-red-400 border border-red-400/30 rounded-lg px-4 py-3"
+                    style={{ background: 'rgba(239,68,68,0.08)' }}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    Please complete all required fields before continuing.
                   </div>
+                )}
+
+                {/* Fields */}
+                <div className="space-y-6">
+                  {visibleFields.map(field => (
+                    field.type === 'milestone-table' ? (
+                      <div key={field.key} className="space-y-2">
+                        <div className="text-sm font-medium text-blue-100/80">
+                          {field.label}
+                          {field.required && <span className="text-red-400 ml-1">*</span>}
+                        </div>
+                        <MilestoneTable
+                          value={answers[field.key]}
+                          onChange={val => updateAnswer(field.key, val)}
+                          error={errors.includes(field.key)}
+                        />
+                      </div>
+                    ) : (
+                      <QuestionField
+                        key={field.key}
+                        field={field}
+                        value={answers[field.key]}
+                        onChange={val => updateAnswer(field.key, val)}
+                        error={errors.includes(field.key)}
+                        docType={type}
+                      />
+                    )
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Navigation */}
+            <div className="mt-10 flex justify-between items-center">
+              <Button variant="ghost" onClick={handleBack}
+                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+
+              <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
+                className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+                {generating ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
+                ) : isLastStep ? (
+                  <><Sparkles className="w-4 h-4" />Review Scope</>
                 ) : (
-                  <QuestionField
-                    key={field.key}
-                    field={field}
-                    value={answers[field.key]}
-                    onChange={val => updateAnswer(field.key, val)}
-                    error={errors.includes(field.key)}
-                    docType={type}
-                  />
-                )
-              ))}
+                  <>Next <ArrowRight className="w-4 h-4" /></>
+                )}
+              </Button>
             </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Navigation */}
-        <div className="mt-10 flex justify-between items-center">
-          <Button variant="ghost" onClick={handleBack}
-            className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back
-          </Button>
-
-          <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
-            className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
-            {generating ? (
-              <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
-            ) : isLastStep ? (
-              <><Sparkles className="w-4 h-4" />Generate with AI</>
-            ) : (
-              <>Next <ArrowRight className="w-4 h-4" /></>
-            )}
-          </Button>
-        </div>
+          </>
+        )}
       </div>
     </AppLayout>
   );
