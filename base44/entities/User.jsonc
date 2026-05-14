@@ -1,0 +1,29 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "The role of the user in the app",
+      "enum": [
+        "admin",
+        "user"
+      ]
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "URL to the organisation logo uploaded by this user"
+    },
+    "abn": {
+      "type": "string",
+      "description": "Verified Australian Business Number (11 digits, no spaces)"
+    },
+    "abn_entity_name": {
+      "type": "string",
+      "description": "Registered entity name returned by ABN Register lookup"
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

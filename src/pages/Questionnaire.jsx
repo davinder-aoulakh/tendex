@@ -19,6 +19,8 @@ import SOWDocumentReview from '@/components/questionnaire/SOWDocumentReview';
 import AIGoodsSpecSuggestion from '@/components/questionnaire/AIGoodsSpecSuggestion';
 import RFPEvaluationCriteria from '@/components/questionnaire/RFPEvaluationCriteria';
 import RFPMethodologyDraft from '@/components/questionnaire/RFPMethodologyDraft';
+import ABNLookup from '@/components/questionnaire/ABNLookup';
+import LogoUpload from '@/components/questionnaire/LogoUpload';
 import { useAutoSave } from '@/hooks/useAutoSave';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
@@ -96,7 +98,19 @@ export default function Questionnaire() {
   const [purposeConfirmed, setPurposeConfirmed] = useState(false);
   const [deliverablesShown, setDeliverablesShown] = useState(false);
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => setUser(null)); }, []);
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setUser(u);
+      // Pre-populate profile fields from saved user data
+      if (u) {
+        setAnswers(prev => ({
+          ...(u.abn ? { abn: u.abn, _abn_confirmed: true, _abn_entity_name: u.abn_entity_name || '' } : {}),
+          ...(u.logo_url ? { logo_url: u.logo_url } : {}),
+          ...prev, // prev answers take priority (session in progress)
+        }));
+      }
+    }).catch(() => setUser(null));
+  }, []);
 
   // If resuming an existing draft, fetch its saved step from the DB
   useEffect(() => {
@@ -487,6 +501,54 @@ export default function Questionnaire() {
 
                 <div className="space-y-6">
                   {visibleFields.map(field => {
+                    // Special field: ABN lookup with live verification
+                    if (field.type === 'abn-lookup') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">
+                            {field.label}
+                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                          </div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <ABNLookup
+                            value={answers.abn || ''}
+                            onChange={val => {
+                              updateAnswer('abn', val);
+                              updateAnswer('_abn_confirmed', false);
+                            }}
+                            onConfirmed={(abn, entityName) => {
+                              updateAnswer('abn', abn);
+                              updateAnswer('_abn_entity_name', entityName);
+                              updateAnswer('_abn_confirmed', true);
+                              // Persist to user profile if authenticated
+                              if (user) {
+                                base44.auth.updateMe({ abn, abn_entity_name: entityName }).catch(() => {});
+                              }
+                            }}
+                            confirmed={answers._abn_confirmed}
+                            confirmedName={answers._abn_entity_name}
+                          />
+                          {errors.includes(field.key) && (
+                            <p className="text-xs text-red-400">Please verify your ABN before continuing.</p>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Special field: Logo upload
+                    if (field.type === 'logo-upload') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <LogoUpload
+                            value={answers.logo_url || null}
+                            onChange={url => updateAnswer('logo_url', url)}
+                          />
+                        </div>
+                      );
+                    }
+
                     // Special field: RFP criteria ranking + AI weightings
                     if (field.type === 'criteria-ranking') {
                       return (

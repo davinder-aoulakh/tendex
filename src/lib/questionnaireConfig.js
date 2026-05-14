@@ -52,12 +52,26 @@ export const SOW_PAGES = [
   // ── S2: Procurement basics (always shown) ──
   {
     id: 's2_basics',
-    title: 'Procurement Basics',
-    description: 'Tell us about your organisation and this procurement.',
+    title: 'Business Profile',
+    description: 'Tell us about your organisation. This information is saved to your profile and used across all your documents.',
     sectionLabel: 'Basics',
     condition: (a) => !!a.procurement_type,
     fields: [
       { key: 'organisation_name', label: 'Organisation Name', type: 'text', placeholder: 'Your organisation', required: true },
+      {
+        key: 'abn',
+        label: 'Australian Business Number (ABN)',
+        type: 'abn-lookup', // handled by special component in Questionnaire.jsx
+        required: true,
+        helpText: 'Your 11-digit ABN will be verified against the ABN Register.',
+      },
+      {
+        key: 'logo_url',
+        label: 'Organisation Logo (optional)',
+        type: 'logo-upload', // handled by special component in Questionnaire.jsx
+        required: false,
+        helpText: 'Upload your logo (PNG or JPEG, max 2MB). It will appear in all generated documents.',
+      },
       { key: 'project_name', label: 'Project Name', type: 'text', placeholder: 'e.g. Office Fit-Out 2027', required: true },
       {
         key: 'purchase_type',
@@ -831,7 +845,14 @@ export const validatePage = (page, answers) => {
   for (const field of visibleFields) {
     if (!field.required) continue;
     const val = answers[field.key];
-    if (field.type === 'milestone-table') {
+    if (field.type === 'abn-lookup') {
+      // ABN is confirmed when answers._abn_confirmed === true AND abn is set
+      if (!val || val.length !== 11 || !answers._abn_confirmed) {
+        errors.push(field.key);
+      }
+    } else if (field.type === 'logo-upload') {
+      // Always optional
+    } else if (field.type === 'milestone-table') {
       if (!val || !Array.isArray(val) || val.length === 0) {
         errors.push(field.key);
       }

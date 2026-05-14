@@ -61,18 +61,19 @@ const PAGE_WIDTH_CM = 21.0;
 const MARGIN_CM = 2.5;
 const CONTENT_WIDTH_CM = PAGE_WIDTH_CM - MARGIN_CM * 2;
 
-function makeHeaderParagraph(docData, docId, genDate) {
+function makeHeaderParagraph(docData, docId, genDate, logoImageRun) {
+  const leftChild = logoImageRun || new TextRun({
+    text: 'Powered by TendeX',
+    bold: true,
+    size: 16,
+    color: BRAND_COLOR,
+  });
   return new Paragraph({
     border: {
       bottom: { style: BorderStyle.SINGLE, size: 6, color: BRAND_COLOR, space: 4 },
     },
     children: [
-      new TextRun({
-        text: 'Powered by TendeX',
-        bold: true,
-        size: 16,
-        color: BRAND_COLOR,
-      }),
+      leftChild,
       new TextRun({ text: '\t', size: 16 }),
       new TextRun({
         text: `${docId}  |  ${genDate}  |  ${DOC_TYPE_LABELS[docData.document_type] || docData.document_type}`,
@@ -92,7 +93,7 @@ function makeFooterParagraph(docId, genDate) {
     },
     children: [
       new TextRun({
-        text: `TendeX  •  tendex.com.au  •  Document ID: ${docId}  •  Generated: ${genDate}  •  Confidential`,
+        text: `Powered by TendeX  •  tendex.com.au  •  Document ID: ${docId}  •  Generated: ${genDate}  •  Confidential`,
         size: 14,
         color: GRAY_COLOR,
       }),
@@ -253,6 +254,24 @@ Deno.serve(async (req) => {
     const docId = docData.procurement_id || 'UNKNOWN';
     const genDate = new Date().toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
+    // ── Logo: fetch if available ─────────────────────────
+    let logoImageRun = null;
+    const logoUrl = docData.questionnaire_data?.logo_url || null;
+    if (logoUrl) {
+      const logoRes = await fetch(logoUrl).catch(() => null);
+      if (logoRes && logoRes.ok) {
+        const logoBuffer = await logoRes.arrayBuffer();
+        const logoBytes = new Uint8Array(logoBuffer);
+        const isJpeg = logoUrl.toLowerCase().includes('.jpg') || logoUrl.toLowerCase().includes('.jpeg');
+        // Scale to ~50px height @ 96dpi → ~13mm; in EMU: 50*9144 = 457200 EMU height
+        logoImageRun = new ImageRun({
+          data: logoBytes,
+          transformation: { width: 130, height: 40 }, // px
+          type: isJpeg ? 'jpg' : 'png',
+        });
+      }
+    }
+
     const sectionKeys = SECTION_SCHEMAS[docData.document_type] || [];
     const contentParagraphs = [];
 
@@ -296,7 +315,7 @@ Deno.serve(async (req) => {
           },
           headers: {
             default: new Header({
-              children: [makeHeaderParagraph(docData, docId, genDate)],
+              children: [makeHeaderParagraph(docData, docId, genDate, logoImageRun)],
             }),
           },
           footers: {

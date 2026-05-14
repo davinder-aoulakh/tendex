@@ -45,17 +45,62 @@ export default function PDFExport({ doc, content, onClose }) {
     const isSow = doc.document_type === 'SOW';
     let y = 0;
 
+    // ── LOGO: load if available ───────────────────────────
+    const logoUrl = doc.questionnaire_data?.logo_url || null;
+    let logoDataUrl = null;
+    let logoDims = null; // { w, h } in mm
+
+    if (logoUrl) {
+      const result = await new Promise((resolve) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          const dataUrl = canvas.toDataURL('image/png');
+          const logoH = 10; // mm
+          const aspect = img.naturalWidth / (img.naturalHeight || 1);
+          const logoW = Math.min(aspect * logoH, 50);
+          resolve({ dataUrl, dims: { w: logoW, h: logoH } });
+        };
+        img.onerror = () => resolve(null);
+        img.src = logoUrl;
+      });
+      if (result) {
+        logoDataUrl = result.dataUrl;
+        logoDims = result.dims;
+      }
+    }
+
     // ── HELPERS ─────────────────────────────────────────────
     const addHeader = () => {
       // White background for header
       pdf.setFillColor(...WHITE);
       pdf.rect(0, 0, pw, 16, 'F');
-      // Left: "Powered by TendeX"
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(...BLUE);
-      pdf.text('Powered by TendeX', margin, 9);
+
+      if (logoDataUrl && logoDims) {
+        // Organisation logo top-left, scaled proportionally to 10mm height
+        try {
+          pdf.addImage(logoDataUrl, 'PNG', margin, 3, logoDims.w, logoDims.h);
+        } catch {
+          // Fallback: org name text
+          pdf.setFontSize(7);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(...BLUE);
+          pdf.text(doc.organisation_name || 'Organisation', margin, 9);
+        }
+      } else {
+        // "Powered by TendeX" in brand style
+        pdf.setFontSize(7);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(...BLUE);
+        pdf.text('Powered by TendeX', margin, 9);
+      }
+
       // Right: DocID | Date | Type
+      pdf.setFontSize(7);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(...GRAY);
       const rightText = `${docId}  |  ${genDate}  |  ${DOC_TYPE_LABELS[doc.document_type] || doc.document_type}`;
@@ -72,7 +117,7 @@ export default function PDFExport({ doc, content, onClose }) {
       pdf.setFontSize(7);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(...GRAY);
-      pdf.text(`TendeX  •  tendex.com.au  •  Document ID: ${docId}  •  Generated: ${genDate}  •  Confidential`, pw / 2, ph - 8, { align: 'center' });
+      pdf.text(`Powered by TendeX  •  tendex.com.au  •  Document ID: ${docId}  •  Generated: ${genDate}  •  Confidential`, pw / 2, ph - 8, { align: 'center' });
     };
 
     const addContentPage = () => {
