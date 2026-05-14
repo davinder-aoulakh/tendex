@@ -16,6 +16,7 @@ import { scoreScopeAnswers } from '@/lib/scopeScorer';
 import AIScopePurpose from '@/components/questionnaire/AIScopePurpose';
 import AIDeliverableChips from '@/components/questionnaire/AIDeliverableChips';
 import SOWDocumentReview from '@/components/questionnaire/SOWDocumentReview';
+import AIGoodsSpecSuggestion from '@/components/questionnaire/AIGoodsSpecSuggestion';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
 // Persists the full answers (including procurement_type branch) to localStorage
@@ -421,14 +422,25 @@ export default function Questionnaire() {
                         />
                       </div>
                     ) : (
-                      <QuestionField
-                        key={field.key}
-                        field={field}
-                        value={answers[field.key]}
-                        onChange={val => updateAnswer(field.key, val)}
-                        error={errors.includes(field.key)}
-                        docType={type}
-                      />
+                      <div key={field.key}>
+                        <QuestionField
+                          field={field}
+                          value={answers[field.key]}
+                          onChange={val => updateAnswer(field.key, val)}
+                          error={errors.includes(field.key)}
+                          docType={type}
+                        />
+                        {/* AI Assist 2: spec suggestion after product_description on S3 */}
+                        {type === 'SOW' && field.key === 'product_description' && page?.id === 's3_goods_list' && (
+                          <div className="mt-3">
+                            <AIGoodsSpecSuggestion
+                              productDescription={answers.product_description}
+                              category={answers.procurement_type}
+                              onAccept={val => updateAnswer('technical_specs', val)}
+                            />
+                          </div>
+                        )}
+                      </div>
                     )
                   ))}
                 </div>
