@@ -427,17 +427,16 @@ export default function Questionnaire() {
         {/* Header */}
         <div className="mb-8">
           <button onClick={handleBack}
-            className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white transition-colors mb-6">
+            className="flex items-center gap-1.5 text-sm transition-colors mb-6" style={{ color: 'rgba(0,201,167,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(0,201,167,0.5)'}>
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <span className="border border-blue-400/30 text-blue-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide"
-              style={{ background: 'rgba(59,130,246,0.1)' }}>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid rgba(0,201,167,0.3)', color: '#00C9A7', background: 'rgba(0,201,167,0.1)' }}>
               {type}
             </span>
             <h1 className="font-display text-2xl font-semibold text-white">{docTypeLabels[type] || type}</h1>
           </div>
-          <p className="text-blue-200/50 text-sm">Answer a few questions and AI will draft your document.</p>
+          <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>Answer a few questions and AI will draft your document.</p>
         </div>
 
         {/* Limit gate */}
@@ -447,7 +446,7 @@ export default function Questionnaire() {
             <h3 className="font-semibold text-white mb-1">Document limit reached</h3>
             <p className="text-sm text-red-300/80 mb-4">You've used all {docsLimit} documents on your {currentPlan} plan. Upgrade to create more.</p>
             <Link to="/billing">
-              <Button className="bg-blue-500 hover:bg-blue-400 text-white border-0">Upgrade Plan</Button>
+              <Button className="text-white border-0" style={{ backgroundColor: '#00C9A7' }}>Upgrade Plan</Button>
             </Link>
           </div>
         )}
@@ -464,7 +463,7 @@ export default function Questionnaire() {
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">Scope Purpose</h2>
-              <p className="text-sm text-blue-200/50">AI has drafted a scope purpose statement based on your answers.</p>
+              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>AI has drafted a scope purpose statement based on your answers.</p>
             </div>
             <AIScopePurpose
               answers={answers}
@@ -492,7 +491,7 @@ export default function Questionnaire() {
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">Key Deliverables</h2>
-              <p className="text-sm text-blue-200/50">AI has suggested deliverables based on your service description. Edit as needed.</p>
+              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>AI has suggested deliverables based on your service description. Edit as needed.</p>
             </div>
             <AIDeliverableChips
               answers={answers}
@@ -512,7 +511,7 @@ export default function Questionnaire() {
                   setCurrentStep(s => s + 1);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20"
+                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}
               >
                 Continue <ArrowRight className="w-4 h-4" />
               </Button>
@@ -525,7 +524,7 @@ export default function Questionnaire() {
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">Generate Scope of Work</h2>
-              <p className="text-sm text-blue-200/50">AI is assembling your complete Scope of Work from all your answers.</p>
+              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>AI is assembling your complete Scope of Work from all your answers.</p>
             </div>
             <SOWDocumentReview
               answers={answers}
@@ -557,7 +556,7 @@ export default function Questionnaire() {
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">Help Us Understand Your Scope</h2>
-              <p className="text-sm text-blue-200/50">We couldn't automatically read your document. Please answer a few quick questions so we can recommend the right document type.</p>
+              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>We couldn't automatically read your document. Please answer a few quick questions so we can recommend the right document type.</p>
             </div>
             <FallbackScopeQuestions
               answers={answers}
@@ -587,13 +586,13 @@ export default function Questionnaire() {
           <div>
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">AI Scope Review</h2>
-              <p className="text-sm text-blue-200/50">We've analysed your scope to recommend the best document type.</p>
+              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>We've analysed your scope to recommend the best document type.</p>
             </div>
 
             {scoring ? (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
-                <p className="text-blue-200/50 text-sm">Evaluating your scope...</p>
+                <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00C9A7' }} />
+                <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>Evaluating your scope...</p>
               </div>
             ) : (
               <ScopeScoreResult
@@ -627,7 +626,7 @@ export default function Questionnaire() {
               >
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold text-white mb-1">{page?.title}</h2>
-                  {page?.description && <p className="text-sm text-blue-200/50">{page.description}</p>}
+                    {page?.description && <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>{page.description}</p>}
                 </div>
 
                 {errors.length > 0 && (
@@ -642,13 +641,13 @@ export default function Questionnaire() {
                   {visibleFields.map(field => {
                     // Special field: ABN lookup with live verification
                     if (field.type === 'abn-lookup') {
-                      return (
-                        <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">
+                        return (
+                          <div key={field.key} className="space-y-2">
+                            <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <ABNLookup
                             value={answers.abn || ''}
                             onChange={val => {
@@ -678,8 +677,8 @@ export default function Questionnaire() {
                     if (field.type === 'logo-upload') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <LogoUpload
                             value={answers.logo_url || null}
                             onChange={url => updateAnswer('logo_url', url)}
@@ -692,11 +691,11 @@ export default function Questionnaire() {
                     if (field.type === 'scope-upload') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <ScopeUpload
                             value={answers.own_scope_document || null}
                             onChange={url => updateAnswer('own_scope_document', url)}
@@ -713,11 +712,11 @@ export default function Questionnaire() {
                     if (field.type === 'criteria-ranking') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <RFPEvaluationCriteria
                             ranking={answers.rfp_criteria_ranking}
                             weightings={answers.rfp_criteria_weightings}
@@ -735,8 +734,8 @@ export default function Questionnaire() {
                     if (field.type === 'methodology-draft') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <RFPMethodologyDraft
                             answers={answers}
                             value={answers.rfp_methodology_question}
@@ -750,7 +749,7 @@ export default function Questionnaire() {
                     if (field.type === 'milestone-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
@@ -767,11 +766,11 @@ export default function Questionnaire() {
                     if (field.type === 'goods-items-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <GoodsItemsTable
                             value={answers[field.key] || []}
                             onChange={val => updateAnswer(field.key, val)}
@@ -787,8 +786,8 @@ export default function Questionnaire() {
                     if (field.type === 'per-item-delivery') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <PerItemDelivery
                             goodsItems={answers.goods_items || []}
                             value={answers[field.key] || {}}
@@ -802,8 +801,8 @@ export default function Questionnaire() {
                     if (field.type === 'warranty-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
-                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
                           <WarrantyTable
                             goodsItems={answers.goods_items || []}
                             value={answers[field.key] || {}}
@@ -847,7 +846,7 @@ export default function Questionnaire() {
               </Button>
 
               <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
-                className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (
