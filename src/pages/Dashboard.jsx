@@ -308,7 +308,7 @@ export default function Dashboard() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48" style={{ background: 'rgb(17, 29, 46)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                              <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
+                              <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'white' }}>
                                 <FileText className="w-4 h-4 mr-2" />Open
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => {
@@ -329,10 +329,10 @@ export default function Dashboard() {
                                   queryClient.invalidateQueries({ queryKey: ['documents'] });
                                   toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
                                 });
-                              }}>
+                              }} style={{ color: 'white' }}>
                                 <FileText className="w-4 h-4 mr-2" />Duplicate
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(doc.id)}>
+                              <DropdownMenuItem style={{ color: '#EF4444' }} onClick={() => deleteMutation.mutate(doc.id)}>
                                 <Trash2 className="w-4 h-4 mr-2" />Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -409,33 +409,33 @@ export default function Dashboard() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48" style={{ background: 'rgb(17, 29, 46)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
-                          <FileText className="w-4 h-4 mr-2" />Open
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {
-                          const newDoc = {
-                            title: `${doc.title} (Copy)`,
-                            document_type: doc.document_type,
-                            status: 'draft',
-                            procurement_id: Array.from({ length: 12 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join(''),
-                            questionnaire_type: doc.questionnaire_type,
-                            questionnaire_data: doc.questionnaire_data,
-                            questionnaire_step: 0,
-                            project_name: doc.project_name,
-                            organisation_name: doc.organisation_name,
-                            industry: doc.industry,
-                          };
-                          base44.entities.Document.create(newDoc).then(createdDoc => {
-                            queryClient.invalidateQueries({ queryKey: ['documents'] });
-                            toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
-                          });
-                        }}>
-                          <FileText className="w-4 h-4 mr-2" />Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(doc.id)}>
-                          <Trash2 className="w-4 h-4 mr-2" />Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'white' }}>
+                        <FileText className="w-4 h-4 mr-2" />Open
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        const newDoc = {
+                          title: `${doc.title} (Copy)`,
+                          document_type: doc.document_type,
+                          status: 'draft',
+                          procurement_id: Array.from({ length: 12 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join(''),
+                          questionnaire_type: doc.questionnaire_type,
+                          questionnaire_data: doc.questionnaire_data,
+                          questionnaire_step: 0,
+                          project_name: doc.project_name,
+                          organisation_name: doc.organisation_name,
+                          industry: doc.industry,
+                        };
+                        base44.entities.Document.create(newDoc).then(createdDoc => {
+                          queryClient.invalidateQueries({ queryKey: ['documents'] });
+                          toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
+                        });
+                      }} style={{ color: 'white' }}>
+                        <FileText className="w-4 h-4 mr-2" />Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem style={{ color: '#EF4444' }} onClick={() => deleteMutation.mutate(doc.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" />Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 </motion.div>
