@@ -23,6 +23,9 @@ import ABNLookup from '@/components/questionnaire/ABNLookup';
 import LogoUpload from '@/components/questionnaire/LogoUpload';
 import ScopeUpload from '@/components/questionnaire/ScopeUpload';
 import FallbackScopeQuestions from '@/components/questionnaire/FallbackScopeQuestions';
+import GoodsItemsTable from '@/components/questionnaire/GoodsItemsTable';
+import PerItemDelivery from '@/components/questionnaire/PerItemDelivery';
+import WarrantyTable from '@/components/questionnaire/WarrantyTable';
 import { useAutoSave } from '@/hooks/useAutoSave';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
@@ -741,6 +744,56 @@ export default function Questionnaire() {
                             value={answers[field.key]}
                             onChange={val => updateAnswer(field.key, val)}
                             error={errors.includes(field.key)}
+                          />
+                        </div>
+                      );
+                    }
+
+                    // Goods items table with AI suggestions
+                    if (field.type === 'goods-items-table') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">
+                            {field.label}
+                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                          </div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <GoodsItemsTable
+                            value={answers[field.key] || []}
+                            onChange={val => updateAnswer(field.key, val)}
+                          />
+                          {errors.includes(field.key) && (
+                            <p className="text-xs text-red-400">Please add at least one item before continuing.</p>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Per-item delivery configuration
+                    if (field.type === 'per-item-delivery') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <PerItemDelivery
+                            goodsItems={answers.goods_items || []}
+                            value={answers[field.key] || {}}
+                            onChange={val => updateAnswer(field.key, val)}
+                          />
+                        </div>
+                      );
+                    }
+
+                    // Warranty table
+                    if (field.type === 'warranty-table') {
+                      return (
+                        <div key={field.key} className="space-y-2">
+                          <div className="text-sm font-medium text-blue-100/80">{field.label}</div>
+                          {field.helpText && <p className="text-xs text-blue-200/40">{field.helpText}</p>}
+                          <WarrantyTable
+                            goodsItems={answers.goods_items || []}
+                            value={answers[field.key] || {}}
+                            onChange={val => updateAnswer(field.key, val)}
                           />
                         </div>
                       );

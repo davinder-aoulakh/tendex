@@ -141,46 +141,81 @@ export const SOW_PAGES = [
     ],
   },
 
-  // ── S3: Goods list (goods | both, skip if user has own scope) ──
+  // ── S3.2: Goods items list (repeating entry) ──
   {
-    id: 's3_goods_list',
-    title: 'Goods Specification',
-    description: 'Describe the goods you need supplied.',
-    sectionLabel: 'Goods',
+    id: 's3_goods_items',
+    title: 'Goods Items',
+    description: 'Add the items you need to procure. All items will be procured together from a single supplier.',
+    sectionLabel: 'Goods Items',
     condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
     fields: [
-      { key: 'product_description', label: 'Product Description', type: 'textarea', placeholder: 'Describe the product(s) in detail...', required: true },
-      { key: 'product_size', label: 'Product Size / Dimensions', type: 'text', placeholder: 'e.g. 30cm x 20cm x 10cm', required: false },
-      { key: 'material_colour', label: 'Material and Colour', type: 'text', placeholder: 'e.g. Stainless steel, black finish', required: false },
-      { key: 'quantity', label: 'Quantity Required', type: 'number', placeholder: '100', required: true },
-      { key: 'quantity_unit', label: 'Unit of Measure', type: 'select', options: ['units', 'kg', 'litres', 'metres', 'other'], required: true },
-      { key: 'customisation', label: 'Customisation & Branding Requirements', type: 'textarea', placeholder: 'e.g. Logo embroidered, custom packaging...', required: false },
-      { key: 'technical_specs', label: 'Technical Specifications', type: 'textarea', placeholder: 'Any technical standards or compliance requirements...', required: false },
-      { key: 'packaging', label: 'Packaging Requirements', type: 'textarea', placeholder: 'e.g. Individually wrapped, pallet delivery...', required: false },
-      { key: 'include_delivery', label: 'Does this include delivery to site?', type: 'toggle', required: false },
       {
-        key: 'delivery_address',
-        label: 'Delivery Address',
-        type: 'text',
+        key: 'goods_items',
+        label: 'Items to Procure',
+        type: 'goods-items-table', // custom component, handled in Questionnaire.jsx
+        required: true,
+        helpText: 'Each item row has: name, quantity, unit of measure, size/spec, and brand. Add unlimited items.',
+      },
+    ],
+  },
+
+  // ── S3.4: Per-item delivery ──
+  {
+    id: 's3_delivery',
+    title: 'Delivery Requirements',
+    description: 'Specify delivery locations and dates.',
+    sectionLabel: 'Delivery',
+    condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
+    fields: [
+      {
+        key: 'delivery_required',
+        label: 'Is delivery to a specific location required?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes — delivery to specific address', description: 'Supplier delivers to our site' },
+          { value: 'no', label: 'No — we will collect', description: 'We will collect from supplier' },
+        ],
+      },
+      {
+        key: 'primary_delivery_address',
+        label: 'Primary Delivery Address',
+        type: 'text', // TODO: replace with google-maps-autocomplete later
         placeholder: 'Street address, suburb, state, postcode',
         required: true,
-        condition: (a) => a.include_delivery === true,
+        condition: (a) => a.delivery_required === 'yes',
       },
       {
-        key: 'delivery_date',
-        label: 'Required Delivery Date',
+        key: 'delivery_date_required',
+        label: 'Required Delivery Date or Window',
         type: 'date',
         required: true,
-        condition: (a) => a.include_delivery === true,
+        condition: (a) => a.delivery_required === 'yes',
       },
-      { key: 'include_warranty', label: 'Are warranty requirements included?', type: 'toggle', required: false },
       {
-        key: 'warranty_description',
+        key: 'per_item_delivery_config',
+        label: 'Per-Item Delivery Configuration',
+        type: 'per-item-delivery', // custom component, handles per-item addresses and dates
+        required: false,
+        condition: (a) => a.delivery_required === 'yes',
+      },
+    ],
+  },
+
+  // ── S3.5: Per-item warranty ──
+  {
+    id: 's3_warranty',
+    title: 'Warranty Requirements',
+    description: 'Specify warranty requirements for each item. These will appear as scope requirements.',
+    sectionLabel: 'Warranty',
+    condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
+    fields: [
+      {
+        key: 'warranty_config',
         label: 'Warranty Requirements',
-        type: 'textarea',
-        placeholder: 'Describe the expected warranty terms...',
-        required: true,
-        condition: (a) => a.include_warranty === true,
+        type: 'warranty-table', // custom component, shows table of items with warranty toggles
+        required: false,
+        helpText: 'For each item, toggle warranty and specify duration.',
       },
     ],
   },
@@ -885,7 +920,12 @@ export const validatePage = (page, answers) => {
       if (!val || !Array.isArray(val) || val.length === 0) {
         errors.push(field.key);
       }
-    } else if (field.type === 'criteria-ranking' || field.type === 'methodology-draft') {
+    } else if (field.type === 'goods-items-table') {
+      // Goods items table: at least one item with name and quantity
+      if (!val || !Array.isArray(val) || val.length === 0 || !val.some(item => item.name && item.quantity)) {
+        errors.push(field.key);
+      }
+    } else if (field.type === 'criteria-ranking' || field.type === 'methodology-draft' || field.type === 'per-item-delivery' || field.type === 'warranty-table') {
       // These are always optional from a required-field perspective (rendered as custom components)
     } else if (field.type === 'checkbox-multi' || field.type === 'radio-cards') {
       if (!val || (Array.isArray(val) && val.length === 0)) {
