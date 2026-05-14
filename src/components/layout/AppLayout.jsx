@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FileText, LayoutDashboard, CreditCard, Plus, LogOut, Zap } from 'lucide-react';
+import { FileText, LayoutDashboard, CreditCard, Plus, LogOut, Zap, User } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import TrialBanner from '@/components/pricing/TrialBanner';
+
+const COLORS = [
+  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
+  '#10b981', '#ef4444', '#06b6d4', '#f97316',
+];
+
+function hashColor(email) {
+  let h = 0;
+  for (let i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) | 0;
+  return COLORS[Math.abs(h) % COLORS.length];
+}
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -100,9 +111,16 @@ export default function AppLayout({ children }) {
                      <Plus className="w-4 h-4" />New
                    </Button>
                  </Link>
-                <Button variant="ghost" size="icon" className="ml-1 text-white/50 hover:text-white hover:bg-white/10" onClick={() => base44.auth.logout('/')}>
+                 {user && (
+                  <Link to="/profile">
+                    <button className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
+                      {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : user.email.split('@')[0].substring(0, 2).toUpperCase()}
+                    </button>
+                  </Link>
+                 )}
+                 <Button variant="ghost" size="icon" className="ml-1 text-white/50 hover:text-white hover:bg-white/10" onClick={() => base44.auth.logout('/')}>
                   <LogOut className="w-4 h-4" />
-                </Button>
+                 </Button>
               </>
             ) : (
               <Button size="sm" className="bg-white text-slate-900 hover:bg-white/90"

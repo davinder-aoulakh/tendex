@@ -8,6 +8,8 @@
  * condition: (answers) => boolean  — field/page is shown only when true
  */
 
+import { base44 } from '@/api/base44Client';
+
 // ─────────────────────────────────────────────
 // SOW — Scope of Work
 // Branching logic:
@@ -57,13 +59,35 @@ export const SOW_PAGES = [
     sectionLabel: 'Basics',
     condition: (a) => !!a.procurement_type,
     fields: [
-      { key: 'organisation_name', label: 'Organisation Name', type: 'text', placeholder: 'Your organisation', required: true },
+      { 
+        key: 'organisation_name', 
+        label: 'Organisation Name', 
+        type: 'text', 
+        placeholder: 'Your organisation', 
+        required: true,
+        defaultValue: async () => {
+          try {
+            const user = await base44.auth.me();
+            return user?.organisation_name || '';
+          } catch {
+            return '';
+          }
+        }
+      },
       {
         key: 'abn',
         label: 'Australian Business Number (ABN)',
         type: 'abn-lookup', // handled by special component in Questionnaire.jsx
         required: true,
         helpText: 'Your 11-digit ABN will be verified against the ABN Register.',
+        defaultValue: async () => {
+          try {
+            const user = await base44.auth.me();
+            return user?.abn || '';
+          } catch {
+            return '';
+          }
+        }
       },
       {
         key: 'logo_url',
@@ -71,6 +95,14 @@ export const SOW_PAGES = [
         type: 'logo-upload', // handled by special component in Questionnaire.jsx
         required: false,
         helpText: 'Upload your logo (PNG or JPEG, max 2MB). It will appear in all generated documents.',
+        defaultValue: async () => {
+          try {
+            const user = await base44.auth.me();
+            return user?.logo_url || '';
+          } catch {
+            return '';
+          }
+        }
       },
       { key: 'project_name', label: 'Project Name', type: 'text', placeholder: 'e.g. Office Fit-Out 2027', required: true },
       {

@@ -13,6 +13,7 @@ import ToolSelect from './pages/ToolSelect';
 import Questionnaire from './pages/Questionnaire';
 import DocumentEditor from './pages/DocumentEditor';
 import Billing from './pages/Billing';
+import Profile from './pages/Profile';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -39,6 +40,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<LandingNew />} />
       <Route path="/plan-selection" element={<PlanSelection />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/tool-select" element={<ToolSelect />} />
       <Route path="/questionnaire/:type" element={<Questionnaire />} />
       <Route path="/document/:id" element={<DocumentEditor />} />
