@@ -312,6 +312,90 @@ export default function LandingNew() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 px-6" style={{ backgroundColor: '#080E1A' }}>
+        <div className="max-w-7xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="mb-12 text-center">
+            <p className="font-syne font-700 text-xs text-[#00C9A7] uppercase tracking-widest mb-2">Pricing</p>
+            <h2 className="font-syne font-800 text-4xl md:text-5xl text-white">Simple, transparent pricing</h2>
+            <p className="font-dm-sans font-400 text-lg text-[#8FA5C0] max-w-2xl mx-auto mt-4">
+              Start free. Scale as you grow. No credit card required for the trial.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Free Trial Card */}
+            <motion.div whileHover={{ y: -3 }} className="rounded-xl p-8 border card-hover" style={{ backgroundColor: '#111D2E', borderColor: 'rgba(255,255,255,0.12)' }}>
+              <div className="mb-6">
+                <h3 className="font-syne font-700 text-2xl text-white mb-2">Free Trial</h3>
+                <p className="font-dm-sans font-400 text-lg text-[#8FA5C0]">14 days free</p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                {[
+                  '1 active procurement document',
+                  'Scope of Work generation',
+                  '1 document type (SOW, EOI, RFQ, or RFP)',
+                  'Basic email support',
+                ].map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-[#00C9A7] flex-shrink-0 mt-0.5" />
+                    <span className="font-dm-sans font-400 text-sm text-[#E8F0F8]">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Link to="/plan-selection">
+                <Button className="w-full font-syne font-700 text-base" style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
+                  Start free trial →
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* Professional Plan Card */}
+            <motion.div whileHover={{ y: -3 }} className="rounded-xl p-8 border-2 card-hover relative" style={{ backgroundColor: 'rgba(0,201,167,0.08)', borderColor: '#00C9A7' }}>
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <span className="font-syne font-700 text-xs px-3 py-1 rounded-full text-[#080E1A]" style={{ backgroundColor: '#00C9A7' }}>
+                  MOST POPULAR
+                </span>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="font-syne font-700 text-2xl text-white mb-2">Professional Plan</h3>
+                <p className="font-dm-sans font-400 text-lg text-[#8FA5C0]">Pricing [TBC]</p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                {[
+                  'Unlimited active procurements',
+                  'All document types (SOW, EOI, RFQ, RFP)',
+                  'Word & PDF export',
+                  'Priority email support',
+                  '[Additional features TBC]',
+                ].map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-[#00C9A7] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-[#080E1A]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="font-dm-sans font-400 text-sm text-[#E8F0F8]">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button className="w-full py-2.5 rounded-lg font-syne font-700 text-base border transition-all" style={{ borderColor: '#00C9A7', color: '#00C9A7' }}>
+                Contact us
+              </button>
+            </motion.div>
+          </div>
+
+          <p className="text-center font-dm-sans font-400 text-xs text-[#5C7A99] mt-12">
+            Pricing and features are placeholder values [TBC] pending final confirmation.
+          </p>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
       <section className="py-20 px-6" style={{ backgroundColor: '#080E1A' }}>
         <div className="max-w-7xl mx-auto">
