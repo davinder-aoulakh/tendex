@@ -53,8 +53,9 @@ export default function Dashboard() {
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
   const { data: documents = [], isLoading } = useQuery({
-    queryKey: ['documents'],
-    queryFn: () => base44.entities.Document.list('-updated_date'),
+    queryKey: ['documents', user?.email],
+    queryFn: () => user?.email ? base44.entities.Document.filter({ created_by: user.email }, '-updated_date') : Promise.resolve([]),
+    enabled: !!user?.email,
   });
 
   const { data: subscriptions = [] } = useQuery({
