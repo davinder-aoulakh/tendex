@@ -6,7 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
-import Landing from './pages/Landing';
+import LandingNew from './pages/LandingNew';
 import PlanSelection from './pages/PlanSelection';
 import Dashboard from './pages/Dashboard';
 import ToolSelect from './pages/ToolSelect';
@@ -36,7 +36,7 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={<LandingNew />} />
       <Route path="/plan-selection" element={<PlanSelection />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/tool-select" element={<ToolSelect />} />

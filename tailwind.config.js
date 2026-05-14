@@ -10,8 +10,8 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
       fontFamily: {
-        inter: ['var(--font-inter)'],
-        display: ['var(--font-playfair)'],
+        syne: ['var(--font-syne)', 'sans-serif'],
+        'dm-sans': ['var(--font-dm-sans)', 'sans-serif'],
       },
   		colors: {
   			background: 'hsl(var(--background))',
