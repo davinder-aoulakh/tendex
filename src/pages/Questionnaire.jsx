@@ -190,20 +190,23 @@ export default function Questionnaire() {
   // If resuming an existing draft, fetch its saved step from the DB
   useEffect(() => {
     if (!draftDocId) return;
-    base44.entities.Document.list().then(docs => {
-      const doc = docs?.find(d => d.id === draftDocId);
-      if (!doc) return;
+    base44.entities.Document.filter({ id: draftDocId }).then(docs => {
+      if (!docs || docs.length === 0) return;
+      const doc = docs[0];
+      
       // Restore step (questionnaire_step stored on the record)
-      if (typeof doc.questionnaire_step === 'number' && doc.questionnaire_step > 0) {
-        setCurrentStep(doc.questionnaire_step);
+      if (typeof doc.questionnaire_step === 'number') {
+        // Add a small delay to ensure visiblePages is computed first
+        setTimeout(() => setCurrentStep(doc.questionnaire_step), 50);
       }
+      
       // Restore answers from DB if localStorage is empty
       if (doc.questionnaire_data && Object.keys(doc.questionnaire_data).length > 0) {
         setAnswers(prev => (Object.keys(prev).length === 0 ? doc.questionnaire_data : prev));
       }
     }).catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftDocId]);
+  }, [draftDocId, type]);
 
   // Create the draft document record immediately on first load (if not already created)
   useEffect(() => {

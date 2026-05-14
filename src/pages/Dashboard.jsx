@@ -21,6 +21,19 @@ const docTypeColors = {
   RFP: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
 };
 
+// Map document type + status to procurement status label
+const getProcurementStatus = (doc) => {
+  if (doc.status === 'complete') {
+    const suffix = doc.questionnaire_type ? `${doc.questionnaire_type} issued` : 'issued';
+    return `Complete — ${suffix}`;
+  }
+  if (doc.status === 'draft') {
+    const stage = doc.questionnaire_step !== undefined && doc.questionnaire_step > 0 ? 'Questionnaire' : 'Scope';
+    return `In progress — ${stage}`;
+  }
+  return doc.status;
+};
+
 const statusIcons = {
   draft: Clock,
   complete: CheckCircle,
@@ -80,10 +93,10 @@ export default function Dashboard() {
 
   const filtered = documents.filter(d => {
     const matchSearch = d.title?.toLowerCase().includes(search.toLowerCase()) ||
-      d.project_name?.toLowerCase().includes(search.toLowerCase());
-    const matchType = filterType === 'all' || d.document_type === filterType;
+      d.project_name?.toLowerCase().includes(search.toLowerCase()) ||
+      d.procurement_id?.toLowerCase().includes(search.toLowerCase());
     const matchStatus = filterStatus === 'all' || d.status === filterStatus;
-    return matchSearch && matchType && matchStatus;
+    return matchSearch && matchStatus && d.status !== 'archived';
   });
 
   const stats = {
@@ -173,41 +186,28 @@ export default function Dashboard() {
           ))}
         </div>
 
-
         {/* Filters */}
-        <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col gap-3 mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/40" />
               <Input
-                placeholder="Search documents..."
+                placeholder="Search by title or document ID..."
                 className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-blue-500/50"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
             </div>
-            <div className="flex gap-2 flex-wrap">
-              <span className="text-xs text-blue-200/40 self-center hidden sm:block">Type:</span>
-              {['all', 'SOW', 'EOI', 'RFQ', 'RFP'].map(type => (
-                <Button key={type} size="sm"
-                  onClick={() => setFilterType(type)}
-                  className={`text-xs transition-colors ${filterType === type
-                    ? 'bg-blue-500 text-white border-0 hover:bg-blue-400'
-                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
-                  {type === 'all' ? 'All Types' : type}
-                </Button>
-              ))}
-            </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <span className="text-xs text-blue-200/40 self-center">Status:</span>
-            {['all', 'draft', 'complete', 'archived'].map(s => (
+            <span className="text-xs text-blue-200/40 self-center">Filter:</span>
+            {['all', 'draft', 'complete'].map(s => (
               <Button key={s} size="sm"
                 onClick={() => setFilterStatus(s)}
                 className={`text-xs capitalize transition-colors ${filterStatus === s
                   ? 'bg-blue-500 text-white border-0 hover:bg-blue-400'
                   : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
-                {s === 'all' ? 'All Statuses' : s}
+                {s === 'all' ? 'All Status' : s === 'draft' ? 'In Progress' : 'Completed'}
               </Button>
             ))}
           </div>
@@ -221,59 +221,168 @@ export default function Dashboard() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
             <FileText className="w-12 h-12 text-blue-300/20 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No documents yet</h3>
-            <p className="text-blue-200/50 mb-6">Create your first procurement document to get started.</p>
-            <Link to="/tool-select">
-              <Button className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
-                <Plus className="w-4 h-4" />New Document
-              </Button>
-            </Link>
+            <h3 className="text-lg font-medium text-white mb-2">
+              {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
+            </h3>
+            <p className="text-blue-200/50 mb-6">
+              {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
+            </p>
+            {documents.length === 0 && (
+              <Link to="/tool-select">
+                <Button className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0">
+                  <Plus className="w-4 h-4" />Start a new procurement
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
-          <div className="space-y-3">
-            {filtered.map((doc, i) => {
-              const StatusIcon = statusIcons[doc.status] || Clock;
-              return (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-white/10" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Last Modified</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-blue-200/70">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((doc, i) => (
+                    <motion.tr key={doc.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
+                      className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="px-6 py-3.5">
+                        <button onClick={() => navigate(`/document/${doc.id}`)}
+                          className="font-medium text-white hover:text-blue-300 transition-colors text-sm">
+                          {doc.title}
+                        </button>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span className="text-xs font-mono text-blue-300/60">{doc.procurement_id || '—'}</span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span className={`text-xs font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
+                          {getProcurementStatus(doc)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span className="text-xs text-blue-200/50">
+                          {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                          {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
+                            <Button variant="ghost" size="sm"
+                              className="gap-1 text-xs text-green-300 hover:text-white hover:bg-green-500/20 border border-green-400/20 h-7"
+                              onClick={() => {
+                                try {
+                                  localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                                  if (doc.questionnaire_data) {
+                                    localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
+                                  }
+                                } catch {}
+                                navigate(`/questionnaire/${doc.questionnaire_type}`);
+                              }}>
+                              <Play className="w-3 h-3" />Continue
+                            </Button>
+                          )}
+                          {doc.status === 'complete' && (
+                            <Button variant="ghost" size="sm"
+                              className="gap-1 text-xs text-blue-300 hover:text-white hover:bg-blue-500/20 border border-blue-400/20 h-7"
+                              onClick={() => navigate(`/document/${doc.id}`)}>
+                              <FileText className="w-3 h-3" />View
+                            </Button>
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/10">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40">
+                              <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
+                                <FileText className="w-4 h-4 mr-2" />Open
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                // Duplicate: create a new doc from this one
+                                const newDoc = {
+                                  title: `${doc.title} (Copy)`,
+                                  document_type: doc.document_type,
+                                  status: 'draft',
+                                  procurement_id: Array.from({ length: 12 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join(''),
+                                  questionnaire_type: doc.questionnaire_type,
+                                  questionnaire_data: doc.questionnaire_data,
+                                  questionnaire_step: 0,
+                                  project_name: doc.project_name,
+                                  organisation_name: doc.organisation_name,
+                                  industry: doc.industry,
+                                };
+                                base44.entities.Document.create(newDoc).then(createdDoc => {
+                                  queryClient.invalidateQueries({ queryKey: ['documents'] });
+                                  toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
+                                });
+                              }}>
+                                <FileText className="w-4 h-4 mr-2" />Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(doc.id)}>
+                                <Trash2 className="w-4 h-4 mr-2" />Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+              {filtered.map((doc, i) => (
                 <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  className="rounded-xl border border-white/10 p-5 flex items-center justify-between gap-4 hover:border-blue-400/30 transition-all group cursor-pointer"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}
-                  onClick={() => navigate(`/document/${doc.id}`)}>
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-10 h-10 bg-blue-500/15 rounded-lg flex items-center justify-center flex-shrink-0 border border-blue-400/20">
-                      <FileText className="w-5 h-5 text-blue-300" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-medium text-white truncate">{doc.title}</h3>
-                        <Badge className={`text-xs border ${docTypeColors[doc.document_type] || 'bg-white/10 text-white/60'}`}>{doc.document_type}</Badge>
+                  className="rounded-xl border border-white/10 p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  {/* Title */}
+                  <button onClick={() => navigate(`/document/${doc.id}`)}
+                    className="text-left font-medium text-white hover:text-blue-300 transition-colors truncate">
+                    {doc.title}
+                  </button>
+
+                  {/* ID + Type Row */}
+                  <div className="flex items-center justify-between text-xs gap-2">
+                    <span className="font-mono text-blue-300/60">{doc.procurement_id || '—'}</span>
+                    <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
+                  </div>
+
+                  {/* Status + Last Modified Row */}
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-blue-200/50">Status:</span>
+                      <div className={`mt-0.5 font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
+                        {getProcurementStatus(doc)}
                       </div>
-                      <div className="flex items-center gap-3 mt-1 flex-wrap">
-                        <StatusIcon className={`w-3.5 h-3.5 flex-shrink-0 ${doc.status === 'complete' ? 'text-green-400' : doc.status === 'archived' ? 'text-white/30' : 'text-amber-400'}`} />
-                        <span className="text-xs text-blue-200/50 capitalize">{doc.status}</span>
-                        {doc.organisation_name && <span className="text-xs text-blue-200/40 truncate max-w-[160px]">{doc.organisation_name}</span>}
-                        {doc.updated_date && <span className="text-xs text-blue-200/30">{format(new Date(doc.updated_date), 'MMM d, yyyy')}</span>}
-                        {doc.procurement_id && (
-                          <span className="text-xs font-mono text-blue-300/40 border border-white/10 rounded px-1.5 py-0.5 hidden sm:inline"
-                            title="Procurement ID">
-                            {doc.procurement_id}
-                          </span>
-                        )}
+                    </div>
+                    <div>
+                      <span className="text-blue-200/50">Modified:</span>
+                      <div className="mt-0.5 text-blue-200/60">
+                        {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d') : '—'}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                    {/* Version count badge */}
-                    {versionCountMap[doc.id] > 0 && (
-                      <span className="hidden sm:inline-flex items-center gap-1 text-xs text-blue-300/50 border border-white/10 rounded-full px-2 py-0.5">
-                        <History className="w-3 h-3" />{versionCountMap[doc.id]}v
-                      </span>
-                    )}
-                    {/* Continue button for in-progress questionnaires */}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
-                        className="hidden sm:flex gap-1.5 text-xs text-green-300 hover:text-white hover:bg-green-500/20 border border-green-400/20"
+                        className="flex-1 gap-1 text-xs text-green-300 hover:text-white hover:bg-green-500/20 border border-green-400/20 h-7"
                         onClick={() => {
-                          // Restore draft doc context to localStorage so Questionnaire can resume
                           try {
                             localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
                             if (doc.questionnaire_data) {
@@ -282,47 +391,45 @@ export default function Dashboard() {
                           } catch {}
                           navigate(`/questionnaire/${doc.questionnaire_type}`);
                         }}>
-                        <Play className="w-3.5 h-3.5" />Continue
+                        <Play className="w-3 h-3" />Continue
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm"
-                      className="hidden sm:flex gap-1.5 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
-                      onClick={() => navigate(`/document/${doc.id}`)}>
-                      <Pencil className="w-3.5 h-3.5" />Edit
-                    </Button>
-                    <Button variant="ghost" size="sm"
-                      className="hidden sm:flex gap-1.5 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
-                      onClick={() => setVersionsDocId(doc.id)}>
-                      <History className="w-3.5 h-3.5" />Versions
-                    </Button>
+                    {doc.status === 'complete' && (
+                      <Button variant="ghost" size="sm"
+                        className="flex-1 gap-1 text-xs text-blue-300 hover:text-white hover:bg-blue-500/20 border border-blue-400/20 h-7"
+                        onClick={() => navigate(`/document/${doc.id}`)}>
+                        <FileText className="w-3 h-3" />View
+                      </Button>
+                    )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="w-8 h-8 text-white/40 hover:text-white hover:bg-white/10">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
-                          <DropdownMenuItem onClick={() => {
-                            try {
-                              localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
-                              if (doc.questionnaire_data) {
-                                localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
-                              }
-                            } catch {}
-                            navigate(`/questionnaire/${doc.questionnaire_type}`);
-                          }}>
-                            <Play className="w-4 h-4 mr-2" />Continue
-                          </DropdownMenuItem>
-                        )}
+                      <DropdownMenuContent align="end" className="w-40">
                         <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
-                          <Pencil className="w-4 h-4 mr-2" />Edit Document
+                          <FileText className="w-4 h-4 mr-2" />Open
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setVersionsDocId(doc.id)}>
-                          <History className="w-4 h-4 mr-2" />View Versions
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => archiveMutation.mutate(doc.id)}>
-                          <Archive className="w-4 h-4 mr-2" />Archive
+                        <DropdownMenuItem onClick={() => {
+                          const newDoc = {
+                            title: `${doc.title} (Copy)`,
+                            document_type: doc.document_type,
+                            status: 'draft',
+                            procurement_id: Array.from({ length: 12 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join(''),
+                            questionnaire_type: doc.questionnaire_type,
+                            questionnaire_data: doc.questionnaire_data,
+                            questionnaire_step: 0,
+                            project_name: doc.project_name,
+                            organisation_name: doc.organisation_name,
+                            industry: doc.industry,
+                          };
+                          base44.entities.Document.create(newDoc).then(createdDoc => {
+                            queryClient.invalidateQueries({ queryKey: ['documents'] });
+                            toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
+                          });
+                        }}>
+                          <FileText className="w-4 h-4 mr-2" />Duplicate
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(doc.id)}>
                           <Trash2 className="w-4 h-4 mr-2" />Delete
@@ -331,9 +438,9 @@ export default function Dashboard() {
                     </DropdownMenu>
                   </div>
                 </motion.div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
