@@ -351,7 +351,7 @@ export default function Dashboard() {
                   className="rounded-xl border border-white/10 p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
                   {/* Title */}
                   <button onClick={() => navigate(`/document/${doc.id}`)}
-                    className="text-left font-medium text-white hover:text-blue-300 transition-colors truncate">
+                    className="text-left font-medium text-white hover:text-[#00C9A7] transition-colors truncate">
                     {doc.title}
                   </button>
 
