@@ -389,6 +389,17 @@ export default function Questionnaire() {
       docId = doc.id;
     }
 
+    // Increment documents_used for the user's subscription
+    if (user) {
+      const subs = await base44.entities.Subscription.filter({ user_email: user.email });
+      if (subs.length > 0) {
+        const currentCount = subs[0].documents_used || 0;
+        await base44.entities.Subscription.update(subs[0].id, {
+          documents_used: currentCount + 1,
+        });
+      }
+    }
+
     try {
       sessionStorage.removeItem(SESSION_KEY(type));
       localStorage.removeItem(LOCAL_KEY(type));

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Lightbulb, ClipboardList, Search, ArrowRight, Bot, Sparkles } from 'lucide-react';
+import { FileText, Lightbulb, ClipboardList, Search, ArrowRight, Bot, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
@@ -48,6 +48,41 @@ export default function ToolSelect() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [isTrialExpired, setIsTrialExpired] = useState(false);
+  const [docsUsed, setDocsUsed] = useState(0);
+
+  useEffect(() => {
+    const loadSubscription = async () => {
+      try {
+        const user = await base44.auth.me();
+        if (!user) return;
+
+        const subs = await base44.entities.Subscription.filter({
+          user_email: user.email,
+        });
+        
+        if (subs.length > 0) {
+          const sub = subs[0];
+          setSubscription(sub);
+          setDocsUsed(sub.documents_used || 0);
+
+          // Check if free trial is expired
+          if (sub.plan === 'free' && sub.renewal_date) {
+            const renewalDate = new Date(sub.renewal_date);
+            const today = new Date();
+            if (today > renewalDate) {
+              setIsTrialExpired(true);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error loading subscription:', err);
+      }
+    };
+
+    loadSubscription();
+  }, []);
 
   const handleAiSelect = async () => {
     if (!aiQuery.trim()) return;
@@ -71,12 +106,58 @@ export default function ToolSelect() {
   };
 
   const handleProceed = () => {
+    // Check if free trial is expired
+    if (isTrialExpired) {
+      navigate('/billing');
+      return;
+    }
+
+    // Check if free plan has reached document limit
+    if (subscription?.plan === 'free' && docsUsed >= subscription.documents_limit) {
+      navigate('/billing');
+      return;
+    }
+
     if (selected) navigate(`/questionnaire/${selected}`);
   };
 
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Trial expired paywall */}
+        {isTrialExpired && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg border border-amber-400/30 bg-amber-400/10 p-6">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-amber-300 mb-1">Trial Period Expired</h3>
+                <p className="text-sm text-amber-200/70 mb-4">Your free trial has ended. Upgrade to continue creating new documents.</p>
+                <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-white border-0"
+                  onClick={() => navigate('/billing')}>
+                  Upgrade Now
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Free plan limit reached */}
+        {!isTrialExpired && subscription?.plan === 'free' && docsUsed >= subscription.documents_limit && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg border border-blue-400/30 bg-blue-400/10 p-6">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-300 mb-1">Document Limit Reached</h3>
+                <p className="text-sm text-blue-200/70 mb-4">You've created {docsUsed} of {subscription.documents_limit} allowed document(s) on your free plan. Upgrade to create more.</p>
+                <Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white border-0"
+                  onClick={() => navigate('/billing')}>
+                  Upgrade Plan
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <h1 className="font-display text-4xl font-semibold text-white mb-3">What document do you need?</h1>
           <p className="text-blue-200/60 text-lg">Choose a document type or describe your need and let AI guide you.</p>

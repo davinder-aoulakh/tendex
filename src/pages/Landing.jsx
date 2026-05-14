@@ -107,7 +107,7 @@ export default function Landing() {
               Login
             </Button>
             <Button size="sm" className="bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20"
-              onClick={() => base44.auth.redirectToLogin('/dashboard')}>
+              onClick={() => base44.auth.redirectToLogin('/plan-selection')}>
               Get Started
             </Button>
           </div>
@@ -244,11 +244,10 @@ export default function Landing() {
 
           <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
             className="mt-12 text-center">
-            <Link to="/tool-select">
-              <Button size="lg" className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-xl shadow-blue-500/20">
-                Create Your First Document <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            <Button size="lg" className="gap-2 px-8 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-xl shadow-blue-500/20"
+              onClick={() => base44.auth.redirectToLogin('/plan-selection')}>
+              Create Your First Document <ArrowRight className="w-4 h-4" />
+            </Button>
           </motion.div>
         </div>
       </section>

@@ -4,8 +4,7 @@ import Stripe from 'npm:stripe@14.21.0';
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
 
 const PRICE_IDS = {
-  starter: 'price_1TNCvcIjVOWW0K2a5bfYGtb5',
-  professional: 'price_1TNCvcIjVOWW0K2areYQXQoE',
+  professional: 'price_1TNCvcIjVOWW0K2areYQXQoE', // [TBC] - placeholder price ID
 };
 
 Deno.serve(async (req) => {
@@ -14,8 +13,8 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { plan, successUrl, cancelUrl } = await req.json();
-    const priceId = PRICE_IDS[plan];
+    const { planId, successUrl, cancelUrl } = await req.json();
+    const priceId = PRICE_IDS[planId];
     if (!priceId) return Response.json({ error: 'Invalid plan' }, { status: 400 });
 
     // Find or create Stripe customer
@@ -36,7 +35,7 @@ Deno.serve(async (req) => {
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         user_email: user.email,
-        plan,
+        planId,
       },
     });
 

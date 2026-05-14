@@ -1,214 +1,248 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { CheckCircle, Zap, Crown, Building2, CreditCard, AlertCircle, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, Check, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { base44 } from '@/api/base44Client';
 import AppLayout from '@/components/layout/AppLayout';
 
-const plans = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    docsLimit: 3,
-    icon: Zap,
-    features: ['3 documents per month', 'SOW, EOI, RFQ & RFP', 'AI content generation', 'PDF export', 'Document history'],
-    highlight: false,
+const PLANS = {
+  free: {
+    name: 'Free Trial',
+    price: 'Free',
+    duration: '14 days',
+    features: [
+      '1 active procurement document',
+      'Scope of Work generation',
+      '1 document type (SOW, EOI, RFQ, or RFP)',
+      'Basic email support',
+    ],
   },
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: '$29',
-    period: '/month',
-    docsLimit: 20,
-    icon: Crown,
-    features: ['20 documents per month', 'All document types', 'Advanced AI enhancement', 'Priority email support', 'Document history'],
-    highlight: true,
+  professional: {
+    name: 'Professional Plan',
+    price: '[TBC]',
+    duration: 'Monthly or Annual',
+    features: [
+      'Unlimited active procurements',
+      'All document types (SOW, EOI, RFQ, RFP)',
+      'Word & PDF export',
+      'Priority email support',
+      '[Additional features TBC]',
+    ],
   },
-  {
-    id: 'professional',
-    name: 'Professional',
-    price: '$79',
-    period: '/month',
-    docsLimit: 999,
-    icon: Building2,
-    features: ['Unlimited documents', 'All document types', 'Advanced AI enhancement', 'Dedicated support', 'Priority AI processing'],
-    highlight: false,
-  },
-];
+};
 
 export default function Billing() {
-  const [user, setUser] = useState(null);
-  const [loadingPlan, setLoadingPlan] = useState(null);
-  const [cancelling, setCancelling] = useState(false);
-  const [banner, setBanner] = useState(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const queryClient = useQueryClient();
+  const [user, setUser] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
+    const loadData = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        if (!currentUser) {
+          navigate('/');
+          return;
+        }
+        setUser(currentUser);
 
-  useEffect(() => {
-    if (searchParams.get('success') === 'true') {
-      setBanner({ type: 'success', msg: 'Subscription activated! Welcome to your new plan.' });
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-    } else if (searchParams.get('cancelled') === 'true') {
-      setBanner({ type: 'info', msg: 'Checkout cancelled. Your plan was not changed.' });
+        const subs = await base44.entities.Subscription.filter({
+          user_email: currentUser.email,
+        });
+        if (subs.length > 0) {
+          setSubscription(subs[0]);
+        }
+      } catch (err) {
+        console.error('Error loading billing data:', err);
+        setError('Failed to load billing information');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [navigate]);
+
+  const handleUpgradeToPaid = async () => {
+    setProcessingPayment(true);
+    setError(null);
+    try {
+      const response = await base44.functions.invoke('createCheckoutSession', {
+        email: user.email,
+        planId: 'professional',
+      });
+
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        setError('Failed to initialize payment. Please try again.');
+        setProcessingPayment(false);
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to process payment. Please try again.');
+      setProcessingPayment(false);
     }
-  }, []);
+  };
 
-  const { data: subscriptions = [] } = useQuery({
-    queryKey: ['subscription', user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ user_email: user?.email }),
-    enabled: !!user?.email,
-    refetchInterval: searchParams.get('success') === 'true' ? 3000 : false,
-  });
-
-  const { data: documents = [] } = useQuery({
-    queryKey: ['documents-count'],
-    queryFn: () => base44.entities.Document.list(),
-  });
-
-  const currentSub = subscriptions[0];
-  const currentPlan = currentSub?.plan || 'free';
-  const docsThisMonth = documents.length;
-  const planLimits = { free: 3, starter: 20, professional: 999 };
-  const docsLimit = planLimits[currentPlan] || 3;
-  const usagePct = docsLimit === 999 ? 10 : Math.min((docsThisMonth / docsLimit) * 100, 100);
-  const atLimit = docsThisMonth >= docsLimit && docsLimit !== 999;
-
-  const handleUpgrade = async (planId) => {
-    // Block if running in iframe (preview)
-    if (window.self !== window.top) {
-      alert('Checkout only works from the published app. Please open the app directly.');
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Are you sure you want to cancel your subscription? You will lose access after the current billing period.')) {
       return;
     }
-    setLoadingPlan(planId);
+
+    setProcessingPayment(true);
+    setError(null);
     try {
-      const res = await base44.functions.invoke('createCheckoutSession', {
-        plan: planId,
-        successUrl: `${window.location.origin}/billing?success=true`,
-        cancelUrl: `${window.location.origin}/billing?cancelled=true`,
+      await base44.functions.invoke('cancelSubscription', {
+        subscriptionId: subscription.stripe_subscription_id,
       });
-      if (res.data?.url) window.location.href = res.data.url;
+
+      // Update local subscription status
+      setSubscription(prev => ({ ...prev, status: 'cancelled' }));
     } catch (err) {
-      alert('Could not start checkout: ' + err.message);
+      setError(err.message || 'Failed to cancel subscription. Please try again.');
+      setProcessingPayment(false);
     }
-    setLoadingPlan(null);
   };
 
-  const handleCancel = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription? You will be downgraded to the Free plan.')) return;
-    setCancelling(true);
-    try {
-      await base44.functions.invoke('cancelSubscription', {});
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      setBanner({ type: 'info', msg: 'Subscription cancelled. You have been moved to the Free plan.' });
-    } catch (err) {
-      alert('Could not cancel: ' + err.message);
-    }
-    setCancelling(false);
-  };
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Header */}
+        <button onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white transition-colors mb-6">
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
+        <h1 className="font-display text-3xl font-bold text-white mb-2">Billing & Plans</h1>
+        <p className="text-blue-200/60 mb-8">Manage your subscription and upgrade your plan</p>
 
-        {/* Banner */}
-        {banner && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className={`flex items-center justify-between gap-3 rounded-xl p-4 mb-6 border ${banner.type === 'success' ? 'border-green-500/30 bg-green-500/10' : 'border-blue-400/20 bg-blue-500/10'}`}>
-            <div className="flex items-center gap-2">
-              {banner.type === 'success' ? <CheckCircle className="w-4 h-4 text-green-400" /> : <AlertCircle className="w-4 h-4 text-blue-400" />}
-              <span className="text-sm text-white">{banner.msg}</span>
+        {/* Current subscription status */}
+        {subscription && (
+          <div className={`rounded-lg border px-6 py-4 mb-8 ${
+            subscription.status === 'active'
+              ? 'border-green-400/30 bg-green-400/10'
+              : 'border-yellow-400/30 bg-yellow-400/10'
+          }`}>
+            <div className="flex items-center gap-2 mb-1">
+              <Check className="w-5 h-5 text-green-400" />
+              <h3 className="font-semibold text-white">
+                {subscription.plan === 'free' ? 'Free Trial Active' : `${PLANS[subscription.plan]?.name} Active`}
+              </h3>
             </div>
-            <button onClick={() => setBanner(null)}><X className="w-4 h-4 text-white/40 hover:text-white" /></button>
-          </motion.div>
+            <p className="text-sm text-blue-200/60">
+              Status: <span className="font-semibold text-blue-300">{subscription.status}</span>
+            </p>
+            {subscription.plan === 'free' && subscription.renewal_date && (
+              <p className="text-sm text-blue-200/60 mt-2">
+                Trial expires: <span className="font-semibold text-blue-300">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
+              </p>
+            )}
+            {subscription.status === 'active' && subscription.plan !== 'free' && subscription.renewal_date && (
+              <p className="text-sm text-blue-200/60 mt-2">
+                Renews: <span className="font-semibold text-blue-300">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
+              </p>
+            )}
+          </div>
         )}
 
-        <div className="mb-10">
-          <h1 className="font-display text-3xl font-semibold text-white mb-2">Billing & Plans</h1>
-          <p className="text-blue-200/50">Manage your subscription and usage.</p>
-        </div>
+        {/* Error message */}
+        {error && (
+          <div className="mb-8 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <p className="text-sm text-red-300">{error}</p>
+          </div>
+        )}
 
-        {/* Current Usage */}
-        <div className="rounded-2xl border border-white/10 p-6 mb-10" style={{ background: 'rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <h2 className="font-semibold text-white">Current Plan</h2>
-            <div className="flex items-center gap-2">
-              <Badge className="capitalize bg-blue-500/20 text-blue-300 border-blue-500/30">{currentPlan}</Badge>
-              {currentSub?.stripe_subscription_id && (
-                <Button size="sm" variant="ghost" onClick={handleCancel} disabled={cancelling}
-                  className="text-xs text-red-400/70 hover:text-red-400 hover:bg-red-500/10 h-7 px-2">
-                  {cancelling ? 'Cancelling...' : 'Cancel Subscription'}
-                </Button>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-blue-200/50">Documents used this month</span>
-            <span className="text-sm font-medium text-white">{docsThisMonth} / {docsLimit === 999 ? '∞' : docsLimit}</span>
-          </div>
-          <div className="w-full rounded-full h-2" style={{ background: 'rgba(255,255,255,0.1)' }}>
-            <div className={`rounded-full h-2 transition-all ${atLimit ? 'bg-red-500' : 'bg-blue-500'}`}
-              style={{ width: `${usagePct}%` }} />
-          </div>
-          {atLimit && (
-            <p className="text-sm text-red-400 mt-2">You've reached your document limit. Upgrade to continue creating documents.</p>
-          )}
-        </div>
-
-        {/* Plans */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {plans.map((plan, i) => (
-            <motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-              className={`rounded-2xl border p-7 relative ${plan.highlight ? 'border-blue-400/50 shadow-xl shadow-blue-500/10' : 'border-white/10'}`}
-              style={{ background: plan.highlight ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)' }}>
-              {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-blue-500 text-white border-0">Most Popular</Badge>
+        {/* Plans comparison */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">Available Plans</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            {Object.entries(PLANS).map(([key, plan]) => (
+              <div
+                key={key}
+                className={`rounded-xl border p-6 transition-all ${
+                  subscription?.plan === key
+                    ? 'border-blue-400/50 bg-blue-500/10 ring-2 ring-blue-400/30'
+                    : 'border-white/10 bg-white/5'
+                }`}
+              >
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-white mb-1">{plan.name}</h3>
+                  <p className="text-2xl font-bold text-blue-300">{plan.price}</p>
+                  <p className="text-sm text-blue-200/50">{plan.duration}</p>
                 </div>
-              )}
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <plan.icon className={`w-5 h-5 ${plan.highlight ? 'text-blue-300' : 'text-white/50'}`} />
+
+                <div className="space-y-3 mb-6">
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-blue-100/70">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {subscription?.plan === key ? (
+                  <Button disabled className="w-full bg-green-500/20 text-green-400 border border-green-400/30">
+                    <Check className="w-4 h-4 mr-2" /> Current Plan
+                  </Button>
+                ) : key === 'professional' ? (
+                  <Button
+                    onClick={handleUpgradeToPaid}
+                    disabled={processingPayment}
+                    className="w-full bg-blue-500 hover:bg-blue-400 text-white border-0"
+                  >
+                    {processingPayment ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      'Upgrade to Professional'
+                    )}
+                  </Button>
+                ) : null}
               </div>
-              <h3 className="font-semibold text-lg text-white mb-1">{plan.name}</h3>
-              <div className="flex items-baseline gap-1 mb-5">
-                <span className="text-3xl font-bold text-white">{plan.price}</span>
-                <span className="text-blue-200/50 text-sm">{plan.period}</span>
-              </div>
-              <ul className="space-y-2.5 mb-7">
-                {plan.features.map((feat, j) => (
-                  <li key={j} className="flex items-start gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-blue-100/70">{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              {currentPlan === plan.id ? (
-                <Button className="w-full bg-white/10 text-white/50 border border-white/10 hover:bg-white/10 cursor-default" disabled>Current Plan</Button>
-              ) : plan.id === 'free' ? (
-                <Button className="w-full bg-white/10 hover:bg-white/15 text-white border-0" disabled={currentPlan === 'free'} onClick={handleCancel}>
-                  Downgrade to Free
-                </Button>
-              ) : (
-                <Button
-                  className={`w-full gap-2 border-0 ${plan.highlight ? 'bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/20' : 'bg-white/10 hover:bg-white/15 text-white'}`}
-                  onClick={() => handleUpgrade(plan.id)}
-                  disabled={loadingPlan === plan.id}
-                >
-                  <CreditCard className="w-4 h-4" />
-                  {loadingPlan === plan.id ? 'Redirecting...' : currentPlan === 'free' ? 'Upgrade' : 'Switch Plan'}
-                </Button>
-              )}
-            </motion.div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Subscription management */}
+        {subscription?.status === 'active' && subscription?.plan !== 'free' && (
+          <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Subscription Management</h3>
+            <Button
+              onClick={handleCancelSubscription}
+              disabled={processingPayment}
+              variant="destructive"
+              className="bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30"
+            >
+              Cancel Subscription
+            </Button>
+            <p className="text-xs text-blue-200/50 mt-3">
+              You will retain access until the end of your current billing period.
+            </p>
+          </div>
+        )}
+
+        {/* Footer note */}
+        <div className="mt-12 text-center">
+          <p className="text-xs text-blue-200/40">
+            Pricing and features are placeholder values [TBC] pending final confirmation.
+            <br />
+            For support, contact support@tendex.com.au
+          </p>
         </div>
       </div>
     </AppLayout>
