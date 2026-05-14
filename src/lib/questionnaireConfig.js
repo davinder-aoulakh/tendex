@@ -384,145 +384,177 @@ export const EOI_PAGES = [
 
 // ─────────────────────────────────────────────
 // RFQ — Request for Quotation
+// Three sections: R1 Submission & Contact | R2 Evaluation | R3 Commercial Terms
 // ─────────────────────────────────────────────
+
+const RFQ_HAS_SITE_MEETING = (a) => a.rfq_site_meeting === 'mandatory' || a.rfq_site_meeting === 'optional';
+const RFQ_HAS_PORTAL        = (a) => a.rfq_submission_method === 'portal';
+const RFQ_HAS_CUSTOM_VALIDITY = (a) => a.rfq_validity === 'custom';
+const RFQ_HAS_PROGRESS_PAYMENTS = (a) => a.rfq_payment_terms === 'progress';
+const RFQ_HAS_DEPOSIT = (a) => a.rfq_payment_terms === 'deposit';
+const RFQ_HAS_LICENCES = (a) => !!a.rfq_licences && a.rfq_licences.trim().length > 0;
+const RFQ_INS = (type) => (a) => Array.isArray(a.rfq_insurance_types) && a.rfq_insurance_types.includes(type);
+
 export const RFQ_PAGES = [
+  // ── R1: Submission and contact ──
   {
-    id: 'rfq_title',
-    title: 'Document Title',
-    description: 'Give your RFQ a clear, descriptive title.',
+    id: 'r1_submission',
+    title: 'Submission & Contact',
+    description: 'Set the closing details and nominate the key contacts for this RFQ.',
+    sectionLabel: 'Submission',
     fields: [
-      { key: 'organisation_name', label: 'Organisation Name', type: 'text', placeholder: 'Your company name', required: true },
-      { key: 'rfq_title', label: 'RFQ Document Title', type: 'text', placeholder: 'e.g. Provision of Denim Products', required: true },
-      { key: 'project_name', label: 'Project / Reference Name', type: 'text', placeholder: 'Internal reference name', required: false },
-    ],
-  },
-  {
-    id: 'rfq_submission',
-    title: 'Offer Submission Details',
-    description: 'Where should suppliers send their quotes?',
-    fields: [
-      { key: 'submission_contact_name', label: 'Offers to be Addressed To', type: 'text', placeholder: 'Name of person receiving offers', required: true },
-      { key: 'submission_email', label: 'Offers Email Address', type: 'email', placeholder: 'rfq@yourorg.com', required: true },
-    ],
-  },
-  {
-    id: 'rfq_contact',
-    title: 'Contact Details',
-    description: 'Who can suppliers contact with questions?',
-    fields: [
-      { key: 'contact_name', label: 'Contact Person Name', type: 'text', placeholder: 'Full name', required: true },
-      { key: 'contact_title', label: 'Position / Title', type: 'text', placeholder: 'e.g. Procurement Manager', required: true },
-      { key: 'contact_email', label: 'Email Address', type: 'email', placeholder: 'contact@yourorg.com', required: true },
-      { key: 'contact_phone', label: 'Phone Number', type: 'text', placeholder: '+61 4xx xxx xxx', required: true },
-    ],
-  },
-  {
-    id: 'rfq_company',
-    title: 'Company Details',
-    description: 'Your organisation\'s legal details.',
-    fields: [
-      { key: 'company_name', label: 'Full Legal Company Name', type: 'text', placeholder: 'e.g. Woodington Holdings Pty Ltd', required: true },
-      { key: 'abn', label: 'Company ABN', type: 'text', placeholder: 'e.g. 12 345 678 901', required: true, helpText: 'Will be validated against the Australian Business Register.' },
-      { key: 'registered_address', label: 'Registered Business Address', type: 'text', placeholder: 'Street address, suburb, state, postcode', required: true },
-    ],
-  },
-  {
-    id: 'rfq_dates',
-    title: 'Dates & Pricing Terms',
-    description: 'Set key dates and pricing conditions.',
-    fields: [
-      { key: 'closing_date', label: 'Closing Date for Offers', type: 'date', required: true },
-      { key: 'commencement_date', label: 'Anticipated Commencement Date', type: 'date', required: true },
-      { key: 'validity_period', label: 'Offer Validity Period (months)', type: 'number', placeholder: '3', required: true },
+      { key: 'rfq_closing_date', label: 'Closing date for quote submissions', type: 'date', required: true },
+      { key: 'rfq_closing_time', label: 'Closing time (local time)', type: 'text', placeholder: 'e.g. 2:00 PM AWST', required: true },
+      { key: 'rfq_commencement_date', label: 'Expected commencement date', type: 'text', placeholder: 'e.g. 1 July 2025 or "within 4 weeks of award"', required: false },
+      { key: 'rfq_addressed_to', label: 'Who should quotes be addressed to?', type: 'text', placeholder: 'Full name and title', required: true },
+      { key: 'rfq_contact_name', label: 'Query contact during advertising', type: 'text', placeholder: 'Full name', required: true },
+      { key: 'rfq_contact_title', label: 'Query contact position / title', type: 'text', placeholder: 'e.g. Procurement Manager', required: true },
+      { key: 'rfq_contact_email', label: 'Query contact email', type: 'email', placeholder: 'procurement@yourorg.com', required: true },
+      { key: 'rfq_contact_phone', label: 'Query contact phone', type: 'text', placeholder: '+61 4xx xxx xxx', required: false },
       {
-        key: 'price_variation',
-        label: 'Price Variation',
+        key: 'rfq_site_meeting',
+        label: 'Will there be a mandatory site meeting or inspection?',
         type: 'radio-cards',
         required: true,
         options: [
-          { value: 'fixed', label: 'Fixed Price for Term', description: 'Price cannot change during the contract period' },
-          { value: 'variable', label: 'Subject to Variation', description: 'Price may be adjusted — describe conditions below' },
+          { value: 'mandatory', label: 'Yes — Mandatory', description: 'Non-attendance disqualifies the supplier' },
+          { value: 'optional',  label: 'Yes — Optional',  description: 'Attendance is recommended but not required' },
+          { value: 'no',        label: 'No',              description: 'No site meeting required' },
         ],
       },
-      { key: 'price_variation_details', label: 'Variation Details', type: 'textarea', placeholder: 'Describe under what conditions prices may vary...', required: true, condition: (a) => a.price_variation === 'variable' },
+      { key: 'rfq_site_meeting_date', label: 'Site meeting date', type: 'date', required: true, condition: RFQ_HAS_SITE_MEETING },
+      { key: 'rfq_site_meeting_time', label: 'Site meeting time', type: 'text', placeholder: 'e.g. 10:00 AM AWST', required: true, condition: RFQ_HAS_SITE_MEETING },
+      { key: 'rfq_site_meeting_address', label: 'Site meeting address', type: 'text', placeholder: 'Street address, suburb, state, postcode', required: true, condition: RFQ_HAS_SITE_MEETING },
     ],
   },
+
+  // ── R2: Evaluation ──
   {
-    id: 'rfq_insurance',
-    title: 'Insurance Requirements',
-    description: 'Select the insurance types required from your supplier.',
+    id: 'r2_evaluation',
+    title: 'Evaluation Method',
+    description: 'Tell us how you will assess and select the winning quote.',
+    sectionLabel: 'Evaluation',
     fields: [
       {
-        key: 'insurance_types',
-        label: 'Required Insurance',
+        key: 'rfq_evaluation_method',
+        label: 'How will you evaluate quotes?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'lowest_price',  label: 'Lowest price that meets specifications', description: 'Award goes to the compliant quote with the lowest price' },
+          { value: 'best_value',    label: 'Best value (price AND quality)',          description: 'Price and qualitative factors are both assessed' },
+          { value: 'price_only',    label: 'Price only — all specifications identical', description: 'All respondents offer identical specs; price is the sole differentiator' },
+        ],
+      },
+    ],
+  },
+
+  // ── R3: Commercial terms ──
+  {
+    id: 'r3_commercial',
+    title: 'Commercial Terms',
+    description: 'Define the commercial requirements suppliers must meet.',
+    sectionLabel: 'Commercial',
+    fields: [
+      {
+        key: 'rfq_licences',
+        label: 'What specific licences or registrations must the supplier hold? (optional)',
+        type: 'text',
+        placeholder: 'e.g. QBCC licence, electrical contractor registration…',
+        required: false,
+      },
+      {
+        key: 'rfq_insurance_types',
+        label: 'What insurance must the supplier hold?',
         type: 'checkbox-multi',
         required: false,
         options: [
-          { value: 'workers_comp', label: 'Workers Compensation Insurance' },
-          { value: 'public_liability', label: 'Public Liability Insurance' },
-          { value: 'product_liability', label: 'Product Liability Insurance' },
-          { value: 'professional_indemnity', label: 'Professional Indemnity Insurance' },
-          { value: 'motor_vehicle', label: 'Motor Vehicle Insurance' },
-          { value: 'ctp', label: 'Compulsory Third Party Insurance' },
+          { value: 'public_liability',        label: 'Public liability insurance' },
+          { value: 'workers_comp',            label: 'Workers compensation' },
+          { value: 'product_liability',       label: 'Product liability insurance' },
+          { value: 'professional_indemnity',  label: 'Professional indemnity insurance' },
+          { value: 'motor_vehicle',           label: 'Motor vehicle' },
+          { value: 'ctp',                     label: 'CTP insurance' },
+          { value: 'none',                    label: 'No specific insurance requirements' },
         ],
       },
-      { key: 'public_liability_amount', label: 'Public Liability — Minimum Coverage (AUD)', type: 'text', placeholder: '$20,000,000', required: false, condition: (a) => Array.isArray(a.insurance_types) && a.insurance_types.includes('public_liability') },
-      { key: 'professional_indemnity_amount', label: 'Professional Indemnity — Minimum Coverage (AUD)', type: 'text', placeholder: '$10,000,000', required: false, condition: (a) => Array.isArray(a.insurance_types) && a.insurance_types.includes('professional_indemnity') },
-    ],
-  },
-  {
-    id: 'rfq_site_meeting',
-    title: 'Mandatory Site Meeting',
-    description: 'Is there a mandatory site meeting for this RFQ?',
-    fields: [
-      { key: 'mandatory_site_meeting', label: 'Is there a mandatory site meeting?', type: 'toggle', required: false },
-      { key: 'site_meeting_details', label: 'Site Meeting Details', type: 'textarea', placeholder: 'Address, date, and time of the site meeting...', required: true, condition: (a) => a.mandatory_site_meeting === true, helpText: 'Attendance at this meeting is a pre-qualification requirement.' },
-    ],
-  },
-  {
-    id: 'rfq_prequalification',
-    title: 'Pre-Qualifications & Requirements',
-    description: 'Define the requirements suppliers must meet to be considered.',
-    fields: [
-      { key: 'contract_manager', label: 'Contract Manager Name', type: 'text', placeholder: 'Full name', required: true },
+      { key: 'rfq_ins_public_liability_amt',       label: 'Public liability — minimum insured amount (AUD)', type: 'text', placeholder: '$20,000,000', required: false, condition: RFQ_INS('public_liability') },
+      { key: 'rfq_ins_workers_comp_amt',           label: 'Workers compensation — minimum insured amount (AUD)', type: 'text', placeholder: 'Statutory minimum', required: false, condition: RFQ_INS('workers_comp') },
+      { key: 'rfq_ins_product_liability_amt',      label: 'Product liability — minimum insured amount (AUD)', type: 'text', placeholder: '$20,000,000', required: false, condition: RFQ_INS('product_liability') },
+      { key: 'rfq_ins_professional_indemnity_amt', label: 'Professional indemnity — minimum insured amount (AUD)', type: 'text', placeholder: '$10,000,000', required: false, condition: RFQ_INS('professional_indemnity') },
+      { key: 'rfq_ins_motor_vehicle_amt',          label: 'Motor vehicle — minimum insured amount (AUD)', type: 'text', placeholder: '$5,000,000', required: false, condition: RFQ_INS('motor_vehicle') },
+      { key: 'rfq_ins_ctp_amt',                   label: 'CTP — minimum insured amount (AUD)', type: 'text', placeholder: 'Statutory minimum', required: false, condition: RFQ_INS('ctp') },
       {
-        key: 'prequalification_reqs',
-        label: 'Pre-Qualification Requirements',
-        type: 'checkbox-multi',
-        required: false,
+        key: 'rfq_payment_terms',
+        label: 'What payment terms are you proposing?',
+        type: 'radio-cards',
+        required: true,
         options: [
-          { value: 'modern_slavery', label: 'Modern Slavery Questionnaire Required' },
-          { value: 'site_meeting', label: 'Mandatory Site Meeting Attendance Required' },
-          { value: 'licensing', label: 'Licensing and Statutory Requirements' },
+          { value: '30_days',  label: '30 days from invoice',                         description: 'Standard 30-day payment terms' },
+          { value: '14_days',  label: '14 days from invoice',                         description: 'Faster 14-day payment terms' },
+          { value: 'progress', label: 'Progress payments — milestone-based',          description: 'Payments tied to agreed milestones' },
+          { value: 'deposit',  label: 'Upfront deposit plus balance on completion',   description: 'A deposit is paid before work commences' },
+          { value: 'negotiate', label: 'To be negotiated',                            description: 'Terms agreed with successful supplier' },
         ],
       },
+      { key: 'rfq_payment_milestones', label: 'Describe the payment milestones', type: 'textarea', placeholder: 'e.g. 25% on commencement, 25% at week 4, 50% on completion...', required: true, condition: RFQ_HAS_PROGRESS_PAYMENTS },
+      { key: 'rfq_deposit_percent', label: 'Deposit percentage (%)', type: 'text', placeholder: 'e.g. 20', required: true, condition: RFQ_HAS_DEPOSIT },
       {
-        key: 'qualitative_reqs',
-        label: 'Qualitative Requirements',
-        type: 'checkbox-multi',
-        required: false,
+        key: 'rfq_validity',
+        label: 'How long must supplier quotes remain valid?',
+        type: 'radio-cards',
+        required: true,
         options: [
-          { value: 'suitability', label: 'Suitability of Proposed Products/Services' },
-          { value: 'capacity', label: 'Organisational Capacity' },
-          { value: 'experience', label: 'Demonstrated Experience' },
-          { value: 'service', label: 'Service and Maintenance' },
-          { value: 'referees', label: 'Referees (minimum 2)' },
+          { value: '30',     label: '30 days',      description: '' },
+          { value: '60',     label: '60 days',      description: '' },
+          { value: '90',     label: '90 days',      description: '' },
+          { value: 'custom', label: 'I will specify', description: '' },
         ],
       },
-      { key: 'statement_of_requirements', label: 'Statement of Requirements / Scope', type: 'textarea', placeholder: 'Describe in detail what you need the supplier to provide...', required: true },
+      { key: 'rfq_validity_custom', label: 'Specify validity period', type: 'text', placeholder: 'e.g. 45 days', required: true, condition: RFQ_HAS_CUSTOM_VALIDITY },
+      {
+        key: 'rfq_submission_method',
+        label: 'How should suppliers submit their quote?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'email',  label: 'By email to the nominated address', description: 'Quotes sent directly to the contact email above' },
+          { value: 'portal', label: 'Via an online portal',              description: 'Quotes submitted through a procurement portal' },
+        ],
+      },
+      { key: 'rfq_portal_url', label: 'Portal URL', type: 'text', placeholder: 'https://portal.youragency.gov.au/rfq/…', required: true, condition: RFQ_HAS_PORTAL },
     ],
   },
 ];
 
 // ─────────────────────────────────────────────
-// RFP — Request for Proposal (same pages as RFQ with minor label difference)
+// RFP — Request for Proposal
+// Shares the same R1/R2/R3 pages as RFQ but stores answers under rfp_ prefix
+// The AI prompt remaps rfp_ → rfq_ keys before building the document
 // ─────────────────────────────────────────────
+
+// Helper: build a condition that remaps rfp_ keys to rfq_ before evaluating the original RFQ condition
+const remapConditionForRFP = (cond) => {
+  if (!cond) return undefined;
+  return (a) => {
+    const remapped = { ...a };
+    Object.entries(a).forEach(([k, v]) => {
+      if (k.startsWith('rfp_')) remapped[k.replace(/^rfp_/, 'rfq_')] = v;
+    });
+    return cond(remapped);
+  };
+};
+
 export const RFP_PAGES = RFQ_PAGES.map(page => ({
   ...page,
+  id: page.id.replace(/^r/, 'rfp_r'),
+  sectionLabel: page.sectionLabel,
   fields: page.fields.map(f => ({
     ...f,
-    label: f.label?.replace('RFQ', 'RFP'),
-    placeholder: f.placeholder?.replace('RFQ', 'RFP'),
+    key: f.key.replace(/^rfq_/, 'rfp_'),
+    label: f.label?.replace(/\bRFQ\b/g, 'RFP'),
+    placeholder: f.placeholder?.replace(/\bRFQ\b/g, 'RFP'),
+    condition: remapConditionForRFP(f.condition),
   })),
 }));
 

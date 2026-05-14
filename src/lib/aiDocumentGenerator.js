@@ -82,27 +82,109 @@ Generate all 14 sections in order. Use formal Australian government procurement 
 IMPORTANT: In the attachments_list section, always list "Attachment 1 — Scope of Work" as the first attachment.`;
 };
 
-const RFQ_PROMPT = (d) => `You are an expert Australian procurement consultant. Generate a professional Request for Quotation (RFQ) document.
+const RFQ_PROMPT = (d) => {
+  // Normalise keys — RFP stores answers with rfp_ prefix, remap to rfq_ for shared prompt
+  const r = {};
+  Object.entries(d).forEach(([k, v]) => {
+    r[k.replace(/^rfp_/, 'rfq_')] = v;
+  });
 
-Organisation: ${d.organisation_name || d.company_name || 'N/A'}
-RFQ Title: ${d.rfq_title || d.project_name || 'N/A'}
-ABN: ${d.abn || 'N/A'}
-Registered Address: ${d.registered_address || 'N/A'}
-Contact: ${d.contact_name || 'N/A'}, ${d.contact_title || 'N/A'} — ${d.contact_email || 'N/A'}
-Submission Contact: ${d.submission_contact_name || 'N/A'} — ${d.submission_email || 'N/A'}
-Closing Date: ${d.closing_date || 'N/A'}
-Commencement Date: ${d.commencement_date || 'N/A'}
-Validity Period: ${d.validity_period || 'N/A'} months
-Price Variation: ${d.price_variation || 'fixed'}
-Insurance Required: ${JSON.stringify(d.insurance_types || [])}
-Mandatory Site Meeting: ${d.mandatory_site_meeting ? 'Yes — ' + (d.site_meeting_details || '') : 'No'}
-Contract Manager: ${d.contract_manager || 'N/A'}
-Pre-Qualification Requirements: ${JSON.stringify(d.prequalification_reqs || [])}
-Statement of Requirements: ${d.statement_of_requirements || 'N/A'}
+  const evalMap = {
+    lowest_price: 'Lowest price that meets specifications',
+    best_value:   'Best value — price and quality assessed',
+    price_only:   'Price only — all specifications identical',
+  };
+  const paymentMap = {
+    '30_days':  '30 days from invoice',
+    '14_days':  '14 days from invoice',
+    progress:   `Progress payments — milestone-based: ${r.rfq_payment_milestones || 'TBC'}`,
+    deposit:    `Upfront deposit (${r.rfq_deposit_percent || 'TBC'}%) plus balance on completion`,
+    negotiate:  'To be negotiated with successful supplier',
+  };
+  const validityLabel = r.rfq_validity === 'custom' ? (r.rfq_validity_custom || 'TBC') : `${r.rfq_validity || '30'} days`;
+  const submissionMethod = r.rfq_submission_method === 'portal'
+    ? `Via online portal: ${r.rfq_portal_url || 'TBC'}`
+    : `By email to: ${r.rfq_contact_email || 'N/A'}`;
 
-Write a formal RFQ document ready for release to market. Use professional procurement language throughout.`;
+  const siteMeetingText = r.rfq_site_meeting === 'no' || !r.rfq_site_meeting
+    ? 'No site meeting required.'
+    : `${r.rfq_site_meeting === 'mandatory' ? 'MANDATORY' : 'Optional'} site inspection — ${r.rfq_site_meeting_date || 'TBC'} at ${r.rfq_site_meeting_time || 'TBC'}, ${r.rfq_site_meeting_address || 'TBC'}. ${r.rfq_site_meeting === 'mandatory' ? 'Non-attendance disqualifies the respondent.' : ''}`;
 
-const RFP_PROMPT = (d) => RFQ_PROMPT(d).replace('Request for Quotation (RFQ)', 'Request for Proposal (RFP)').replace('RFQ Title', 'RFP Title');
+  const insuranceLines = Array.isArray(r.rfq_insurance_types)
+    ? r.rfq_insurance_types.filter(t => t !== 'none').map(t => {
+        const amtKey = `rfq_ins_${t}_amt`;
+        const amt = r[amtKey];
+        const labels = {
+          public_liability: 'Public Liability', workers_comp: 'Workers Compensation',
+          product_liability: 'Product Liability', professional_indemnity: 'Professional Indemnity',
+          motor_vehicle: 'Motor Vehicle', ctp: 'CTP',
+        };
+        return `${labels[t] || t}${amt ? ` (min ${amt})` : ''}`;
+      }).join('; ')
+    : 'None specified';
+
+  // Scope carried from SOW
+  const scopeContent = d.summary_of_services || d.product_description || d.statement_of_requirements || 'Refer to specification section';
+
+  return `You are an expert Australian procurement consultant. Generate a professional, formal Request for Quotation (RFQ) document suitable for release to market.
+
+Organisation: ${d.organisation_name || 'N/A'}
+Project / RFQ Reference: ${d.project_name || d.rfq_title || 'N/A'}
+Industry: ${d.industry || d.procurement_type || 'N/A'}
+
+=== SECTION DATA ===
+
+SUBMISSION & CONTACT (Section 2 — Submission of Offer):
+- Closing date & time: ${r.rfq_closing_date || 'N/A'} at ${r.rfq_closing_time || 'N/A'}
+- Quotes addressed to: ${r.rfq_addressed_to || 'N/A'}
+- Submission method: ${submissionMethod}
+
+CONTACT PERSONS (Section 5):
+- Query contact: ${r.rfq_contact_name || 'N/A'}, ${r.rfq_contact_title || 'N/A'}
+- Email: ${r.rfq_contact_email || 'N/A'}
+- Phone: ${r.rfq_contact_phone || 'N/A'}
+
+REQUEST DETAILS (Section 6 — table):
+- Organisation: ${d.organisation_name || 'N/A'}
+- Commencement date: ${r.rfq_commencement_date || 'N/A'}
+- Price variation: Fixed
+
+OFFER VALIDITY (Section 3): ${validityLabel}
+
+SITE MEETING (Section 4): ${siteMeetingText}
+
+SPECIFICATION (Section 7 — full scope from SOW, do not ask user to re-enter):
+${scopeContent}
+Provider responsibilities: ${d.provider_responsibilities || 'As specified'}
+Requester responsibilities: ${d.requester_responsibilities || 'As specified'}
+Key deliverables: ${d.key_deliverables || 'N/A'}
+Timeline: ${d.timeline || 'N/A'}
+
+EVALUATION (feeds into Section 10):
+- Evaluation method: ${evalMap[r.rfq_evaluation_method] || r.rfq_evaluation_method || 'Best value'}
+
+COMMERCIAL TERMS (feeds into Section 10):
+- Required licences/registrations: ${r.rfq_licences || 'None specified'}
+- Insurance requirements: ${insuranceLines}
+- Payment terms: ${paymentMap[r.rfq_payment_terms] || r.rfq_payment_terms || 'N/A'}
+
+Generate all 10 sections in order. Use formal Australian government procurement language throughout. Each section must be 1–3 paragraphs of complete, professional prose. Do not use markdown headings inside the values.
+
+For section 'request_conditions', write standard TendeX request conditions covering: no obligation to accept, right to reject all offers, no reimbursement of costs, confidentiality obligations, and the right to shortlist or negotiate.
+For section 'identity_of_respondent', write a supplier completion statement (in table format described as prose) asking for: company name, ABN, registered address, contact name and title, phone and email, signature and date.
+For section 'compliance_matrix', write a structured section covering pre-qualification requirements, evaluation criteria, qualitative requirements, insurance table (listing each required insurance with the minimum insured amount), and a pricing table template instruction.`;
+};
+
+const RFP_PROMPT = (d) => {
+  // Remap rfp_ keys to rfq_ so the shared prompt builder works
+  const remapped = { ...d };
+  Object.entries(d).forEach(([k, v]) => {
+    if (k.startsWith('rfp_')) remapped[k.replace(/^rfp_/, 'rfq_')] = v;
+  });
+  return RFQ_PROMPT(remapped)
+    .replace(/Request for Quotation \(RFQ\)/g, 'Request for Proposal (RFP)')
+    .replace(/\bRFQ\b/g, 'RFP');
+};
 
 // ─────────────────────────────────────────────
 // Section schemas & labels
@@ -126,8 +208,8 @@ export const SECTION_SCHEMAS = {
     'indicative_pricing',
     'attachments_list',
   ],
-  RFQ: ['introduction', 'background', 'submission_of_offer', 'offer_validity', 'contact_persons', 'selection_process', 'statement_of_requirements', 'insurance_requirements', 'pre_qualification', 'evaluation_criteria', 'pricing_schedule'],
-  RFP: ['introduction', 'background', 'submission_of_offer', 'offer_validity', 'contact_persons', 'selection_process', 'statement_of_requirements', 'proposal_requirements', 'insurance_requirements', 'pre_qualification', 'evaluation_criteria', 'pricing_schedule'],
+  RFQ: ['background', 'submission_of_offer', 'offer_validity', 'site_meeting', 'contact_persons', 'request_details', 'specification', 'request_conditions', 'identity_of_respondent', 'compliance_matrix'],
+  RFP: ['background', 'submission_of_offer', 'offer_validity', 'site_meeting', 'contact_persons', 'request_details', 'specification', 'request_conditions', 'identity_of_respondent', 'compliance_matrix'],
 };
 
 export const SECTION_LABELS = {
@@ -159,8 +241,14 @@ export const SECTION_LABELS = {
   attachments_list: 'Attachments',
   reporting: 'Reporting Requirements',
   submission_of_offer: 'Submission of Offer',
-  offer_validity: 'Offer Validity',
+  offer_validity: 'Offer Validity Period',
+  site_meeting: 'Mandatory Site Meeting',
   contact_persons: 'Contact Persons',
+  request_details: 'Request Details',
+  specification: 'Specification',
+  request_conditions: 'Request Conditions',
+  identity_of_respondent: 'Identity of Respondent',
+  compliance_matrix: 'Pre-Qualification, Compliance & Evaluation',
   selection_process: 'Selection Process',
   statement_of_requirements: 'Statement of Requirements',
   insurance_requirements: 'Insurance Requirements',

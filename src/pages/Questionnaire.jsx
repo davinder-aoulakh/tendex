@@ -247,6 +247,7 @@ export default function Questionnaire() {
     setGenerating(true);
     const resolvedType = overrideDocType || finalDocType || type;
     const title = answers.project_name || answers.rfq_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`;
+    const orgName = answers.organisation_name || answers.company_name || '';
     const updateData = {
       title,
       document_type: resolvedType,
@@ -256,7 +257,7 @@ export default function Questionnaire() {
         ...(overrideDocType ? { _user_override_type: overrideDocType, _override_timestamp: new Date().toISOString() } : {}),
       },
       project_name: answers.project_name || answers.rfq_title || '',
-      organisation_name: answers.organisation_name || answers.company_name || '',
+      organisation_name: orgName,
       industry: answers.industry || answers.service_type || answers.procurement_type || '',
       questionnaire_step: currentStep,
     };

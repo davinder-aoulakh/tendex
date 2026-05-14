@@ -131,12 +131,14 @@ export default function PDFExport({ doc, content, onClose }) {
       // Meta table
       y += 14;
       const qd = doc.questionnaire_data || {};
+      const closingDate = qd.eoi_closing_date || qd.rfq_closing_date || qd.rfp_closing_date || qd.closing_date;
+      const contactName = qd.eoi_contact_name || qd.rfq_contact_name || qd.rfp_contact_name || qd.contact_name;
       const metaFields = [
         ['DOCUMENT ID', docId],
         ['DATE', genDateLong],
         ['TYPE', DOC_TYPE_LABELS[doc.document_type] || doc.document_type],
-        ...(qd.closing_date ? [['CLOSING DATE', qd.closing_date]] : []),
-        ...(qd.contact_name ? [['CONTACT PERSON', qd.contact_name]] : []),
+        ...(closingDate ? [['CLOSING DATE', closingDate]] : []),
+        ...(contactName ? [['CONTACT PERSON', contactName]] : []),
         ...(doc.industry ? [['CATEGORY', doc.industry]] : []),
       ];
       const colLabel = pw / 2 - 45;
