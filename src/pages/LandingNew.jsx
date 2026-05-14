@@ -472,7 +472,7 @@ export default function LandingNew() {
                  style={{ backgroundColor: '#00C9A7', color: '#080E1A' }}>
                  Start free trial →
                </Button>
-              <a href="mailto:hello@tendex.com.au" className="font-syne font-700 text-base px-8 py-3 rounded-lg border transition-all inline-block" style={{ borderColor: 'rgba(255,255,255,0.12)', color: '#E8F0F8' }}>
+              <a href="mailto:hello@tendex.com.au" className="font-syne font-700 text-base px-8 py-3 rounded-lg border transition-all inline-block hover:border-[#00C9A7] hover:text-[#00C9A7]" style={{ borderColor: 'rgba(255,255,255,0.12)', color: '#E8F0F8' }}>
                 Book a demo
               </a>
             </div>
@@ -501,13 +501,13 @@ export default function LandingNew() {
             <h4 className="font-syne font-700 text-xs text-white uppercase tracking-wide mb-4">Product</h4>
             <div className="space-y-2 font-dm-sans font-400 text-sm text-[#5C7A99]">
               <a href="#how" className="block hover:text-[#00C9A7] transition-colors">
-                Features
+                How it works
               </a>
               <a href="#pricing" className="block hover:text-[#00C9A7] transition-colors">
                 Pricing
               </a>
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
-                Security
+              <a href="#documents" className="block hover:text-[#00C9A7] transition-colors">
+                Documents
               </a>
             </div>
           </div>
@@ -533,13 +533,13 @@ export default function LandingNew() {
             <h4 className="font-syne font-700 text-xs text-white uppercase tracking-wide mb-4">Legal</h4>
             <div className="space-y-2 font-dm-sans font-400 text-sm text-[#5C7A99]">
               <a href="#" className="block hover:text-[#00C9A7] transition-colors">
-                Privacy
+                Privacy Policy
               </a>
               <a href="#" className="block hover:text-[#00C9A7] transition-colors">
-                Terms
+                Terms of Service
               </a>
               <a href="#" className="block hover:text-[#00C9A7] transition-colors">
-                Cookies
+                Cookie Policy
               </a>
             </div>
           </div>
