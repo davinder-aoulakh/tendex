@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -17,12 +17,20 @@ import AIScopePurpose from '@/components/questionnaire/AIScopePurpose';
 import AIDeliverableChips from '@/components/questionnaire/AIDeliverableChips';
 import SOWDocumentReview from '@/components/questionnaire/SOWDocumentReview';
 import AIGoodsSpecSuggestion from '@/components/questionnaire/AIGoodsSpecSuggestion';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
-// Persists the full answers (including procurement_type branch) to localStorage
-// so the user resumes on the correct path across sessions.
 const LOCAL_KEY = (type) => `tendex_answers_${type}`;
+const DRAFT_DOC_KEY = (type) => `tendex_draft_doc_${type}`;
 const ANON_ID_KEY = 'tendex_anonymous_user_id';
+
+// Generate immutable 12-char uppercase alphanumeric procurement ID
+const generateProcurementId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id = '';
+  for (let i = 0; i < 12; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+};
 
 const getOrCreateAnonId = () => {
   try {
@@ -50,6 +58,11 @@ export default function Questionnaire() {
     return {};
   };
 
+  // Draft document ID for auto-save (persisted to localStorage so it survives page refresh)
+  const loadDraftDocId = () => {
+    try { return localStorage.getItem(DRAFT_DOC_KEY(type)) || null; } catch { return null; }
+  };
+
   const [user, setUser] = useState(undefined); // undefined = loading, null = not logged in
   const [anonId] = useState(() => getOrCreateAnonId());
   const [answers, setAnswers] = useState(loadSaved);
@@ -58,6 +71,16 @@ export default function Questionnaire() {
   const [generatingDone, setGeneratingDone] = useState(false);
   const [createdDocId, setCreatedDocId] = useState(null);
   const [errors, setErrors] = useState([]);
+  // Auto-save draft document ID — created immediately when questionnaire starts
+  const [draftDocId, setDraftDocId] = useState(loadDraftDocId);
+  // Auto-save — triggers on navigation
+  const { savedAt, saveNow } = useAutoSave({
+    docId: draftDocId,
+    answers,
+    currentStep,
+    enabled: !!draftDocId,
+  });
+
   // Scope scoring step (SOW only, after last questionnaire page)
   const [showScoring, setShowScoring] = useState(false);
   const [scoring, setScoring] = useState(false);
@@ -72,6 +95,44 @@ export default function Questionnaire() {
   const [deliverablesShown, setDeliverablesShown] = useState(false);
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => setUser(null)); }, []);
+
+  // If resuming an existing draft, fetch its saved step from the DB
+  useEffect(() => {
+    if (!draftDocId) return;
+    base44.entities.Document.list().then(docs => {
+      const doc = docs?.find(d => d.id === draftDocId);
+      if (!doc) return;
+      // Restore step (questionnaire_step stored on the record)
+      if (typeof doc.questionnaire_step === 'number' && doc.questionnaire_step > 0) {
+        setCurrentStep(doc.questionnaire_step);
+      }
+      // Restore answers from DB if localStorage is empty
+      if (doc.questionnaire_data && Object.keys(doc.questionnaire_data).length > 0) {
+        setAnswers(prev => (Object.keys(prev).length === 0 ? doc.questionnaire_data : prev));
+      }
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftDocId]);
+
+  // Create the draft document record immediately on first load (if not already created)
+  useEffect(() => {
+    if (draftDocId) return; // already have one
+    const procId = generateProcurementId();
+    base44.entities.Document.create({
+      title: `Draft ${type} — ${new Date().toLocaleDateString('en-AU')}`,
+      document_type: type,
+      status: 'draft',
+      procurement_id: procId,
+      questionnaire_type: type,
+      questionnaire_step: 0,
+      questionnaire_data: {},
+      ...(anonId ? { anonymous_user_id: anonId } : {}),
+    }).then(doc => {
+      setDraftDocId(doc.id);
+      try { localStorage.setItem(DRAFT_DOC_KEY(type), doc.id); } catch {}
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { data: subscriptions = [] } = useQuery({
     queryKey: ['subscription', user?.email],
@@ -134,6 +195,7 @@ export default function Questionnaire() {
       return;
     }
     setErrors([]);
+    saveNow(); // auto-save on navigation
 
     if (type === 'SOW') {
       // Assist 1: after S2 basics, show scope purpose
@@ -172,6 +234,7 @@ export default function Questionnaire() {
 
   const handleBack = () => {
     setErrors([]);
+    saveNow(); // auto-save on navigation
     if (currentStep === 0) {
       navigate('/tool-select');
     } else {
@@ -183,32 +246,44 @@ export default function Questionnaire() {
   const handleGenerate = async (finalDocType, overrideDocType) => {
     setGenerating(true);
     const resolvedType = overrideDocType || finalDocType || type;
-    const docData = {
-      title: answers.project_name || answers.rfq_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`,
+    const title = answers.project_name || answers.rfq_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`;
+    const updateData = {
+      title,
       document_type: resolvedType,
-      status: 'draft',
-      // Full answers snapshot — includes procurement_type branch key so the
-      // user can resume on the correct path in a later session.
       questionnaire_data: {
         ...answers,
-        // Log AI recommendation and any override with timestamp
         ...(scoreData ? { _ai_recommended_type: scoreData.recommendation } : {}),
         ...(overrideDocType ? { _user_override_type: overrideDocType, _override_timestamp: new Date().toISOString() } : {}),
       },
       project_name: answers.project_name || answers.rfq_title || '',
       organisation_name: answers.organisation_name || answers.company_name || '',
       industry: answers.industry || answers.service_type || answers.procurement_type || '',
+      questionnaire_step: currentStep,
     };
-    if (!user && anonId) {
-      docData.anonymous_user_id = anonId;
+
+    let docId = draftDocId;
+    if (docId) {
+      // Finalise the existing draft record
+      await base44.entities.Document.update(docId, updateData);
+    } else {
+      // Fallback: create fresh (should rarely happen)
+      const procId = generateProcurementId();
+      if (!user && anonId) updateData.anonymous_user_id = anonId;
+      updateData.procurement_id = procId;
+      updateData.status = 'draft';
+      updateData.document_type = resolvedType;
+      updateData.title = title;
+      const doc = await base44.entities.Document.create(updateData);
+      docId = doc.id;
     }
-    const doc = await base44.entities.Document.create(docData);
+
     try {
       sessionStorage.removeItem(SESSION_KEY(type));
       localStorage.removeItem(LOCAL_KEY(type));
+      localStorage.removeItem(DRAFT_DOC_KEY(type));
     } catch {}
-    setCreatedDocId(doc.id);
-    navigate(`/document/${doc.id}?generating=true`);
+    setCreatedDocId(docId);
+    navigate(`/document/${docId}?generating=true`);
   };
 
   const visibleFields = page ? getVisibleFields(page, answers) : [];
@@ -467,6 +542,22 @@ export default function Questionnaire() {
           </>
         )}
       </div>
+
+      {/* Auto-save indicator */}
+      <AnimatePresence>
+        {savedAt && (
+          <motion.div
+            key={savedAt.getTime()}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-4 right-4 flex items-center gap-1.5 text-xs text-green-400/70 bg-black/40 backdrop-blur-sm border border-green-400/15 rounded-full px-3 py-1.5 pointer-events-none"
+          >
+            <Check className="w-3 h-3" /> Saved
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AppLayout>
   );
 }

@@ -4,7 +4,13 @@ import { Button } from '@/components/ui/button';
 import { SECTION_LABELS, SECTION_SCHEMAS } from '@/lib/aiDocumentGenerator';
 import jsPDF from 'jspdf';
 
-const DOC_ID = (type) => `${type}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+// Use the stored procurement_id from the doc record, fallback to generated
+const getProcurementId = (doc) => doc?.procurement_id || (() => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id = '';
+  for (let i = 0; i < 12; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+})();
 
 export default function PDFExport({ doc, content, onClose }) {
   const [exporting, setExporting] = useState(false);
@@ -19,7 +25,7 @@ export default function PDFExport({ doc, content, onClose }) {
     const ph = pdf.internal.pageSize.getHeight();  // 297
     const margin = 20;
     const cw = pw - margin * 2;
-    const docId = DOC_ID(doc.document_type);
+    const docId = getProcurementId(doc);
     const genDate = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
     const genDateShort = new Date().toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' });
     let y = 0;
@@ -114,7 +120,7 @@ export default function PDFExport({ doc, content, onClose }) {
     pdf.setFontSize(7);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(...LIGHT_GRAY);
-    pdf.text(`Confidential – TendeX Procurement System | Generated ${genDateShort}`, pw / 2, ph - 10, { align: 'center' });
+    pdf.text(`TendeX • tendex.com.au • Document ID: ${docId} • Generated: ${genDateShort} • Confidential`, pw / 2, ph - 10, { align: 'center' });
 
     // ── CONTENT PAGES ────────────────────────────────────────────
     const sections = SECTION_SCHEMAS[doc.document_type] || [];
@@ -151,7 +157,7 @@ export default function PDFExport({ doc, content, onClose }) {
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(...LIGHT_GRAY);
       pdf.text(`${doc.title || doc.document_type}`, margin, ph - 8);
-      pdf.text(`Confidential – TendeX RFX System | Generated: ${genDateShort}`, pw / 2, ph - 8, { align: 'center' });
+      pdf.text(`TendeX • tendex.com.au • Document ID: ${docId} • Generated: ${genDateShort} • Confidential`, pw / 2, ph - 8, { align: 'center' });
       pdf.text(`Page ${pageNum}`, pw - margin, ph - 8, { align: 'right' });
     };
 
@@ -203,9 +209,9 @@ export default function PDFExport({ doc, content, onClose }) {
       drawFooter(i - 1, totalPages - 1);
     }
 
-    const orgSlug = (doc.organisation_name || 'TendeX').replace(/\s+/g, '_');
-    const dateSlug = new Date().toISOString().slice(0, 10);
-    pdf.save(`${doc.document_type}_${orgSlug}_${dateSlug}.pdf`);
+    const titleSlug = (doc.project_name || doc.title || doc.organisation_name || 'Document').replace(/\s+/g, '-').replace(/[^A-Za-z0-9-]/g, '');
+    const dateSlug = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    pdf.save(`${doc.document_type}_${titleSlug}_${dateSlug}_${docId}.pdf`);
 
     setExporting(false);
     onClose();

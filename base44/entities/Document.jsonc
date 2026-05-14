@@ -58,6 +58,18 @@
     "anonymous_user_id": {
       "type": "string",
       "description": "Unique ID for unauthenticated users, stored in localStorage"
+    },
+    "procurement_id": {
+      "type": "string",
+      "description": "Immutable 12-character uppercase alphanumeric document ID, e.g. FB6A9D443D8B"
+    },
+    "questionnaire_step": {
+      "type": "number",
+      "description": "Last step the user was on in the questionnaire, for session resumption"
+    },
+    "questionnaire_type": {
+      "type": "string",
+      "description": "The document type used in the questionnaire route (SOW/EOI/RFQ/RFP)"
     }
   },
   "required": [

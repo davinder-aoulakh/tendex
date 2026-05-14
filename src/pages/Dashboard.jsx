@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle, Pencil, History } from 'lucide-react';
+import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle, Pencil, History, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -252,6 +252,12 @@ export default function Dashboard() {
                         <span className="text-xs text-blue-200/50 capitalize">{doc.status}</span>
                         {doc.organisation_name && <span className="text-xs text-blue-200/40 truncate max-w-[160px]">{doc.organisation_name}</span>}
                         {doc.updated_date && <span className="text-xs text-blue-200/30">{format(new Date(doc.updated_date), 'MMM d, yyyy')}</span>}
+                        {doc.procurement_id && (
+                          <span className="text-xs font-mono text-blue-300/40 border border-white/10 rounded px-1.5 py-0.5 hidden sm:inline"
+                            title="Procurement ID">
+                            {doc.procurement_id}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -261,6 +267,23 @@ export default function Dashboard() {
                       <span className="hidden sm:inline-flex items-center gap-1 text-xs text-blue-300/50 border border-white/10 rounded-full px-2 py-0.5">
                         <History className="w-3 h-3" />{versionCountMap[doc.id]}v
                       </span>
+                    )}
+                    {/* Continue button for in-progress questionnaires */}
+                    {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
+                      <Button variant="ghost" size="sm"
+                        className="hidden sm:flex gap-1.5 text-xs text-green-300 hover:text-white hover:bg-green-500/20 border border-green-400/20"
+                        onClick={() => {
+                          // Restore draft doc context to localStorage so Questionnaire can resume
+                          try {
+                            localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                            if (doc.questionnaire_data) {
+                              localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
+                            }
+                          } catch {}
+                          navigate(`/questionnaire/${doc.questionnaire_type}`);
+                        }}>
+                        <Play className="w-3.5 h-3.5" />Continue
+                      </Button>
                     )}
                     <Button variant="ghost" size="sm"
                       className="hidden sm:flex gap-1.5 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
@@ -279,6 +302,19 @@ export default function Dashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
+                          <DropdownMenuItem onClick={() => {
+                            try {
+                              localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                              if (doc.questionnaire_data) {
+                                localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
+                              }
+                            } catch {}
+                            navigate(`/questionnaire/${doc.questionnaire_type}`);
+                          }}>
+                            <Play className="w-4 h-4 mr-2" />Continue
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
                           <Pencil className="w-4 h-4 mr-2" />Edit Document
                         </DropdownMenuItem>
