@@ -166,7 +166,7 @@ export default function DocumentEditor() {
             </Button>
             <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent}
               className="gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
-              <Download className="w-4 h-4" />Export PDF
+              <Download className="w-4 h-4" />Export
             </Button>
           </div>
         </div>
