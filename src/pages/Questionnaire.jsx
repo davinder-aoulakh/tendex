@@ -533,7 +533,7 @@ export default function Questionnaire() {
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (
-                  <><Sparkles className="w-4 h-4" />Generate Scope of Work</>
+                  <><Sparkles className="w-4 h-4" />{type === 'SOW' ? 'Generate Scope of Work' : `Generate ${type} Document`}</>
                 ) : (
                   <>Next <ArrowRight className="w-4 h-4" /></>
                 )}

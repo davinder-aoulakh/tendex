@@ -26,21 +26,61 @@ Additional Info: ${d.additional_info || 'N/A'}
 
 Write a formal, professional SOW suitable for release to a supplier. Use clear, unambiguous procurement language. Each section should be 1-3 detailed paragraphs.`;
 
-const EOI_PROMPT = (d) => `You are an expert Australian procurement consultant. Generate a professional Expression of Interest (EOI) document.
+const EOI_PROMPT = (d) => {
+  const purposeMap = {
+    understand_market:  'Understand what the market can offer',
+    identify_suppliers: 'Identify and shortlist capable suppliers',
+    refine_scope:       'Refine scope before issuing a formal request',
+    all_of_the_above:   'Multiple objectives — understand market, identify suppliers, and refine scope',
+  };
+  const shortlistMap = {
+    '2_3': '2–3 suppliers',
+    '3_5': '3–5 suppliers',
+    '5_plus': '5 or more suppliers',
+    no_target: 'No set target — open to all capable suppliers',
+  };
+  const constraints = Array.isArray(d.eoi_constraints) ? d.eoi_constraints.join(', ') : 'None specified';
+  const learningGoals = Array.isArray(d.eoi_learning_goals) ? d.eoi_learning_goals.join(', ') : 'N/A';
+  const supplierReqs = Array.isArray(d.eoi_supplier_reqs) ? d.eoi_supplier_reqs.join(', ') : 'None specified';
+  const submissionMethod = d.eoi_submission_method === 'portal'
+    ? `Via online portal: ${d.eoi_portal_url || 'TBC'}`
+    : `By email to: ${d.eoi_contact_email || 'N/A'}`;
+
+  return `You are an expert Australian procurement consultant. Generate a professional, formal Expression of Interest (EOI) document suitable for public release.
 
 Organisation: ${d.organisation_name || 'N/A'}
-Contact Person: ${d.contact_name || 'N/A'}
-Closing Date: ${d.closing_date || 'N/A'}
-Submission Email: ${d.submission_email || 'N/A'}
-Concept Details: ${d.concept_details || 'N/A'}
-Supplier Responsibilities: ${d.supplier_responsibilities || 'N/A'}
-Company Representative: ${d.representative_name || 'N/A'}
-Reporting Requirements: ${d.reporting_requirements || 'N/A'}
-Project Start: ${d.project_start_date || 'N/A'}
-Project End: ${d.project_end_date || 'N/A'}
-Milestones: ${JSON.stringify(d.milestones || [])}
+Project / Procurement: ${d.project_name || d.eoi_title || 'N/A'}
+Industry / Scope: ${d.industry || d.procurement_type || 'N/A'}
 
-Write a formal EOI document appropriate for release to the Australian market. Each section should be professional and complete.`;
+EOI Purpose: ${purposeMap[d.eoi_primary_purpose] || d.eoi_primary_purpose || 'N/A'}
+Constraints suppliers should know: ${constraints}${d.eoi_budget_ceiling ? ` — Budget ceiling: ${d.eoi_budget_ceiling}` : ''}
+
+What we want to learn: ${learningGoals}
+Shortlist target: ${shortlistMap[d.eoi_shortlist_target] || d.eoi_shortlist_target || 'N/A'}
+
+Supplier requirements: ${supplierReqs}${d.eoi_licences_detail ? ` — Licences/registrations: ${d.eoi_licences_detail}` : ''}
+
+Closing date: ${d.eoi_closing_date || 'N/A'} at ${d.eoi_closing_time || 'N/A'}
+Responses addressed to: ${d.eoi_addressed_to || 'N/A'}
+Contact for queries: ${d.eoi_contact_name || 'N/A'} — ${d.eoi_contact_email || 'N/A'}
+Submission method: ${submissionMethod}
+
+Scope of Work context (from previous SOW — always list as Attachment 1):
+${d.summary_of_services || d.concept_details || d.product_description || 'Refer to Attachment 1 — Scope of Work'}
+
+Provider responsibilities: ${d.provider_responsibilities || d.supplier_responsibilities || 'N/A'}
+Requester responsibilities: ${d.requester_responsibilities || 'N/A'}
+Timeline: ${d.timeline || 'N/A'}
+Key deliverables: ${d.key_deliverables || 'N/A'}
+Project milestones: ${JSON.stringify(d.milestones || [])}
+Company representative: ${d.representative_name || d.eoi_addressed_to || 'N/A'}
+Project start: ${d.project_start_date || 'N/A'}
+Project end: ${d.project_end_date || 'N/A'}
+
+Generate all 14 sections in order. Use formal Australian government procurement language throughout. Each section must be 1–3 paragraphs of complete, professional prose. Do not use markdown headings inside the values.
+
+IMPORTANT: In the attachments_list section, always list "Attachment 1 — Scope of Work" as the first attachment.`;
+};
 
 const RFQ_PROMPT = (d) => `You are an expert Australian procurement consultant. Generate a professional Request for Quotation (RFQ) document.
 
@@ -70,7 +110,22 @@ const RFP_PROMPT = (d) => RFQ_PROMPT(d).replace('Request for Quotation (RFQ)', '
 
 export const SECTION_SCHEMAS = {
   SOW: ['executive_summary', 'background', 'objectives', 'scope_of_work', 'deliverables', 'timeline', 'payment_schedule', 'responsibilities', 'constraints_and_assumptions', 'terms_and_conditions'],
-  EOI: ['introduction', 'opportunity_overview', 'conditions_of_request', 'confidentiality', 'submission_lodgement', 'evaluation_criteria', 'specification', 'project_milestones', 'reporting', 'timeframe', 'terms_and_conditions'],
+  EOI: [
+    'conditions_of_request',
+    'confidentiality',
+    'submission_lodgement',
+    'shortlisting_statement',
+    'evaluation_criteria',
+    'respondent_information',
+    'specification_introduction',
+    'concept_description',
+    'supplier_responsibilities',
+    'project_milestones',
+    'company_representative',
+    'timeframe',
+    'indicative_pricing',
+    'attachments_list',
+  ],
   RFQ: ['introduction', 'background', 'submission_of_offer', 'offer_validity', 'contact_persons', 'selection_process', 'statement_of_requirements', 'insurance_requirements', 'pre_qualification', 'evaluation_criteria', 'pricing_schedule'],
   RFP: ['introduction', 'background', 'submission_of_offer', 'offer_validity', 'contact_persons', 'selection_process', 'statement_of_requirements', 'proposal_requirements', 'insurance_requirements', 'pre_qualification', 'evaluation_criteria', 'pricing_schedule'],
 };
@@ -91,11 +146,18 @@ export const SECTION_LABELS = {
   conditions_of_request: 'Conditions of Request',
   confidentiality: 'Confidentiality',
   submission_lodgement: 'Submission Lodgement',
+  shortlisting_statement: 'Shortlisting Statement',
   evaluation_criteria: 'Evaluation Criteria',
-  specification: 'Specification',
+  respondent_information: 'Respondent Information',
+  specification_introduction: 'Specification Introduction',
+  concept_description: 'Concept Description',
+  supplier_responsibilities: 'Supplier Responsibilities',
   project_milestones: 'Project Milestones',
-  reporting: 'Reporting Requirements',
+  company_representative: 'Company Representative',
   timeframe: 'Project Timeframe',
+  indicative_pricing: 'Indicative Pricing',
+  attachments_list: 'Attachments',
+  reporting: 'Reporting Requirements',
   submission_of_offer: 'Submission of Offer',
   offer_validity: 'Offer Validity',
   contact_persons: 'Contact Persons',

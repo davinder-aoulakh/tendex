@@ -231,62 +231,153 @@ export const SOW_PAGES = [
 
 // ─────────────────────────────────────────────
 // EOI — Expression of Interest
+// Four sections: E1 Purpose | E2 Learning | E3 Requirements | E4 Closing
 // ─────────────────────────────────────────────
+
+const EOI_HAS_BUDGET    = (a) => Array.isArray(a.eoi_constraints)    && a.eoi_constraints.includes('budget_ceiling');
+const EOI_HAS_PORTAL    = (a) => a.eoi_submission_method === 'portal';
+const EOI_HAS_LICENCES  = (a) => Array.isArray(a.eoi_supplier_reqs)  && a.eoi_supplier_reqs.includes('licences');
+
 export const EOI_PAGES = [
+  // ── E1: EOI Purpose ──
   {
-    id: 'eoi_cover',
-    title: 'Cover Details',
-    description: 'Basic information that appears on the EOI cover page.',
+    id: 'e1_purpose',
+    title: 'EOI Purpose',
+    description: 'Tell us why you are issuing this Expression of Interest.',
+    sectionLabel: 'Purpose',
     fields: [
-      { key: 'issue_date', label: 'Date of Issue', type: 'date', required: true },
-      { key: 'closing_date', label: 'EOI Closing Date', type: 'date', required: true },
-      { key: 'contact_name', label: 'Contact Person Name', type: 'text', placeholder: 'Full name', required: true },
+      {
+        key: 'eoi_primary_purpose',
+        label: 'What is the primary purpose of this EOI?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'understand_market',    label: 'Understand what the market can offer',          description: 'Explore solutions or approaches available in the market' },
+          { value: 'identify_suppliers',   label: 'Identify and shortlist capable suppliers',      description: 'Find and pre-qualify vendors for a future formal process' },
+          { value: 'refine_scope',         label: 'Refine our scope before issuing a formal request', description: 'Use market feedback to sharpen your requirements' },
+          { value: 'all_of_the_above',     label: 'All of the above',                              description: 'Multiple objectives apply' },
+        ],
+      },
+      {
+        key: 'eoi_constraints',
+        label: 'Are there any constraints suppliers should know about?',
+        type: 'checkbox-multi',
+        required: false,
+        options: [
+          { value: 'budget_ceiling',        label: 'Budget ceiling' },
+          { value: 'fixed_delivery_date',   label: 'Fixed delivery date' },
+          { value: 'local_preference',      label: 'Preference for local or Australian suppliers' },
+          { value: 'site_access',           label: 'Specific site or access constraints' },
+          { value: 'no_constraints',        label: 'No constraints to disclose' },
+        ],
+      },
+      {
+        key: 'eoi_budget_ceiling',
+        label: 'Budget ceiling amount (AUD)',
+        type: 'text',
+        placeholder: 'e.g. $500,000',
+        required: true,
+        condition: EOI_HAS_BUDGET,
+      },
     ],
   },
+
+  // ── E2: What you want to learn ──
   {
-    id: 'eoi_business',
-    title: 'Business Information',
-    description: 'Details about your organisation issuing this EOI.',
+    id: 'e2_learning',
+    title: 'What You Want to Learn',
+    description: 'Help suppliers understand what market intelligence you are seeking.',
+    sectionLabel: 'Market Intelligence',
     fields: [
-      { key: 'organisation_name', label: 'Business Name of Requester', type: 'text', placeholder: 'Your company name', required: true },
-      { key: 'abn', label: 'ACN / ABN', type: 'text', placeholder: 'e.g. 12 345 678 901', required: false, helpText: 'Optional — will be validated against the ABR.' },
-      { key: 'business_address', label: 'Registered Business Address', type: 'text', placeholder: 'Street address, suburb, state, postcode', required: false },
+      {
+        key: 'eoi_learning_goals',
+        label: 'What do you most want to learn from suppliers?',
+        type: 'checkbox-multi',
+        required: true,
+        options: [
+          { value: 'solutions_available',   label: 'What solutions or approaches are available' },
+          { value: 'likely_cost',           label: 'What it is likely to cost' },
+          { value: 'capable_suppliers',     label: 'Which suppliers are capable and available' },
+          { value: 'delivery_time',         label: 'How long delivery is likely to take' },
+          { value: 'market_understanding',  label: 'Whether the market understands our requirement' },
+        ],
+      },
+      {
+        key: 'eoi_shortlist_target',
+        label: 'How many capable suppliers do you hope to shortlist from this EOI?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: '2_3',     label: '2–3',                description: 'A small, focused shortlist' },
+          { value: '3_5',     label: '3–5',                description: 'A moderate shortlist' },
+          { value: '5_plus',  label: '5 or more',          description: 'A broad shortlist' },
+          { value: 'no_target', label: 'No target',        description: 'We want to hear from any capable supplier' },
+        ],
+      },
     ],
   },
+
+  // ── E3: Respondent requirements ──
   {
-    id: 'eoi_submission',
-    title: 'Submission Lodgement',
-    description: 'How should suppliers submit their EOI response?',
+    id: 'e3_requirements',
+    title: 'Respondent Requirements',
+    description: 'What must suppliers demonstrate to be considered?',
+    sectionLabel: 'Supplier Requirements',
     fields: [
-      { key: 'submission_email', label: 'Submission Email Address', type: 'email', placeholder: 'submissions@yourorg.com', required: true, helpText: 'All submissions must be made via email to this address.' },
+      {
+        key: 'eoi_supplier_reqs',
+        label: 'What must suppliers demonstrate to be considered?',
+        type: 'checkbox-multi',
+        required: false,
+        options: [
+          { value: 'relevant_experience',  label: 'Relevant experience in similar work' },
+          { value: 'local_presence',       label: 'Local or Australian presence' },
+          { value: 'licences',             label: 'Specific licences or registrations' },
+          { value: 'financial_capacity',   label: 'Financial capacity' },
+          { value: 'no_requirements',      label: 'No specific requirements at this stage' },
+        ],
+      },
+      {
+        key: 'eoi_licences_detail',
+        label: 'Specify the required licences or registrations',
+        type: 'text',
+        placeholder: 'e.g. QBCC licence, electrical contractor registration…',
+        required: true,
+        condition: EOI_HAS_LICENCES,
+      },
     ],
   },
+
+  // ── E4: Closing and contact ──
   {
-    id: 'eoi_concept',
-    title: 'Concept & Responsibilities',
-    description: 'Describe what your business is seeking and what the supplier will be responsible for.',
+    id: 'e4_closing',
+    title: 'Closing & Contact Details',
+    description: 'Set the closing date and tell suppliers how to submit.',
+    sectionLabel: 'Closing Details',
     fields: [
-      { key: 'concept_details', label: 'Concept Details / Background', type: 'textarea', placeholder: 'Describe what your business is trying to achieve. What goods/services are you seeking? Why?', required: true },
-      { key: 'supplier_responsibilities', label: 'Responsibilities of the Supplier', type: 'textarea', placeholder: 'What will the selected supplier be responsible for delivering?', required: true },
-    ],
-  },
-  {
-    id: 'eoi_milestones',
-    title: 'Project Milestones',
-    description: 'Define the key milestones for this project. Add at least one.',
-    fields: [
-      { key: 'milestones', label: 'Milestones', type: 'milestone-table', required: true },
-    ],
-  },
-  {
-    id: 'eoi_representative',
-    title: 'Company Representative & Timeline',
-    description: 'Who will manage this project and what is the anticipated timeline?',
-    fields: [
-      { key: 'representative_name', label: 'Company Representative Name', type: 'text', placeholder: 'Full name', required: true },
-      { key: 'reporting_requirements', label: 'Reporting Requirements', type: 'textarea', placeholder: 'Describe how and how often the selected supplier should report to you...', required: false },
-      { key: 'project_start_date', label: 'Anticipated Project Start Date', type: 'date', required: false },
-      { key: 'project_end_date', label: 'Anticipated Project End Date', type: 'date', required: false },
+      { key: 'eoi_closing_date', label: 'Closing date for this EOI', type: 'date', required: true },
+      { key: 'eoi_closing_time', label: 'Closing time (local time)', type: 'text', placeholder: 'e.g. 2:00 PM AWST', required: true },
+      { key: 'eoi_addressed_to', label: 'Who should responses be addressed to?', type: 'text', placeholder: 'Full name and title', required: true },
+      { key: 'eoi_contact_name', label: 'Contact person for supplier queries', type: 'text', placeholder: 'Full name', required: true },
+      { key: 'eoi_contact_email', label: 'Contact email address', type: 'email', placeholder: 'procurement@yourorg.com', required: true },
+      {
+        key: 'eoi_submission_method',
+        label: 'How should suppliers submit their EOI response?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'email',  label: 'By email to the nominated address', description: 'Responses sent directly to the contact email above' },
+          { value: 'portal', label: 'Via an online portal',              description: 'Responses submitted through a procurement portal' },
+        ],
+      },
+      {
+        key: 'eoi_portal_url',
+        label: 'Portal URL',
+        type: 'text',
+        placeholder: 'https://portal.youragency.gov.au/eoi/…',
+        required: true,
+        condition: EOI_HAS_PORTAL,
+      },
     ],
   },
 ];
