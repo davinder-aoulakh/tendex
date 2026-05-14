@@ -307,7 +307,7 @@ export default function Dashboard() {
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuContent align="end" className="w-48" style={{ background: 'rgb(17, 29, 46)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                               <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
                                 <FileText className="w-4 h-4 mr-2" />Open
                               </DropdownMenuItem>
@@ -403,12 +403,12 @@ export default function Dashboard() {
                       </Button>
                     )}
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="w-8 h-8 text-white/40 hover:text-white hover:bg-white/10">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="w-8 h-8 text-white/40 hover:text-white hover:bg-white/10">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48" style={{ background: 'rgb(17, 29, 46)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                         <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)}>
                           <FileText className="w-4 h-4 mr-2" />Open
                         </DropdownMenuItem>
