@@ -532,12 +532,12 @@ export default function LandingNew() {
           <div>
             <h4 className="font-syne font-700 text-xs text-white uppercase tracking-wide mb-4">Legal</h4>
             <div className="space-y-2 font-dm-sans font-400 text-sm text-[#5C7A99]">
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
+              <Link to="/privacy" className="block hover:text-[#00C9A7] transition-colors">
                 Privacy Policy
-              </a>
-              <a href="#" className="block hover:text-[#00C9A7] transition-colors">
+              </Link>
+              <Link to="/terms" className="block hover:text-[#00C9A7] transition-colors">
                 Terms of Service
-              </a>
+              </Link>
               <a href="#" className="block hover:text-[#00C9A7] transition-colors">
                 Cookie Policy
               </a>

@@ -182,10 +182,16 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
         </div>
 
         {/* Footer note */}
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
             Pricing and features are placeholder values [TBC] pending final confirmation by the TendeX team.
             Free trial includes 1 active procurement document. Paid plan features and pricing to be confirmed.
+          </p>
+
+          <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
+            By starting a trial or purchasing a plan, you agree to our{' '}
+            <a href="/terms" className="text-[#00C9A7] hover:underline transition-colors">Terms of Service</a> and{' '}
+            <a href="/privacy" className="text-[#00C9A7] hover:underline transition-colors">Privacy Policy</a>.
           </p>
         </div>
       </div>
