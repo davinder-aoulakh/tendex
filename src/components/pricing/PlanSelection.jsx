@@ -10,9 +10,9 @@ const PLANS = {
     duration: '14 days',
     description: 'Perfect for getting started',
     features: [
-      '1 active procurement document',
+      '25 active procurement documents',
       'Scope of Work generation',
-      '1 document type (SOW, EOI, RFQ, or RFP)',
+      'All document types (SOW, EOI, RFQ, or RFP)',
       'Basic email support',
     ],
     cta: 'Start Free Trial',
@@ -58,7 +58,7 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
         user_email: user.email,
         plan: 'free',
         status: 'active',
-        documents_limit: 1,
+        documents_limit: 25,
         documents_used: 0,
         renewal_date: trialEndDate.toISOString().split('T')[0],
         billing_cycle: 'monthly',
@@ -185,7 +185,7 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
         <div className="text-center space-y-3">
           <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
             Pricing and features are placeholder values [TBC] pending final confirmation by the TendeX team.
-            Free trial includes 1 active procurement document. Paid plan features and pricing to be confirmed.
+            Free trial includes 25 active procurement documents. Paid plan features and pricing to be confirmed.
           </p>
 
           <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
