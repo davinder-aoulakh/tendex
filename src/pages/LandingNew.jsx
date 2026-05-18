@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Star, TrendingUp, FileText, Shield, Clock, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star, TrendingUp, FileText, Shield, Clock, Zap, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
@@ -18,6 +18,7 @@ const staggerContainer = {
 export default function LandingNew() {
   const navigate = useNavigate();
   const [hoveredStep, setHoveredStep] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
@@ -47,6 +48,13 @@ export default function LandingNew() {
               About
             </a>
           </div>
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setMobileMenuOpen(m => !m)}
+            aria-label="Toggle navigation"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
           <div className="flex items-center gap-4">
             <button
               onClick={() => base44.auth.redirectToLogin('/dashboard')}
@@ -65,6 +73,24 @@ export default function LandingNew() {
         </div>
       </nav>
 
+      {/* Mobile drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40" style={{ backgroundColor: '#0A0A0A' }}>
+          <div className="flex flex-col h-full px-8 pt-24 pb-12">
+            <div className="flex flex-col gap-8 flex-1">
+              <a href="#how" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl text-white">How it works</a>
+              <a href="#documents" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl text-white">Documents</a>
+              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl text-white">Pricing</a>
+              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl text-white">About</a>
+            </div>
+            <div>
+              <button onClick={() => base44.auth.redirectToLogin('/dashboard')} className="font-dm-sans text-base text-[#A3A3A3] mb-4 block">Log in</button>
+              <button onClick={() => base44.auth.redirectToLogin('/plan-selection')} className="font-syne font-700 text-base px-6 py-3 rounded w-full text-white" style={{ backgroundColor: '#E8221A' }}>Start free trial →</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section id="main-content" className="py-20 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -72,7 +98,7 @@ export default function LandingNew() {
           <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-6">
             {/* Eyebrow Badge */}
             <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border" style={{ borderColor: '#E8221A', backgroundColor: 'rgba(232,34,26,0.08)' }}>
-              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#E8221A' }} />
+              <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#E8221A' }} />
               <span className="font-syne font-600 text-xs text-[#E8221A] uppercase tracking-wide">Australia's AI Procurement Platform</span>
             </motion.div>
 
