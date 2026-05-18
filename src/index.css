@@ -6,27 +6,26 @@
 
 @layer base {
   :root {
-    --background: #080E1A;
-    --foreground: #E8F0F8;
-    --card: #111D2E;
-    --card-foreground: #E8F0F8;
-    --popover: #111D2E;
-    --popover-foreground: #E8F0F8;
-    --primary: #E53935;
+    --background: #0A0A0A;
+    --foreground: #F5F5F5;
+    --card: #111111;
+    --card-foreground: #F5F5F5;
+    --popover: #111111;
+    --popover-foreground: #F5F5F5;
+    --primary: #E8221A;
     --primary-foreground: #FFFFFF;
     --secondary: #F59E0B;
-    --secondary-foreground: #080E1A;
-    --muted: #172238;
-    --muted-foreground: #8FA5C0;
-    --accent: #E53935;
+    --secondary-foreground: #0A0A0A;
+    --muted: #1A1A1A;
+    --muted-foreground: #6B6B6B;
+    --accent: #E8221A;
     --accent-foreground: #FFFFFF;
     --destructive: #EF4444;
     --destructive-foreground: #FEF2F2;
-    --border: rgba(255,255,255,0.07);
-    --input: #172238;
-    --ring: #E53935;
+    --border: rgba(255,255,255,0.09);
+    --input: #1A1A1A;
+    --ring: #E8221A;
     --radius: 0.5rem;
-
     --font-syne: 'Syne', sans-serif;
     --font-dm-sans: 'DM Sans', sans-serif;
   }
@@ -58,7 +57,7 @@
   }
 
   .accent-strip {
-    background: linear-gradient(90deg, #E53935 0%, #C62828 50%, #F59E0B 100%);
+    background: linear-gradient(90deg, #E8221A 0%, #C41812 50%, #F59E0B 100%);
     height: 3px;
   }
 
@@ -78,8 +77,8 @@
   }
 
   .primary-btn-hover:hover {
-    background-color: #EF5350;
+    background-color: #FF4A42;
     transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(229, 57, 53, 0.4);
+    box-shadow: 0 0 20px rgba(232, 34, 26, 0.35);
   }
 }
