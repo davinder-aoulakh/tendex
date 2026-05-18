@@ -45,6 +45,18 @@
     font-family: var(--font-syne);
     font-weight: 700;
   }
+
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid #E8221A;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse, [class*="animate-"] { animation: none !important; }
+  .transition-all, .transition-colors, .transition-transform { transition: none !important; }
 }
 
 @layer utilities {

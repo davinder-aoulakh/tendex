@@ -21,6 +21,9 @@ export default function LandingNew() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: '#E8221A' }}>
+        Skip to main content
+      </a>
       {/* Top Accent Strip */}
       <div className="accent-strip" />
 
@@ -63,7 +66,7 @@ export default function LandingNew() {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-6">
+      <section id="main-content" className="py-20 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column */}
           <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-6">
@@ -148,7 +151,7 @@ export default function LandingNew() {
               {/* AI Recommendation Bubble */}
               <div className="relative mt-8 p-4 rounded-xl border-2" style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: '#E8221A' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-syne font-700 text-xs text-[#E8221A] uppercase">★ AI Recommendation</span>
+                  <span className="font-syne font-700 text-xs text-white uppercase">★ AI Recommendation</span>
                 </div>
                 <p className="font-syne font-800 text-lg text-white mb-2">Request for Proposal</p>
                 <p className="font-dm-sans font-400 text-xs text-[#A3A3A3]">Your scope is strong. Suppliers need to explain their approach.</p>
@@ -240,7 +243,7 @@ export default function LandingNew() {
               ))}
 
               <div className="mt-6 p-3 rounded-lg border-2" style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: '#E8221A' }}>
-                <p className="font-syne font-700 text-xs text-[#E8221A] uppercase mb-1">★ AI Recommendation</p>
+                <p className="font-syne font-700 text-xs text-white uppercase mb-1">★ AI Recommendation</p>
                 <p className="font-syne font-800 text-base text-white">Request for Proposal</p>
                 <p className="font-dm-sans font-400 text-xs text-[#6B6B6B] mt-1">Detailed requirements warrant a comprehensive proposal process.</p>
               </div>

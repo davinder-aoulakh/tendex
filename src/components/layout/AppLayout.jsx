@@ -71,6 +71,9 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: '#E8221A' }}>
+        Skip to main content
+      </a>
       {/* Top nav */}
       <nav className="fixed top-0 w-full z-50 blur-nav">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -131,7 +134,7 @@ export default function AppLayout({ children }) {
           </div>
         </div>
       </nav>
-      <main className="pt-16">
+      <main id="main-content" className="pt-16">
         {/* Trial banner for free users */}
         {isAuthenticated && (subscription?.plan === 'free' || isTrialExpired) && (
           <div className="max-w-7xl mx-auto px-6 pt-6">
