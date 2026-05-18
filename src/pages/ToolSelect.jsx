@@ -118,7 +118,14 @@ export default function ToolSelect() {
       return;
     }
 
-    if (selected) navigate(`/questionnaire/${selected}`);
+    if (!selected) return;
+
+    // SOW goes through the Start Procurement intake form first
+    if (selected === 'SOW') {
+      navigate('/start-procurement');
+    } else {
+      navigate(`/questionnaire/${selected}`);
+    }
   };
 
   return (

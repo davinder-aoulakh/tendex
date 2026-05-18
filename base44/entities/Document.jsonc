@@ -21,7 +21,8 @@
       "enum": [
         "draft",
         "complete",
-        "archived"
+        "archived",
+        "issued"
       ],
       "default": "draft"
     },
@@ -70,6 +71,29 @@
     "questionnaire_type": {
       "type": "string",
       "description": "The document type used in the questionnaire route (SOW/EOI/RFQ/RFP)"
+    },
+    "reference_number": {
+      "type": "string",
+      "description": "User-defined procurement reference number"
+    },
+    "estimated_budget": {
+      "type": "number",
+      "description": "Estimated budget in AUD (optional)"
+    },
+    "delivery_timeline": {
+      "type": "string",
+      "description": "High-level required delivery timeline (optional)"
+    },
+    "high_level_description": {
+      "type": "string",
+      "description": "High-level description of the procurement need"
+    },
+    "preferred_suppliers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of known or preferred supplier names"
     }
   },
   "required": [
