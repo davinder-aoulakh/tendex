@@ -160,7 +160,7 @@ export default function ToolSelect() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <h1 className="font-display text-4xl font-semibold text-white mb-3">What document do you need?</h1>
-          <p className="text-lg" style={{ color: 'rgba(229,57,53,0.6)' }}>Choose a document type or describe your need and let AI guide you.</p>
+          <p className="text-lg text-[#8FA5C0]">Choose a document type or describe your need and let AI guide you.</p>
         </motion.div>
 
         {/* AI Assist */}
@@ -186,7 +186,7 @@ export default function ToolSelect() {
            {aiSuggestion && (
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid rgba(229,57,53,0.3)', background: 'rgba(229,57,53,0.1)' }}>
                <span className="font-semibold" style={{ color: '#E53935' }}>Recommended: {aiSuggestion.type}</span>
-               <span className="ml-2" style={{ color: 'rgba(229,57,53,0.5)' }}>— {aiSuggestion.reason}</span>
+               <span className="ml-2 text-white/60">— {aiSuggestion.reason}</span>
              </motion.div>
            )}
          </motion.div>
@@ -212,10 +212,10 @@ export default function ToolSelect() {
                 <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
               </div>
               <h3 className="font-semibold text-white mb-2">{tool.title}</h3>
-              <p className="text-sm mb-3 leading-relaxed" style={{ color: 'rgba(229,57,53,0.5)' }}>{tool.description}</p>
+              <p className="text-sm mb-3 leading-relaxed text-[#8FA5C0]">{tool.description}</p>
               <div className="flex flex-wrap gap-1.5">
                 {tool.examples.map(ex => (
-                   <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(229,57,53,0.3)', background: 'rgba(229,57,53,0.1)', color: 'rgba(229,57,53,0.6)' }}>{ex}</span>
+                   <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' }}>{ex}</span>
                  ))}
               </div>
             </motion.button>
