@@ -51,8 +51,8 @@ export default function TermsOfService() {
       <nav className="sticky top-0 z-50 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: 'rgba(8,14,26,0.95)', backdropFilter: 'blur(16px)' }}>
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center">
           <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <div className="w-8 h-8 bg-[#00C9A7]/20 rounded-lg flex items-center justify-center border border-[#00C9A7]/30">
-              <FileText className="w-4 h-4 text-[#00C9A7]" />
+            <div className="w-8 h-8 bg-[#E53935]/20 rounded-lg flex items-center justify-center border border-[#E53935]/30">
+              <FileText className="w-4 h-4 text-[#E53935]" />
             </div>
             <span className="font-syne font-800 text-lg text-white">TendeX</span>
           </Link>

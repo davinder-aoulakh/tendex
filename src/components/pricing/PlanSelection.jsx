@@ -190,8 +190,8 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
 
           <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
             By starting a trial or purchasing a plan, you agree to our{' '}
-            <a href="/terms" className="text-[#00C9A7] hover:underline transition-colors">Terms of Service</a> and{' '}
-            <a href="/privacy" className="text-[#00C9A7] hover:underline transition-colors">Privacy Policy</a>.
+            <a href="/terms" className="text-[#E53935] hover:underline transition-colors">Terms of Service</a> and{' '}
+            <a href="/privacy" className="text-[#E53935] hover:underline transition-colors">Privacy Policy</a>.
           </p>
         </div>
       </div>

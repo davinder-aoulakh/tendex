@@ -25,18 +25,18 @@ export default function TrialBanner({ daysRemaining, isExpired, onUpgradeClick }
   }
 
   return (
-    <div className="rounded-lg px-4 py-3 flex items-center justify-between gap-4 mb-6" style={{ background: 'rgba(0,201,167,0.1)', border: '1px solid rgba(0,201,167,0.3)' }}>
+    <div className="rounded-lg px-4 py-3 flex items-center justify-between gap-4 mb-6" style={{ background: 'rgba(229,57,53,0.1)', border: '1px solid rgba(229,57,53,0.3)' }}>
       <div className="flex items-center gap-3">
-        <Zap className="w-5 h-5 flex-shrink-0" style={{ color: '#00C9A7' }} />
+        <Zap className="w-5 h-5 flex-shrink-0" style={{ color: '#E53935' }} />
         <div className="text-sm">
-          <p className="font-semibold" style={{ color: '#7FEEE1' }}>
+          <p className="font-semibold" style={{ color: '#EF9A9A' }}>
             {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining in your free trial
           </p>
-          <p className="text-xs" style={{ color: 'rgba(0,201,167,0.5)' }}>Upgrade anytime to unlock unlimited procurements</p>
+          <p className="text-xs" style={{ color: 'rgba(229,57,53,0.6)' }}>Upgrade anytime to unlock unlimited procurements</p>
         </div>
       </div>
       <Link to="/billing">
-        <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
+        <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#E53935' }}>
           Upgrade
         </Button>
       </Link>

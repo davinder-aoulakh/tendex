@@ -13,7 +13,7 @@ const tools = [
     icon: FileText,
     title: 'Scope of Work (SOW)',
     description: 'Define project deliverables, timelines, and responsibilities for a specific engagement.',
-    iconColor: 'text-[#00C9A7]',
+    iconColor: 'text-[#E53935]',
     examples: ['IT system implementation', 'Marketing campaign', 'Consulting engagement'],
   },
   {
@@ -143,13 +143,13 @@ export default function ToolSelect() {
 
         {/* Free plan limit reached */}
         {!isTrialExpired && subscription?.plan === 'free' && docsUsed >= subscription.documents_limit && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg p-6" style={{ border: '1px solid rgba(0,201,167,0.3)', background: 'rgba(0,201,167,0.1)' }}>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg p-6" style={{ border: '1px solid rgba(229,57,53,0.3)', background: 'rgba(229,57,53,0.1)' }}>
             <div className="flex items-start gap-4">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#00C9A7' }} />
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#E53935' }} />
               <div className="flex-1">
-                <h3 className="font-semibold mb-1" style={{ color: '#7FEEE1' }}>Document Limit Reached</h3>
-                <p className="text-sm mb-4" style={{ color: 'rgba(0,201,167,0.5)' }}>You've created {docsUsed} of {subscription.documents_limit} allowed document(s) on your free plan. Upgrade to create more.</p>
-                <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#00C9A7' }}
+                <h3 className="font-semibold mb-1" style={{ color: '#EF9A9A' }}>Document Limit Reached</h3>
+                <p className="text-sm mb-4" style={{ color: 'rgba(229,57,53,0.5)' }}>You've created {docsUsed} of {subscription.documents_limit} allowed document(s) on your free plan. Upgrade to create more.</p>
+                <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#E53935' }}
                   onClick={() => navigate('/billing')}>
                   Upgrade Plan
                 </Button>
@@ -160,14 +160,14 @@ export default function ToolSelect() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <h1 className="font-display text-4xl font-semibold text-white mb-3">What document do you need?</h1>
-          <p className="text-lg" style={{ color: 'rgba(0,201,167,0.6)' }}>Choose a document type or describe your need and let AI guide you.</p>
+          <p className="text-lg" style={{ color: 'rgba(229,57,53,0.6)' }}>Choose a document type or describe your need and let AI guide you.</p>
         </motion.div>
 
         {/* AI Assist */}
          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
            className="rounded-2xl border border-white/10 p-6 mb-8" style={{ background: 'rgba(255,255,255,0.05)' }}>
            <div className="flex items-center gap-2 mb-3">
-             <Bot className="w-5 h-5" style={{ color: '#00C9A7' }} />
+             <Bot className="w-5 h-5" style={{ color: '#E53935' }} />
              <h2 className="font-semibold text-white">Not sure? Describe your need</h2>
            </div>
            <div className="flex gap-3">
@@ -176,17 +176,17 @@ export default function ToolSelect() {
                value={aiQuery}
                onChange={e => setAiQuery(e.target.value)}
                className="min-h-[80px] resize-none flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30"
-               style={{ '--tw-ring-color': 'rgba(0,201,167,0.5)' }}
+               style={{ '--tw-ring-color': 'rgba(229,57,53,0.5)' }}
              />
              <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()}
-               className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
+               className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: '#E53935', boxShadow: '0 0 20px rgba(229,57,53,0.3)' }}>
                {aiLoading ? <><Sparkles className="w-4 h-4 animate-spin" />Analysing...</> : <><Sparkles className="w-4 h-4" />Suggest Type</>}
              </Button>
            </div>
            {aiSuggestion && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid rgba(0,201,167,0.3)', background: 'rgba(0,201,167,0.1)' }}>
-               <span className="font-semibold" style={{ color: '#00C9A7' }}>Recommended: {aiSuggestion.type}</span>
-               <span className="ml-2" style={{ color: 'rgba(0,201,167,0.5)' }}>— {aiSuggestion.reason}</span>
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid rgba(229,57,53,0.3)', background: 'rgba(229,57,53,0.1)' }}>
+               <span className="font-semibold" style={{ color: '#E53935' }}>Recommended: {aiSuggestion.type}</span>
+               <span className="ml-2" style={{ color: 'rgba(229,57,53,0.5)' }}>— {aiSuggestion.reason}</span>
              </motion.div>
            )}
          </motion.div>
@@ -202,20 +202,20 @@ export default function ToolSelect() {
                    : 'border-white/10'
                }`}
                style={{
-                 borderColor: selected === tool.id ? 'rgba(0,201,167,0.6)' : 'rgba(255,255,255,0.1)',
-                 background: selected === tool.id ? 'rgba(0,201,167,0.12)' : 'rgba(255,255,255,0.04)',
-                 boxShadow: selected === tool.id ? '0 0 20px rgba(0,201,167,0.15)' : 'none'
+                 borderColor: selected === tool.id ? 'rgba(229,57,53,0.6)' : 'rgba(255,255,255,0.1)',
+                 background: selected === tool.id ? 'rgba(229,57,53,0.12)' : 'rgba(255,255,255,0.04)',
+                 boxShadow: selected === tool.id ? '0 0 20px rgba(229,57,53,0.15)' : 'none'
                }}
-               onMouseEnter={(e) => !selected && (e.currentTarget.style.borderColor = 'rgba(0,201,167,0.3)')}
+               onMouseEnter={(e) => !selected && (e.currentTarget.style.borderColor = 'rgba(229,57,53,0.3)')}
                onMouseLeave={(e) => !selected && (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
                 <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
               </div>
               <h3 className="font-semibold text-white mb-2">{tool.title}</h3>
-              <p className="text-sm mb-3 leading-relaxed" style={{ color: 'rgba(0,201,167,0.5)' }}>{tool.description}</p>
+              <p className="text-sm mb-3 leading-relaxed" style={{ color: 'rgba(229,57,53,0.5)' }}>{tool.description}</p>
               <div className="flex flex-wrap gap-1.5">
                 {tool.examples.map(ex => (
-                   <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(0,201,167,0.3)', background: 'rgba(0,201,167,0.1)', color: 'rgba(0,201,167,0.6)' }}>{ex}</span>
+                   <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(229,57,53,0.3)', background: 'rgba(229,57,53,0.1)', color: 'rgba(229,57,53,0.6)' }}>{ex}</span>
                  ))}
               </div>
             </motion.button>
@@ -224,7 +224,7 @@ export default function ToolSelect() {
 
         <div className="flex justify-end">
            <Button size="lg" onClick={handleProceed} disabled={!selected}
-             className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
+             className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#E53935', boxShadow: '0 0 20px rgba(229,57,53,0.3)' }}>
              Continue with {selected || '...'} <ArrowRight className="w-4 h-4" />
            </Button>
          </div>
