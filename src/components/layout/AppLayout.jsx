@@ -70,13 +70,13 @@ export default function AppLayout({ children }) {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#080E1A' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
       {/* Top nav */}
       <nav className="fixed top-0 w-full z-50 blur-nav">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#E53935]/20 rounded-lg flex items-center justify-center border border-[#E53935]/30">
-              <FileText className="w-4 h-4 text-[#E53935]" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(232,34,26,0.1)', border: '1px solid rgba(232,34,26,0.2)' }}>
+              <FileText className="w-4 h-4" style={{ color: '#E8221A' }} />
             </div>
             <span className="font-syne font-800 text-lg text-white">TendeX</span>
           </Link>
@@ -107,7 +107,7 @@ export default function AppLayout({ children }) {
                    );
                  })}
                  <Link to="/tool-select">
-                   <Button size="sm" className="gap-2 ml-2 bg-[#E53935] hover:bg-[#00E0BA] text-[#080E1A] border-0 shadow-lg" style={{ boxShadow: '0 0 20px rgba(0, 201, 167, 0.3)' }}>
+                   <Button size="sm" className="gap-2 ml-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
                      <Plus className="w-4 h-4" />New
                    </Button>
                  </Link>

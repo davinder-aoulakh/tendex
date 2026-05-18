@@ -15,10 +15,10 @@ import VersionHistory from '@/components/document/VersionHistory';
 import { useToast } from '@/components/ui/use-toast';
 
 const docTypeColors = {
-  SOW: 'bg-[#E53935]/20 text-[#E53935] border-[#E53935]/30',
-  EOI: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-  RFQ: 'bg-green-500/20 text-green-300 border-green-500/30',
-  RFP: 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/30',
+  SOW: 'bg-[#1A0000] text-[#FF6B65] border-[#E8221A]/30',
+  EOI: 'bg-[#1A0A00] text-[#F59E0B] border-[#F59E0B]/30',
+  RFQ: 'bg-[#001A0A] text-[#10B981] border-[#10B981]/30',
+  RFP: 'bg-[#0A001A] text-[#A78BFA] border-[#A78BFA]/30',
 };
 
 // Map document type + status to procurement status label
@@ -116,10 +116,10 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-syne font-800 text-3xl text-white">My Documents</h1>
-            <p className="text-[#8FA5C0] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
+            <p className="text-[#A3A3A3] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
           <Link to="/tool-select">
-            <Button disabled={atLimit} className="gap-2 bg-[#E53935] hover:bg-[#EF5350] text-[#080E1A] border-0 shadow-lg disabled:opacity-50" style={{ boxShadow: '0 0 20px rgba(229, 57, 53, 0.3)' }}>
+            <Button disabled={atLimit} className="gap-2 text-white border-0 shadow-lg disabled:opacity-50" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
               <Plus className="w-4 h-4" /> New Document
             </Button>
           </Link>
@@ -134,7 +134,7 @@ export default function Dashboard() {
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               You've reached your {docsLimit}-document limit on the <span className="font-semibold capitalize">{currentPlan}</span> plan.
             </div>
-            <Link to="/billing"><Button size="sm" className="bg-[#E53935] hover:bg-[#EF5350] text-[#080E1A] border-0 flex-shrink-0">Upgrade</Button></Link>
+            <Link to="/billing"><Button size="sm" className="text-white border-0 flex-shrink-0" style={{ backgroundColor: '#E8221A' }}>Upgrade</Button></Link>
           </motion.div>
         ) : nearLimit ? (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
@@ -153,20 +153,20 @@ export default function Dashboard() {
            <div className="rounded-xl border border-white/10 px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
              <div className="flex-1">
                <div className="flex justify-between text-xs mb-1.5">
-                 <span className="text-[#8FA5C0] flex items-center gap-1.5">
+                 <span className="text-[#A3A3A3] flex items-center gap-1.5">
                    {currentPlan === 'free' ? <Zap className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
                    <span className="capitalize">{currentPlan} plan</span>
                  </span>
                  <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
                </div>
                <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                 <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-[#F59E0B]' : 'bg-[#E53935]'}`}
+                 <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-[#F59E0B]' : 'bg-[#E8221A]'}`}
                    style={{ width: `${usagePct}%` }} />
                </div>
              </div>
              {currentPlan === 'free' && (
                <Link to="/billing">
-                 <Button size="sm" className="text-xs bg-[#E53935]/20 hover:bg-[#E53935]/40 text-[#E53935] border border-[#E53935]/30 h-7">Upgrade</Button>
+                 <Button size="sm" className="text-xs text-[#E8221A] border border-[#E8221A]/30 h-7" style={{ backgroundColor: 'rgba(232,34,26,0.15)' }}>Upgrade</Button>
                </Link>
              )}
            </div>
@@ -191,22 +191,23 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3 mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
            <div className="relative flex-1">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#E53935]/40" />
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(232,34,26,0.4)' }} />
              <Input
                placeholder="Search by title or document ID..."
-               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E53935]/50"
+               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E8221A]/50"
                value={search}
                onChange={e => setSearch(e.target.value)}
              />
            </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-           <span className="text-xs text-[#8FA5C0] self-center">Filter:</span>
+           <span className="text-xs text-[#A3A3A3] self-center">Filter:</span>
             {['all', 'draft', 'complete'].map(s => (
               <Button key={s} size="sm"
                 onClick={() => setFilterStatus(s)}
+                style={filterStatus === s ? { backgroundColor: '#E8221A' } : {}}
                 className={`text-xs capitalize transition-colors ${filterStatus === s
-                  ? 'bg-[#E53935] text-[#080E1A] border-0 hover:bg-[#EF5350]'
+                  ? 'text-white border-0'
                   : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
                 {s === 'all' ? 'All Status' : s === 'draft' ? 'In Progress' : 'Completed'}
               </Button>
@@ -221,18 +222,18 @@ export default function Dashboard() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
-           <FileText className="w-12 h-12 text-[#E53935]/20 mx-auto mb-4" />
+           <FileText className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(232,34,26,0.2)' }} />
            <h3 className="text-lg font-medium text-white mb-2">
              {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
            </h3>
-           <p className="text-[#8FA5C0] mb-6">
+           <p className="text-[#A3A3A3] mb-6">
              {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
            </p>
            {documents.length === 0 && (
              <Link to="/tool-select">
-               <Button className="gap-2 bg-[#E53935] hover:bg-[#EF5350] text-[#080E1A] border-0">
-                 <Plus className="w-4 h-4" />Start a new procurement
-               </Button>
+               <Button className="gap-2 text-white border-0" style={{ backgroundColor: '#E8221A' }}>
+                  <Plus className="w-4 h-4" />Start a new procurement
+                </Button>
              </Link>
            )}
           </div>
@@ -243,12 +244,12 @@ export default function Dashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Title</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">ID</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Type</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Status</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Last Modified</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#8FA5C0]">Actions</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Title</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">ID</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Type</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Status</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Last Modified</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Actions</th>
                    </tr>
                 </thead>
                 <tbody>
@@ -262,7 +263,7 @@ export default function Dashboard() {
                         </button>
                       </td>
                       <td className="px-6 py-3.5">
-                         <span className="text-xs font-mono text-[#8FA5C0]">{doc.procurement_id || '—'}</span>
+                         <span className="text-xs font-mono text-[#6B6B6B]">{doc.procurement_id || '—'}</span>
                        </td>
                       <td className="px-6 py-3.5">
                         <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
@@ -273,33 +274,33 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-3.5">
-                         <span className="text-xs text-[#8FA5C0]">
-                           {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
+                         <span className="text-xs text-[#6B6B6B]">
+                          {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
                          </span>
                        </td>
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                           {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                             <Button variant="ghost" size="sm"
-                                className="gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
-                              onClick={() => {
-                                try {
-                                  localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
-                                  if (doc.questionnaire_data) {
-                                    localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
-                                  }
-                                } catch {}
-                                navigate(`/questionnaire/${doc.questionnaire_type}`);
-                              }}>
+                                className="gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                                    onClick={() => {
+                                      try {
+                                        localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                                        if (doc.questionnaire_data) {
+                                          localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
+                                        }
+                                      } catch {}
+                                      navigate(`/questionnaire/${doc.questionnaire_type}`);
+                                    }}>
                               <Play className="w-3 h-3" />Continue
                             </Button>
                           )}
                           {doc.status === 'complete' && (
                             <Button variant="ghost" size="sm"
-                              className="gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
-                              onClick={() => navigate(`/document/${doc.id}`)}>
-                              <FileText className="w-3 h-3" />View
-                            </Button>
+                              className="gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                                onClick={() => navigate(`/document/${doc.id}`)}>
+                                <FileText className="w-3 h-3" />View
+                              </Button>
                           )}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -307,7 +308,7 @@ export default function Dashboard() {
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48" style={{ background: 'rgb(17, 29, 46)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <DropdownMenuContent align="end" className="w-48" style={{ background: '#111111', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
                               <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'white' }}>
                                 <FileText className="w-4 h-4 mr-2" />Open
                               </DropdownMenuItem>
@@ -358,21 +359,21 @@ export default function Dashboard() {
 
                   {/* ID + Type Row */}
                   <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="font-mono text-[#8FA5C0]">{doc.procurement_id || '—'}</span>
+                    <span className="font-mono text-[#6B6B6B]">{doc.procurement_id || '—'}</span>
                     <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
                   </div>
 
                   {/* Status + Last Modified Row */}
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="text-[#8FA5C0]">Status:</span>
+                      <span className="text-[#A3A3A3]">Status:</span>
                       <div className={`mt-0.5 font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
                         {getProcurementStatus(doc)}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#8FA5C0]">Modified:</span>
-                      <div className="mt-0.5 text-[#8FA5C0]">
+                      <span className="text-[#A3A3A3]">Modified:</span>
+                      <div className="mt-0.5 text-[#6B6B6B]">
                         {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d') : '—'}
                       </div>
                     </div>
@@ -382,10 +383,10 @@ export default function Dashboard() {
                   <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
-                        onClick={() => {
-                          try {
-                            localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                        className="flex-1 gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                          onClick={() => {
+                            try {
+                              localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
                             if (doc.questionnaire_data) {
                               localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
                             }
@@ -397,9 +398,9 @@ export default function Dashboard() {
                     )}
                     {doc.status === 'complete' && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
-                        onClick={() => navigate(`/document/${doc.id}`)}>
-                        <FileText className="w-3 h-3" />View
+                        className="flex-1 gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                          onClick={() => navigate(`/document/${doc.id}`)}>
+                          <FileText className="w-3 h-3" />View
                       </Button>
                     )}
                     <DropdownMenu>
@@ -408,7 +409,7 @@ export default function Dashboard() {
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48" style={{ background: 'rgb(17, 29, 46)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <DropdownMenuContent align="end" className="w-48" style={{ background: '#111111', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
                       <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'white' }}>
                         <FileText className="w-4 h-4 mr-2" />Open
                       </DropdownMenuItem>
