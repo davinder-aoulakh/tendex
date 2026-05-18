@@ -111,7 +111,7 @@ export default function Billing() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-red-400 animate-spin" />
         </div>
       </AppLayout>
     );
@@ -122,11 +122,11 @@ export default function Billing() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <button onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm text-blue-200/50 hover:text-white transition-colors mb-6">
+          className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors mb-6">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <h1 className="font-display text-3xl font-bold text-white mb-2">Billing & Plans</h1>
-        <p className="text-blue-200/60 mb-8">Manage your subscription and upgrade your plan</p>
+        <p className="text-white/50 mb-8">Manage your subscription and upgrade your plan</p>
 
         {/* Current subscription status */}
         {subscription && (
@@ -141,17 +141,17 @@ export default function Billing() {
                 {subscription.plan === 'free' ? 'Free Trial Active' : `${PLANS[subscription.plan]?.name} Active`}
               </h3>
             </div>
-            <p className="text-sm text-blue-200/60">
-              Status: <span className="font-semibold text-blue-300">{subscription.status}</span>
+            <p className="text-sm text-white/50">
+              Status: <span className="font-semibold text-white/80">{subscription.status}</span>
             </p>
             {subscription.plan === 'free' && subscription.renewal_date && (
-              <p className="text-sm text-blue-200/60 mt-2">
-                Trial expires: <span className="font-semibold text-blue-300">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
+              <p className="text-sm text-white/50 mt-2">
+                Trial expires: <span className="font-semibold text-white/80">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
               </p>
             )}
             {subscription.status === 'active' && subscription.plan !== 'free' && subscription.renewal_date && (
-              <p className="text-sm text-blue-200/60 mt-2">
-                Renews: <span className="font-semibold text-blue-300">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
+              <p className="text-sm text-white/50 mt-2">
+                Renews: <span className="font-semibold text-white/80">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
               </p>
             )}
           </div>
@@ -174,21 +174,21 @@ export default function Billing() {
                 key={key}
                 className={`rounded-xl border p-6 transition-all ${
                   subscription?.plan === key
-                    ? 'border-blue-400/50 bg-blue-500/10 ring-2 ring-blue-400/30'
+                    ? 'border-red-400/50 bg-red-500/10 ring-2 ring-red-400/30'
                     : 'border-white/10 bg-white/5'
                 }`}
               >
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold text-white mb-1">{plan.name}</h3>
-                  <p className="text-2xl font-bold text-blue-300">{plan.price}</p>
-                  <p className="text-sm text-blue-200/50">{plan.duration}</p>
+                  <p className="text-2xl font-bold text-red-300">{plan.price}</p>
+                  <p className="text-sm text-white/40">{plan.duration}</p>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-blue-100/70">{feature}</span>
+                      <Check className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-white/70">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -201,7 +201,7 @@ export default function Billing() {
                   <Button
                     onClick={handleUpgradeToPaid}
                     disabled={processingPayment}
-                    className="w-full bg-blue-500 hover:bg-blue-400 text-white border-0"
+                    className="w-full bg-[#E53935] hover:bg-[#EF5350] text-white border-0"
                   >
                     {processingPayment ? (
                       <>
@@ -230,7 +230,7 @@ export default function Billing() {
             >
               Cancel Subscription
             </Button>
-            <p className="text-xs text-blue-200/50 mt-3">
+            <p className="text-xs text-white/40 mt-3">
               You will retain access until the end of your current billing period.
             </p>
           </div>
@@ -238,7 +238,7 @@ export default function Billing() {
 
         {/* Footer note */}
         <div className="mt-12 text-center">
-          <p className="text-xs text-blue-200/40">
+          <p className="text-xs text-white/40">
             Pricing and features are placeholder values [TBC] pending final confirmation.
             <br />
             For support, contact support@tendex.com.au

@@ -108,7 +108,7 @@ export default function Profile() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="w-8 h-8 border-4 border-white/10 border-t-[#00C9A7] rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-white/10 border-t-[#E53935] rounded-full animate-spin"></div>
         </div>
       </AppLayout>
     );
@@ -120,7 +120,7 @@ export default function Profile() {
         {/* Header */}
         <div className="flex items-center gap-2 mb-6">
           <button onClick={() => navigate('/dashboard')}
-            className="p-1 text-sm transition-colors" style={{ color: 'rgba(0,201,167,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(0,201,167,0.5)'}>
+            className="p-1 text-sm transition-colors" style={{ color: 'rgba(229,57,53,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(229,57,53,0.5)'}>
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h1 className="font-display text-3xl font-semibold text-white">User Profile</h1>
@@ -137,7 +137,7 @@ export default function Profile() {
               value={formData.org_name}
               onChange={e => setFormData({ ...formData, org_name: e.target.value })}
               placeholder="Your organisation"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#00C9A7]/50"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E53935]/50"
             />
           </div>
 
@@ -150,7 +150,7 @@ export default function Profile() {
                   <p className="text-white font-mono text-sm">{formData.abn}</p>
                   <p className="text-green-400 text-xs mt-1">✓ Verified: <strong>{formData.abn_entity_name}</strong></p>
                 </div>
-                <button onClick={handleRemoveABN} className="text-xs transition-colors" style={{ color: 'rgba(0,201,167,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(0,201,167,0.5)'}>
+                <button onClick={handleRemoveABN} className="text-xs transition-colors" style={{ color: 'rgba(229,57,53,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(229,57,53,0.5)'}>
                   Remove and re-verify
                 </button>
               </div>
@@ -179,7 +179,7 @@ export default function Profile() {
               value={formData.contact_name}
               onChange={e => setFormData({ ...formData, contact_name: e.target.value })}
               placeholder="Full name"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#00C9A7]/50"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E53935]/50"
             />
           </div>
 
@@ -201,7 +201,7 @@ export default function Profile() {
               value={formData.phone}
               onChange={e => setFormData({ ...formData, phone: e.target.value })}
               placeholder="+61 4xx xxx xxx"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#00C9A7]/50"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E53935]/50"
             />
           </div>
 
@@ -212,13 +212,13 @@ export default function Profile() {
               value={formData.address}
               onChange={e => setFormData({ ...formData, address: e.target.value })}
               placeholder="Street address, suburb, state, postcode"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#00C9A7]/50"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E53935]/50"
             />
           </div>
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={saving} className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
+            <Button onClick={handleSave} disabled={saving} className="gap-2 text-white border-0" style={{ backgroundColor: '#E53935' }}>
               {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>Saving...</> : <><Save className="w-4 h-4" />Save Changes</>}
             </Button>
           </div>
@@ -233,9 +233,9 @@ export default function Profile() {
             <label className="block text-sm font-medium text-white/60 mb-3">Current Plan</label>
             <div className="flex items-center gap-3 mb-6">
               {subscription?.plan === 'free' && <Zap className="w-5 h-5 text-[#F59E0B]" />}
-              {subscription?.plan === 'professional' && <Crown className="w-5 h-5 text-[#00C9A7]" />}
+              {subscription?.plan === 'professional' && <Crown className="w-5 h-5 text-[#E53935]" />}
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                subscription?.plan === 'free' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'bg-[#00C9A7]/20 text-[#00C9A7]'
+                subscription?.plan === 'free' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'bg-[#E53935]/20 text-[#E53935]'
               }`}>
                 {subscription?.plan ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) : '—'}
               </span>
@@ -252,9 +252,9 @@ export default function Profile() {
                   </div>
                 </div>
               ) : daysRemaining !== null ? (
-                <div className="rounded-lg border border-[#00C9A7]/30 bg-[#00C9A7]/10 p-4 mb-6">
-                  <p className="text-[#00C9A7] font-medium text-sm">{daysRemaining} days remaining</p>
-                  <p className="text-[#00C9A7]/60 text-xs mt-1">Your free trial expires on {subscription.renewal_date && new Date(subscription.renewal_date).toLocaleDateString()}</p>
+                <div className="rounded-lg border border-[#E53935]/30 bg-[#E53935]/10 p-4 mb-6">
+                  <p className="text-[#E53935] font-medium text-sm">{daysRemaining} days remaining</p>
+                  <p className="text-[#E53935]/60 text-xs mt-1">Your free trial expires on {subscription.renewal_date && new Date(subscription.renewal_date).toLocaleDateString()}</p>
                 </div>
               ) : null
             )}
@@ -262,7 +262,7 @@ export default function Profile() {
 
           {/* Subscription Actions */}
           <div className="flex items-center gap-3">
-            <Button onClick={() => navigate('/billing')} className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
+            <Button onClick={() => navigate('/billing')} className="gap-2 text-white border-0" style={{ backgroundColor: '#E53935' }}>
               Manage Subscription →
             </Button>
             <Button onClick={() => base44.auth.logout('/')} variant="ghost" className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">

@@ -15,7 +15,7 @@ import VersionHistory from '@/components/document/VersionHistory';
 import { useToast } from '@/components/ui/use-toast';
 
 const docTypeColors = {
-  SOW: 'bg-[#00C9A7]/20 text-[#00C9A7] border-[#00C9A7]/30',
+  SOW: 'bg-[#E53935]/20 text-[#E53935] border-[#E53935]/30',
   EOI: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   RFQ: 'bg-green-500/20 text-green-300 border-green-500/30',
   RFP: 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/30',
@@ -119,7 +119,7 @@ export default function Dashboard() {
             <p className="text-[#8FA5C0] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
           <Link to="/tool-select">
-            <Button disabled={atLimit} className="gap-2 bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0 shadow-lg disabled:opacity-50" style={{ boxShadow: '0 0 20px rgba(0, 201, 167, 0.3)' }}>
+            <Button disabled={atLimit} className="gap-2 bg-[#E53935] hover:bg-[#EF5350] text-[#080E1A] border-0 shadow-lg disabled:opacity-50" style={{ boxShadow: '0 0 20px rgba(229, 57, 53, 0.3)' }}>
               <Plus className="w-4 h-4" /> New Document
             </Button>
           </Link>
@@ -134,7 +134,7 @@ export default function Dashboard() {
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               You've reached your {docsLimit}-document limit on the <span className="font-semibold capitalize">{currentPlan}</span> plan.
             </div>
-            <Link to="/billing"><Button size="sm" className="bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0 flex-shrink-0">Upgrade</Button></Link>
+            <Link to="/billing"><Button size="sm" className="bg-[#E53935] hover:bg-[#EF5350] text-[#080E1A] border-0 flex-shrink-0">Upgrade</Button></Link>
           </motion.div>
         ) : nearLimit ? (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
@@ -160,13 +160,13 @@ export default function Dashboard() {
                  <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
                </div>
                <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                 <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-[#F59E0B]' : 'bg-[#00C9A7]'}`}
+                 <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-[#F59E0B]' : 'bg-[#E53935]'}`}
                    style={{ width: `${usagePct}%` }} />
                </div>
              </div>
              {currentPlan === 'free' && (
                <Link to="/billing">
-                 <Button size="sm" className="text-xs bg-[#00C9A7]/20 hover:bg-[#00C9A7]/40 text-[#00C9A7] border border-[#00C9A7]/30 h-7">Upgrade</Button>
+                 <Button size="sm" className="text-xs bg-[#E53935]/20 hover:bg-[#E53935]/40 text-[#E53935] border border-[#E53935]/30 h-7">Upgrade</Button>
                </Link>
              )}
            </div>
@@ -182,7 +182,7 @@ export default function Dashboard() {
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="rounded-xl border border-white/10 p-5" style={{ background: 'rgba(255,255,255,0.05)' }}>
               <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-              <div className="text-sm text-blue-200/50 mt-1">{s.label}</div>
+              <div className="text-sm text-white/40 mt-1">{s.label}</div>
             </motion.div>
           ))}
         </div>
@@ -191,10 +191,10 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3 mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
            <div className="relative flex-1">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00C9A7]/40" />
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#E53935]/40" />
              <Input
                placeholder="Search by title or document ID..."
-               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#00C9A7]/50"
+               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E53935]/50"
                value={search}
                onChange={e => setSearch(e.target.value)}
              />
@@ -206,7 +206,7 @@ export default function Dashboard() {
               <Button key={s} size="sm"
                 onClick={() => setFilterStatus(s)}
                 className={`text-xs capitalize transition-colors ${filterStatus === s
-                  ? 'bg-[#00C9A7] text-[#080E1A] border-0 hover:bg-[#00E0BA]'
+                  ? 'bg-[#E53935] text-[#080E1A] border-0 hover:bg-[#EF5350]'
                   : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
                 {s === 'all' ? 'All Status' : s === 'draft' ? 'In Progress' : 'Completed'}
               </Button>
@@ -221,7 +221,7 @@ export default function Dashboard() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
-           <FileText className="w-12 h-12 text-[#00C9A7]/20 mx-auto mb-4" />
+           <FileText className="w-12 h-12 text-[#E53935]/20 mx-auto mb-4" />
            <h3 className="text-lg font-medium text-white mb-2">
              {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
            </h3>
@@ -230,7 +230,7 @@ export default function Dashboard() {
            </p>
            {documents.length === 0 && (
              <Link to="/tool-select">
-               <Button className="gap-2 bg-[#00C9A7] hover:bg-[#00E0BA] text-[#080E1A] border-0">
+               <Button className="gap-2 bg-[#E53935] hover:bg-[#EF5350] text-[#080E1A] border-0">
                  <Plus className="w-4 h-4" />Start a new procurement
                </Button>
              </Link>
@@ -257,7 +257,7 @@ export default function Dashboard() {
                       className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="px-6 py-3.5">
                         <button onClick={() => navigate(`/document/${doc.id}`)}
-                          className="font-medium text-white hover:text-blue-300 transition-colors text-sm">
+                          className="font-medium text-white hover:text-red-300 transition-colors text-sm">
                           {doc.title}
                         </button>
                       </td>
@@ -281,7 +281,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                           {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                             <Button variant="ghost" size="sm"
-                                className="gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
+                                className="gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
                               onClick={() => {
                                 try {
                                   localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -296,7 +296,7 @@ export default function Dashboard() {
                           )}
                           {doc.status === 'complete' && (
                             <Button variant="ghost" size="sm"
-                              className="gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
+                              className="gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
                               onClick={() => navigate(`/document/${doc.id}`)}>
                               <FileText className="w-3 h-3" />View
                             </Button>
@@ -352,7 +352,7 @@ export default function Dashboard() {
                   className="rounded-xl border border-white/10 p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
                   {/* Title */}
                   <button onClick={() => navigate(`/document/${doc.id}`)}
-                    className="text-left font-medium text-white hover:text-[#00C9A7] transition-colors truncate">
+                    className="text-left font-medium text-white hover:text-[#E53935] transition-colors truncate">
                     {doc.title}
                   </button>
 
@@ -382,7 +382,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
+                        className="flex-1 gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
                         onClick={() => {
                           try {
                             localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -397,7 +397,7 @@ export default function Dashboard() {
                     )}
                     {doc.status === 'complete' && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-[#00C9A7] hover:text-white hover:bg-[#00C9A7]/20 border border-[#00C9A7]/30 h-7"
+                        className="flex-1 gap-1 text-xs text-[#E53935] hover:text-white hover:bg-[#E53935]/20 border border-[#E53935]/30 h-7"
                         onClick={() => navigate(`/document/${doc.id}`)}>
                         <FileText className="w-3 h-3" />View
                       </Button>
