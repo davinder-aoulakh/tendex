@@ -118,9 +118,9 @@ export default function Dashboard() {
             <h1 className="font-syne font-800 text-3xl text-white">My Documents</h1>
             <p className="text-[#A3A3A3] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
-          <Link to="/tool-select">
-            <Button disabled={atLimit} className="gap-2 text-white border-0 shadow-lg disabled:opacity-50" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
-              <Plus className="w-4 h-4" /> New Document
+          <Link to="/start-procurement">
+            <Button className="gap-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+              <Plus className="w-4 h-4" /> Start Procurement
             </Button>
           </Link>
         </div>
@@ -230,7 +230,7 @@ export default function Dashboard() {
              {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
            </p>
            {documents.length === 0 && (
-             <Link to="/tool-select">
+             <Link to="/start-procurement">
                <Button className="gap-2 text-white border-0" style={{ backgroundColor: '#E8221A' }}>
                   <Plus className="w-4 h-4" />Start a new procurement
                 </Button>
@@ -257,8 +257,17 @@ export default function Dashboard() {
                     <motion.tr key={doc.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
                       className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="px-6 py-3.5">
-                        <button onClick={() => navigate(`/document/${doc.id}`)}
-                          className="font-medium text-white hover:text-red-300 transition-colors text-sm">
+                        <button onClick={() => {
+                          if (doc.status === 'draft' && doc.questionnaire_type && !doc.final_content) {
+                            try {
+                              localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                              if (doc.questionnaire_data) localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
+                            } catch {}
+                            navigate(`/questionnaire/${doc.questionnaire_type}`);
+                          } else {
+                            navigate(`/document/${doc.id}`);
+                          }
+                        }} className="font-medium text-white hover:text-red-300 transition-colors text-sm text-left">
                           {doc.title}
                         </button>
                       </td>
@@ -352,8 +361,17 @@ export default function Dashboard() {
                 <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className="rounded-xl border border-white/10 p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
                   {/* Title */}
-                  <button onClick={() => navigate(`/document/${doc.id}`)}
-                    className="text-left font-medium text-white hover:text-[#E53935] transition-colors truncate">
+                  <button onClick={() => {
+                    if (doc.status === 'draft' && doc.questionnaire_type && !doc.final_content) {
+                      try {
+                        localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
+                        if (doc.questionnaire_data) localStorage.setItem(`tendex_answers_${doc.questionnaire_type}`, JSON.stringify(doc.questionnaire_data));
+                      } catch {}
+                      navigate(`/questionnaire/${doc.questionnaire_type}`);
+                    } else {
+                      navigate(`/document/${doc.id}`);
+                    }
+                  }} className="text-left font-medium text-white hover:text-[#E53935] transition-colors truncate w-full">
                     {doc.title}
                   </button>
 

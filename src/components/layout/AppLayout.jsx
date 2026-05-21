@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FileText, LayoutDashboard, CreditCard, Plus, LogOut, Zap, User } from 'lucide-react';
+import { LayoutDashboard, CreditCard, Plus, LogOut, Zap, AlertCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import TrialBanner from '@/components/pricing/TrialBanner';
@@ -28,6 +28,7 @@ export default function AppLayout({ children }) {
   const [subscription, setSubscription] = useState(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
   const [isTrialExpired, setIsTrialExpired] = useState(false);
+  const [profileIncomplete, setProfileIncomplete] = useState(false);
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsAuthenticated);
@@ -39,6 +40,10 @@ export default function AppLayout({ children }) {
         const currentUser = await base44.auth.me();
         if (currentUser) {
           setUser(currentUser);
+          // Check if business profile is incomplete
+          if (!currentUser.organisation_name || !currentUser.abn) {
+            setProfileIncomplete(true);
+          }
           const subs = await base44.entities.Subscription.filter({
             user_email: currentUser.email,
           });
@@ -77,11 +82,14 @@ export default function AppLayout({ children }) {
       {/* Top nav */}
       <nav className="fixed top-0 w-full z-50 blur-nav">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(232,34,26,0.1)', border: '1px solid rgba(232,34,26,0.2)' }}>
-              <FileText className="w-4 h-4" style={{ color: '#E8221A' }} />
-            </div>
-            <span className="font-syne font-800 text-lg text-white">TendeX</span>
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="TendeX"
+              className="h-8 w-auto"
+              onError={e => { e.currentTarget.style.display = 'none'; }}
+            />
+            <span className="font-syne font-800 text-lg text-white">TendeX<span style={{ color: '#E8221A' }}>.</span></span>
           </Link>
           <div className="flex items-center gap-1">
             {isAuthenticated ? (
@@ -109,7 +117,7 @@ export default function AppLayout({ children }) {
                      </Link>
                    );
                  })}
-                 <Link to="/tool-select">
+                 <Link to="/start-procurement">
                    <Button size="sm" className="gap-2 ml-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
                      <Plus className="w-4 h-4" />New
                    </Button>
@@ -142,6 +150,22 @@ export default function AppLayout({ children }) {
               daysRemaining={trialDaysRemaining}
               isExpired={isTrialExpired}
             />
+          </div>
+        )}
+        {/* Business profile incomplete banner */}
+        {isAuthenticated && profileIncomplete && location.pathname !== '/profile' && (
+          <div className="max-w-7xl mx-auto px-6 pt-4">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/30 px-5 py-3 text-sm" style={{ background: 'rgba(245,158,11,0.07)' }}>
+              <div className="flex items-center gap-2 text-amber-300">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                Your business profile is incomplete. Add your organisation name and ABN to get started.
+              </div>
+              <Link to="/profile">
+                <Button size="sm" variant="ghost" className="text-amber-300 hover:text-white border border-amber-400/30 hover:bg-white/10 flex-shrink-0 h-7 text-xs whitespace-nowrap">
+                  Complete Profile →
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
         {children}
