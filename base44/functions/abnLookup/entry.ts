@@ -14,9 +14,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid ABN/ACN length' }, { status: 400 });
     }
 
-    // Use the correct ABR (Australian Business Register) public JSON API
-    // guid=myguid is accepted for public/unauthenticated lookups
-    const url = `https://abr.business.gov.au/json/AbnDetails.aspx?abn=${clean}&callback=cb&guid=myguid`;
+    const guid = Deno.env.get('ABR_GUID');
+    if (!guid) {
+      return Response.json({ valid: false, error: 'ABR_GUID secret not configured' }, { status: 200 });
+    }
+    const url = `https://abr.business.gov.au/json/AbnDetails.aspx?abn=${clean}&callback=cb&guid=${guid}`;
 
     const response = await fetch(url, {
       headers: {
@@ -46,12 +48,17 @@ Deno.serve(async (req) => {
     console.log('Parsed ABN data:', JSON.stringify(data));
     console.log('Abn field:', data.Abn, '| AbnStatus:', data.AbnStatus);
 
+    if (data.Message && data.Message.includes('GUID')) {
+      console.error('Invalid ABR GUID:', data.Message);
+      return Response.json({ valid: false, error: 'ABR GUID is not registered. Please register at https://abr.business.gov.au/Tools/WebServices' }, { status: 200 });
+    }
+
     if (!data.Abn) {
-      return Response.json({ valid: false, message: 'ABN not found', debug: data }, { status: 200 });
+      return Response.json({ valid: false, message: 'ABN not found or not registered' }, { status: 200 });
     }
 
     if (data.AbnStatus !== 'Active') {
-      return Response.json({ valid: false, message: `ABN status: ${data.AbnStatus}`, debug: data }, { status: 200 });
+      return Response.json({ valid: false, message: `ABN is not active (status: ${data.AbnStatus})` }, { status: 200 });
     }
 
     const entityName = data.EntityName || data.MainName || '';
