@@ -1,17 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { CheckCircle2, XCircle, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
 
-/**
- * ABN/ACN validation component using the public ABN Register JSON API.
- *
- * Props:
- *   value        — current ABN string (digits only)
- *   onChange     — (abn: string) => void
- *   onConfirmed  — (abn: string, entityName: string) => void
- *   confirmed    — boolean
- *   confirmedName — string
- */
 export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed, confirmedName }) {
   const [status, setStatus]           = useState('idle'); // idle | loading | valid | invalid | error
   const [entityName, setEntityName]   = useState(confirmedName || '');
@@ -19,7 +10,6 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
   const [inputValue, setInputValue]   = useState(value || '');
   const debounceRef                   = useRef(null);
 
-  // Keep inputValue in sync when value prop changes externally
   useEffect(() => {
     if (!value) {
       setInputValue('');
@@ -29,7 +19,6 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
     }
   }, [value]);
 
-  // Strip everything except digits
   const cleanAbn = (raw) => raw.replace(/[^\d]/g, '');
 
   const lookupABN = async (abn) => {
@@ -37,65 +26,18 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
     setEntityName('');
     setIsConfirmed(false);
 
-    const callbackName = `_abn_cb_${Date.now()}`;
-    // Try both ABN and ACN lookups — ABN register accepts both
-    const url = `https://abn.business.gov.au/json/AbnDetails.aspx?abn=${abn}&callback=${callbackName}`;
+    const result = await base44.functions.invoke('abnLookup', { abn });
+    const data = result.data;
 
-    const result = await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        cleanup();
-        reject(new Error('timeout'));
-      }, 10000);
-
-      function cleanup() {
-        clearTimeout(timeout);
-        try { delete window[callbackName]; } catch {}
-        const s = document.getElementById(callbackName);
-        if (s) s.remove();
-      }
-
-      window[callbackName] = (data) => {
-        cleanup();
-        resolve(data);
-      };
-
-      const script = document.createElement('script');
-      script.id = callbackName;
-      script.src = url;
-      script.onerror = () => { cleanup(); reject(new Error('network')); };
-      document.head.appendChild(script);
-    });
-
-    // The API returns AbnStatus === 'Active' for valid ABNs
-    // It also returns EntityName which can be from either ABN or ACN lookup
-    if (!result) {
+    if (!data.valid) {
       setStatus('invalid');
       return;
     }
 
-    // Some ABNs return a Message field when not found
-    if (result.Message && !result.Abn) {
-      setStatus('invalid');
-      return;
-    }
-
-    if (!result.Abn) {
-      setStatus('invalid');
-      return;
-    }
-
-    if (result.AbnStatus !== 'Active') {
-      setStatus('invalid');
-      setEntityName('');
-      return;
-    }
-
-    const name = result.EntityName || result.MainName || '';
-    setEntityName(name);
+    setEntityName(data.entityName || '');
     setStatus('valid');
   };
 
-  // Auto-lookup when input reaches 11 digits (ABN) or 9 digits (ACN)
   useEffect(() => {
     const clean = cleanAbn(inputValue);
     if (isConfirmed && clean === cleanAbn(value)) return;
@@ -107,7 +49,6 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
       return;
     }
 
-    // Only trigger at 9 (ACN) or 11 (ABN) digits
     if (clean.length !== 9 && clean.length !== 11) return;
 
     clearTimeout(debounceRef.current);
@@ -127,7 +68,6 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
   };
 
   const handleClear = () => {
-    // Bug fix: fully reset all state and notify parent
     setInputValue('');
     setStatus('idle');
     setEntityName('');
@@ -135,14 +75,13 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
     onChange?.('');
   };
 
-  // Format display: XX XXX XXX XXX for ABN, XXX XXX XXX for ACN
   const formatDisplay = (raw) => {
     const d = cleanAbn(raw);
     if (d.length <= 2) return d;
     if (d.length <= 5) return `${d.slice(0,2)} ${d.slice(2)}`;
     if (d.length <= 8) return `${d.slice(0,2)} ${d.slice(2,5)} ${d.slice(5)}`;
-    if (d.length === 9) return `${d.slice(0,3)} ${d.slice(3,6)} ${d.slice(6,9)}`; // ACN
-    return `${d.slice(0,2)} ${d.slice(2,5)} ${d.slice(5,8)} ${d.slice(8,11)}`; // ABN
+    if (d.length === 9) return `${d.slice(0,3)} ${d.slice(3,6)} ${d.slice(6,9)}`;
+    return `${d.slice(0,2)} ${d.slice(2,5)} ${d.slice(5,8)} ${d.slice(8,11)}`;
   };
 
   return (
@@ -174,16 +113,10 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
           }}
         />
 
-        {/* Right-side icon — clear X or status icon */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
           {(inputValue || value) && (status === 'idle' || status === 'invalid' || status === 'error' || isConfirmed) && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="text-white/30 hover:text-white/70 transition-colors p-0.5"
-              tabIndex={-1}
-              title="Clear"
-            >
+            <button type="button" onClick={handleClear}
+              className="text-white/30 hover:text-white/70 transition-colors p-0.5" tabIndex={-1} title="Clear">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -194,24 +127,19 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
 
       <p className="text-xs text-white/30 px-1">Enter your 11-digit ABN or 9-digit ACN</p>
 
-      {/* Confirmed state */}
       {isConfirmed && (
         <div className="flex items-center justify-between gap-2 text-sm text-green-400 px-1">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
             <span>Verified: <strong>{entityName}</strong></span>
           </div>
-          <button
-            type="button"
-            onClick={handleClear}
-            className="text-xs text-white/40 hover:text-white transition-colors underline underline-offset-2"
-          >
+          <button type="button" onClick={handleClear}
+            className="text-xs text-white/40 hover:text-white transition-colors underline underline-offset-2">
             Change
           </button>
         </div>
       )}
 
-      {/* Valid — awaiting confirmation */}
       {status === 'valid' && !isConfirmed && (
         <div className="rounded-xl border border-green-400/30 px-4 py-3 text-sm" style={{ background: 'rgba(34,197,94,0.08)' }}>
           <p className="text-green-300 mb-2.5">
@@ -230,7 +158,6 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
         </div>
       )}
 
-      {/* Invalid / Error */}
       {(status === 'invalid' || status === 'error') && (
         <div className="flex items-center gap-2 text-sm text-red-400 px-1">
           <XCircle className="w-3.5 h-3.5 flex-shrink-0" />
