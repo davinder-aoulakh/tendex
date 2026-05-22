@@ -66,8 +66,8 @@ export default function Dashboard() {
 
   const currentSub = subscriptions[0];
   const currentPlan = currentSub?.plan || 'free';
-  const planLimits = { free: 3, starter: 20, professional: 999 };
-  const docsLimit = planLimits[currentPlan] || 3;
+  const planLimits = { free: 25, starter: 50, professional: 999 };
+  const docsLimit = currentSub?.documents_limit || planLimits[currentPlan] || 25;
   const usagePct = docsLimit === 999 ? 5 : Math.min((documents.length / docsLimit) * 100, 100);
   const nearLimit = docsLimit !== 999 && documents.length >= docsLimit * 0.8;
   const atLimit = docsLimit !== 999 && documents.length >= docsLimit;
