@@ -102,12 +102,12 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12"
-      style={{ background: 'linear-gradient(135deg, rgba(8,13,36,0.5) 0%, rgba(30,58,138,0.3) 100%)' }}>
+      style={{ background: 'var(--background)' }}>
       <div className="max-w-6xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="font-display text-4xl font-bold text-white mb-2">Choose Your Plan</h1>
-          <p className="text-lg text-blue-200/60">Select the plan that works best for your team</p>
+          <h1 className="font-syne text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Choose Your Plan</h1>
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>Select the plan that works best for your team</p>
         </div>
 
         {/* Error message */}
@@ -122,16 +122,15 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
           {Object.entries(PLANS).map(([key, plan]) => (
             <div
               key={key}
-              className={`relative rounded-2xl border transition-all duration-300 p-8 flex flex-col ${
-                plan.highlighted
-                  ? 'border-blue-400/50 bg-gradient-to-br from-blue-500/10 to-blue-600/5 shadow-xl shadow-blue-500/20 scale-105 md:scale-100'
-                  : 'border-white/10 bg-white/5 hover:border-white/20'
-              }`}
+              className="relative rounded-2xl border transition-all duration-300 p-8 flex flex-col"
+              style={plan.highlighted
+                ? { borderColor: 'var(--primary)', background: 'rgba(232,34,26,0.08)', boxShadow: '0 0 0 2px rgba(232,34,26,0.15)' }
+                : { borderColor: 'var(--border)', background: 'var(--card)' }}
             >
               {/* Badge */}
               {plan.highlighted && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
                     MOST POPULAR
                   </div>
                 </div>
@@ -139,18 +138,18 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
 
               {/* Plan name & price */}
               <div className="mb-6">
-                <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
-                <p className="text-3xl font-bold text-blue-300 mb-1">{plan.price}</p>
-                <p className="text-sm text-blue-200/50">{plan.duration}</p>
-                <p className="text-sm text-white/40 mt-2">{plan.description}</p>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>
+                <p className="text-3xl font-bold mb-1" style={{ color: 'var(--primary)' }}>{plan.price}</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{plan.duration}</p>
+                <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{plan.description}</p>
               </div>
 
               {/* Features */}
               <div className="space-y-3 mb-8 flex-1">
                 {plan.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-blue-100/70">{feature}</span>
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
+                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{feature}</span>
                   </div>
                 ))}
               </div>
@@ -159,11 +158,10 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
               <Button
                 onClick={key === 'free' ? handleFreeTrial : handlePaidPlan}
                 disabled={loading || processingPlan !== null}
-                className={`w-full gap-2 ${
-                  plan.highlighted
-                    ? 'bg-blue-500 hover:bg-blue-400 text-white border-0'
-                    : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
-                }`}
+                className="w-full gap-2 border-0"
+                style={plan.highlighted
+                  ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }
+                  : { background: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
               >
                 {processingPlan === key ? (
                   <>
@@ -183,12 +181,12 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
 
         {/* Footer note */}
         <div className="text-center space-y-3">
-          <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
+          <p className="text-xs max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
             Pricing and features are placeholder values [TBC] pending final confirmation by the TendeX team.
             Free trial includes 25 active procurement documents. Paid plan features and pricing to be confirmed.
           </p>
 
-          <p className="text-xs text-blue-200/40 max-w-2xl mx-auto">
+          <p className="text-xs max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
             By starting a trial or purchasing a plan, you agree to our{' '}
             <a href="/terms" className="text-[#E53935] hover:underline transition-colors">Terms of Service</a> and{' '}
             <a href="/privacy" className="text-[#E53935] hover:underline transition-colors">Privacy Policy</a>.
