@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -119,6 +119,9 @@ const recommendDocTypeFromFallback = (responses) => {
 export default function Questionnaire() {
   const { type } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get('mode') || 'procurement';
+  const isStandaloneMode = type === 'SOW' && mode === 'standalone';
 
   // Load from sessionStorage first, fall back to localStorage (cross-session persistence)
   const loadSaved = () => {
@@ -292,17 +295,52 @@ export default function Questionnaire() {
     saveNow(); // auto-save on navigation
 
     if (type === 'SOW') {
-      // Own scope bypass: after S3 own scope option step, if user has own scope, skip to scoring
+      if (isStandaloneMode) {
+        // ── STANDALONE MODE: collect scope info, show review, then generate SOW directly ──
+        if (page?.id === 's3_own_scope_option' && answers.has_own_scope === 'yes') {
+          analyzeUploadedScope(answers.own_scope_document, answers.procurement_type).then(result => {
+            if (result.fallbackQuestions) {
+              setAiStep('fallback_scope_questions');
+            } else {
+              // In standalone mode, skip scoring — generate SOW directly
+              handleGenerate('SOW', 'SOW');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+          return;
+        }
+        if (page?.id === 's2_basics' && !purposeConfirmed && answers.has_own_scope !== 'yes') {
+          setAiStep('purpose');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both') && answers.has_own_scope !== 'yes') {
+          setAiStep('deliverables');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        if (!isLastStep) {
+          setCurrentStep(s => s + 1);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        // At last step: show sow_review, then generate SOW directly (no scoring)
+        if (aiStep !== 'sow_review') {
+          setAiStep('sow_review');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        await handleGenerate('SOW', 'SOW');
+        return;
+      }
+
+      // ── PROCUREMENT MODE (existing logic) ──
       if (page?.id === 's3_own_scope_option' && answers.has_own_scope === 'yes') {
-        // User has uploaded their own scope — skip all scope-building questions
-        // Attempt to analyze, fallback to questions if needed
         analyzeUploadedScope(answers.own_scope_document, answers.procurement_type).then(result => {
           if (result.fallbackQuestions) {
-            // Can't read the document — ask fallback questions
             setAiStep('fallback_scope_questions');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
-            // Successfully analyzed — show scoring
             setShowScoring(true);
             setScoring(true);
             setScoreData(result);
@@ -311,14 +349,11 @@ export default function Questionnaire() {
         });
         return;
       }
-
-      // Assist 1: after S2 basics, show scope purpose (skip if own scope)
       if (page?.id === 's2_basics' && !purposeConfirmed && answers.has_own_scope !== 'yes') {
         setAiStep('purpose');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
-      // Assist 3: after S4c service details, show deliverable chips (services/both only, skip if own scope)
       if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both') && answers.has_own_scope !== 'yes') {
         setAiStep('deliverables');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -436,7 +471,16 @@ export default function Questionnaire() {
             </span>
             <h1 className="font-display text-2xl font-semibold text-white">{docTypeLabels[type] || type}</h1>
           </div>
-          <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>Answer a few questions and AI will draft your document.</p>
+          {type === 'SOW' && (
+            <p className="text-xs mt-2" style={{ color: '#5C7A99' }}>
+              {isStandaloneMode
+                ? 'Creating a standalone Scope of Work document.'
+                : 'Full procurement journey — your scope will be scored and a market document recommended.'}
+            </p>
+          )}
+          {type !== 'SOW' && (
+            <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>Answer a few questions and AI will draft your document.</p>
+          )}
         </div>
 
         {/* Limit gate */}
@@ -531,14 +575,19 @@ export default function Questionnaire() {
               onConfirm={(reviewedSections) => {
                 updateAnswer('_sow_sections', reviewedSections);
                 setAiStep(null);
-                // Trigger scoring step
-                setShowScoring(true);
-                setScoring(true);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                scoreScopeAnswers(answers).then(result => {
-                  setScoreData(result);
-                  setScoring(false);
-                });
+                if (isStandaloneMode) {
+                  // Standalone: generate SOW directly without scoring
+                  handleGenerate('SOW', 'SOW');
+                } else {
+                  // Procurement mode: trigger scoring
+                  setShowScoring(true);
+                  setScoring(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  scoreScopeAnswers(answers).then(result => {
+                    setScoreData(result);
+                    setScoring(false);
+                  });
+                }
               }}
               onBack={() => setAiStep(null)}
             />
@@ -850,7 +899,7 @@ export default function Questionnaire() {
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (
-                  <><Sparkles className="w-4 h-4" />{type === 'SOW' ? 'Generate Scope of Work' : `Generate ${type} Document`}</>
+                  <><Sparkles className="w-4 h-4" />{type === 'SOW' ? (isStandaloneMode ? 'Generate Scope of Work' : 'Score my scope →') : `Generate ${type} Document`}</>
                 ) : (
                   <>Next <ArrowRight className="w-4 h-4" /></>
                 )}

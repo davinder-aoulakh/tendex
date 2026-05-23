@@ -1,21 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Lightbulb, ClipboardList, Search, ArrowRight, Bot, Sparkles, AlertCircle } from 'lucide-react';
+import { Lightbulb, ClipboardList, Search, ArrowRight, Bot, Sparkles, AlertCircle, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import AppLayout from '@/components/layout/AppLayout';
 
-const tools = [
-  {
-    id: 'SOW',
-    icon: FileText,
-    title: 'Scope of Work (SOW)',
-    description: 'Define project deliverables, timelines, and responsibilities for a specific engagement.',
-    iconColor: 'text-[#E53935]',
-    examples: ['IT system implementation', 'Marketing campaign', 'Consulting engagement'],
-  },
+const standaloneTools = [
   {
     id: 'EOI',
     icon: Lightbulb,
@@ -57,30 +49,20 @@ export default function ToolSelect() {
       try {
         const user = await base44.auth.me();
         if (!user) return;
-
-        const subs = await base44.entities.Subscription.filter({
-          user_email: user.email,
-        });
-        
+        const subs = await base44.entities.Subscription.filter({ user_email: user.email });
         if (subs.length > 0) {
           const sub = subs[0];
           setSubscription(sub);
           setDocsUsed(sub.documents_used || 0);
-
-          // Check if free trial is expired
           if (sub.plan === 'free' && sub.renewal_date) {
             const renewalDate = new Date(sub.renewal_date);
-            const today = new Date();
-            if (today > renewalDate) {
-              setIsTrialExpired(true);
-            }
+            if (new Date() > renewalDate) setIsTrialExpired(true);
           }
         }
       } catch (err) {
         console.error('Error loading subscription:', err);
       }
     };
-
     loadSubscription();
   }, []);
 
@@ -106,26 +88,17 @@ export default function ToolSelect() {
   };
 
   const handleProceed = () => {
-    // Check if free trial is expired
-    if (isTrialExpired) {
-      navigate('/billing');
-      return;
-    }
-
-    // Check if free plan has reached document limit
-    if (subscription?.plan === 'free' && docsUsed >= subscription.documents_limit) {
-      navigate('/billing');
-      return;
-    }
-
+    if (isTrialExpired) { navigate('/billing'); return; }
+    if (subscription?.plan === 'free' && docsUsed >= subscription.documents_limit) { navigate('/billing'); return; }
     if (!selected) return;
+    // SOW goes through full procurement journey; EOI/RFQ/RFP go directly to questionnaire
+    navigate(`/questionnaire/${selected}`);
+  };
 
-    // SOW goes through the Start Procurement intake form first
-    if (selected === 'SOW') {
-      navigate('/start-procurement');
-    } else {
-      navigate(`/questionnaire/${selected}`);
-    }
+  const continueLabel = () => {
+    if (!selected) return 'Select a document type';
+    if (selected === 'SOW') return 'Start procurement journey →';
+    return `Create ${selected} document →`;
   };
 
   return (
@@ -139,10 +112,7 @@ export default function ToolSelect() {
               <div className="flex-1">
                 <h3 className="font-semibold text-amber-300 mb-1">Trial Period Expired</h3>
                 <p className="text-sm text-amber-200/70 mb-4">Your free trial has ended. Upgrade to continue creating new documents.</p>
-                <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-white border-0"
-                  onClick={() => navigate('/billing')}>
-                  Upgrade Now
-                </Button>
+                <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-white border-0" onClick={() => navigate('/billing')}>Upgrade Now</Button>
               </div>
             </div>
           </motion.div>
@@ -151,90 +121,136 @@ export default function ToolSelect() {
         {/* Free plan limit reached */}
         {!isTrialExpired && subscription?.plan === 'free' && docsUsed >= subscription.documents_limit && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg p-6" style={{ border: '1px solid rgba(232,34,26,0.3)', background: 'rgba(232,34,26,0.1)' }}>
-           <div className="flex items-start gap-4">
-             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#E8221A' }} />
+            <div className="flex items-start gap-4">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#E8221A' }} />
               <div className="flex-1">
                 <h3 className="font-semibold mb-1" style={{ color: '#EF9A9A' }}>Document Limit Reached</h3>
                 <p className="text-sm mb-4" style={{ color: 'rgba(232,34,26,0.6)' }}>You've created {docsUsed} of {subscription.documents_limit} allowed document(s) on your free plan. Upgrade to create more.</p>
-                <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#E8221A' }}
-                  onClick={() => navigate('/billing')}>
-                  Upgrade Plan
-                </Button>
+                <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#E8221A' }} onClick={() => navigate('/billing')}>Upgrade Plan</Button>
               </div>
             </div>
           </motion.div>
         )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="font-syne text-4xl font-semibold text-white mb-3">What document do you need?</h1>
-          <p className="text-lg text-[#A3A3A3]">Choose a document type or describe your need and let AI guide you.</p>
+          <h1 className="font-syne text-4xl font-semibold text-white mb-3">What do you need?</h1>
+          <p className="text-lg text-[#A3A3A3]">Start a full procurement journey or create a standalone document.</p>
         </motion.div>
 
         {/* AI Assist */}
-         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-           className="rounded-2xl border border-white/10 p-6 mb-8" style={{ background: 'rgba(255,255,255,0.05)' }}>
-           <div className="flex items-center gap-2 mb-3">
-           <Bot className="w-5 h-5" style={{ color: '#E8221A' }} />
-             <h2 className="font-semibold text-white">Not sure? Describe your need</h2>
-           </div>
-           <div className="flex gap-3">
-             <Textarea
-               placeholder="e.g. I need to hire a web developer to build our e-commerce site..."
-               value={aiQuery}
-               onChange={e => setAiQuery(e.target.value)}
-               className="min-h-[80px] resize-none flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30"
-               style={{ '--tw-ring-color': 'rgba(232,34,26,0.5)' }}
-             />
-             <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()}
-               className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
-               {aiLoading ? <><Sparkles className="w-4 h-4 animate-spin" />Analysing...</> : <><Sparkles className="w-4 h-4" />Suggest Type</>}
-             </Button>
-           </div>
-           {aiSuggestion && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid rgba(232,34,26,0.3)', background: 'rgba(232,34,26,0.1)' }}>
-               <span className="font-semibold" style={{ color: '#E8221A' }}>Recommended: {aiSuggestion.type}</span>
-               <span className="ml-2 text-white/60">— {aiSuggestion.reason}</span>
-             </motion.div>
-           )}
-         </motion.div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="rounded-2xl border border-white/10 p-6 mb-10" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Bot className="w-5 h-5" style={{ color: '#E8221A' }} />
+            <h2 className="font-semibold text-white">Not sure? Describe your need</h2>
+          </div>
+          <div className="flex gap-3">
+            <Textarea
+              placeholder="e.g. I need to hire a web developer to build our e-commerce site..."
+              value={aiQuery}
+              onChange={e => setAiQuery(e.target.value)}
+              className="min-h-[80px] resize-none flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+            />
+            <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()}
+              className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+              {aiLoading ? <><Sparkles className="w-4 h-4 animate-spin" />Analysing...</> : <><Sparkles className="w-4 h-4" />Suggest Type</>}
+            </Button>
+          </div>
+          {aiSuggestion && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid rgba(232,34,26,0.3)', background: 'rgba(232,34,26,0.1)' }}>
+              <span className="font-semibold" style={{ color: '#E8221A' }}>Recommended: {aiSuggestion.type}</span>
+              <span className="ml-2 text-white/60">— {aiSuggestion.reason}</span>
+            </motion.div>
+          )}
+        </motion.div>
 
-        {/* Tool Cards */}
-        <div className="grid md:grid-cols-2 gap-5 mb-8">
-          {tools.map((tool, i) => (
-            <motion.button key={tool.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 + 0.2 }}
-              onClick={() => setSelected(tool.id)}
-              className={`text-left p-6 rounded-2xl border-2 transition-all ${
-                 selected === tool.id
-                   ? 'shadow-lg'
-                   : 'border-white/10'
-               }`}
-               style={{
-                 borderColor: selected === tool.id ? 'rgba(232,34,26,0.6)' : 'rgba(255,255,255,0.1)',
-                 background: selected === tool.id ? 'rgba(232,34,26,0.12)' : 'rgba(255,255,255,0.04)',
-                 boxShadow: selected === tool.id ? '0 0 20px rgba(232,34,26,0.15)' : 'none'
-               }}
-               onMouseEnter={(e) => !selected && (e.currentTarget.style.borderColor = 'rgba(232,34,26,0.3)')}
-               onMouseLeave={(e) => !selected && (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
+        {/* SECTION A — Full Procurement Journey (SOW) */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#5C7A99' }}>Start a full procurement</p>
+          <div
+            className="rounded-2xl border-2 p-6 mb-10 cursor-pointer transition-all"
+            style={{
+              background: selected === 'SOW' ? 'rgba(0,201,167,0.08)' : 'rgba(255,255,255,0.04)',
+              borderColor: selected === 'SOW' ? 'rgba(0,201,167,0.5)' : 'rgba(255,255,255,0.1)',
+              boxShadow: selected === 'SOW' ? '0 0 24px rgba(0,201,167,0.1)' : 'none',
+            }}
+            onClick={() => setSelected('SOW')}
+            role="button"
+            aria-pressed={selected === 'SOW'}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(0,201,167,0.12)', border: '1px solid rgba(0,201,167,0.25)' }}>
+                <Layers className="w-6 h-6" style={{ color: '#00C9A7' }} />
               </div>
-              <h3 className="font-semibold text-white mb-2">{tool.title}</h3>
-              <p className="text-sm mb-3 leading-relaxed text-[#A3A3A3]">{tool.description}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {tool.examples.map(ex => (
-                   <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' }}>{ex}</span>
-                 ))}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-1 flex-wrap">
+                  <h3 className="font-syne font-700 text-white text-lg">Full Procurement Journey</h3>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(0,201,167,0.1)', color: '#00C9A7', border: '1px solid rgba(0,201,167,0.2)' }}>
+                    Recommended starting point
+                  </span>
+                </div>
+                <p className="text-sm mb-3" style={{ color: '#8FA5C0' }}>
+                  Start here if you are beginning a new procurement from scratch. TendeX will help you define your scope, score its quality, and recommend the right market document (EOI, RFQ, or RFP) — all in one guided flow.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {['Define scope of work', 'AI quality scoring', 'Recommend EOI / RFQ / RFP', 'Generate market-ready document'].map(step => (
+                    <span key={step} className="text-xs px-2 py-1 rounded-md"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#8FA5C0' }}>
+                      {step}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </motion.button>
-          ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* SECTION B — Standalone document types */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#5C7A99' }}>Or create a standalone document</p>
+          <div className="grid md:grid-cols-3 gap-5 mb-8">
+            {standaloneTools.map((tool, i) => (
+              <motion.button key={tool.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 + 0.25 }}
+                onClick={() => setSelected(tool.id)}
+                className="text-left p-6 rounded-2xl border-2 transition-all"
+                style={{
+                  borderColor: selected === tool.id ? 'rgba(232,34,26,0.6)' : 'rgba(255,255,255,0.1)',
+                  background: selected === tool.id ? 'rgba(232,34,26,0.12)' : 'rgba(255,255,255,0.04)',
+                  boxShadow: selected === tool.id ? '0 0 20px rgba(232,34,26,0.15)' : 'none',
+                }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
+                </div>
+                <h3 className="font-semibold text-white mb-2">{tool.title}</h3>
+                <p className="text-sm mb-3 leading-relaxed text-[#A3A3A3]">{tool.description}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {tool.examples.map(ex => (
+                    <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' }}>{ex}</span>
+                  ))}
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Continue button */}
+        <div className="flex flex-col items-end gap-3">
+          <Button size="lg" onClick={handleProceed} disabled={!selected}
+            className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+            {continueLabel()} {selected && <ArrowRight className="w-4 h-4" />}
+          </Button>
+          <button
+            className="text-sm transition-colors"
+            style={{ color: '#5C7A99' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#8FA5C0'}
+            onMouseLeave={e => e.currentTarget.style.color = '#5C7A99'}
+            onClick={() => navigate('/questionnaire/SOW?mode=standalone')}
+          >
+            Just need a Scope of Work document? Create one directly →
+          </button>
         </div>
-
-        <div className="flex justify-end">
-           <Button size="lg" onClick={handleProceed} disabled={!selected}
-             className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
-             Continue with {selected || '...'} <ArrowRight className="w-4 h-4" />
-           </Button>
-         </div>
       </div>
     </AppLayout>
   );

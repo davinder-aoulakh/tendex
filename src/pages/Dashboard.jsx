@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle, Pencil, History, Play } from 'lucide-react';
+import { Plus, FileText, Clock, CheckCircle, Archive, Trash2, MoreVertical, Search, Zap, Crown, AlertTriangle, Pencil, History, Play, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import AppLayout from '@/components/layout/AppLayout';
 import OnboardingBanner from '@/components/dashboard/OnboardingBanner';
@@ -118,11 +118,27 @@ export default function Dashboard() {
             <h1 className="font-syne font-800 text-3xl text-white">My Documents</h1>
             <p className="text-[#A3A3A3] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
-          <Link to="/start-procurement">
-            <Button className="gap-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
-              <Plus className="w-4 h-4" /> Start Procurement
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1 text-xs text-white/60 hover:text-white border border-white/10 hover:bg-white/10">
+                  Quick create <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.09)' }}>
+                <DropdownMenuLabel className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Create a document directly</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/SOW?mode=standalone')} style={{ color: 'white' }}>Scope of Work (SOW)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/EOI')} style={{ color: 'white' }}>Expression of Interest (EOI)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/RFQ')} style={{ color: 'white' }}>Request for Quotation (RFQ)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/RFP')} style={{ color: 'white' }}>Request for Proposal (RFP)</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Link to="/start-procurement">
+              <Button className="gap-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+                <Plus className="w-4 h-4" /> Start Procurement
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Usage / upgrade banner */}
@@ -230,11 +246,27 @@ export default function Dashboard() {
              {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
            </p>
            {documents.length === 0 && (
-             <Link to="/start-procurement">
-               <Button className="gap-2 text-white border-0" style={{ backgroundColor: '#E8221A' }}>
-                  <Plus className="w-4 h-4" />Start a new procurement
-                </Button>
-             </Link>
+             <div className="flex flex-col items-center gap-3">
+               <Link to="/start-procurement">
+                 <Button className="gap-2 text-white border-0" style={{ backgroundColor: '#E8221A' }}>
+                   <Plus className="w-4 h-4" />Start a new procurement
+                 </Button>
+               </Link>
+               <DropdownMenu>
+                 <DropdownMenuTrigger asChild>
+                   <Button variant="ghost" size="sm" className="gap-1 text-xs text-white/40 hover:text-white border border-white/10 hover:bg-white/10">
+                     Quick create <ChevronDown className="w-3 h-3" />
+                   </Button>
+                 </DropdownMenuTrigger>
+                 <DropdownMenuContent align="center" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.09)' }}>
+                   <DropdownMenuLabel className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Create a document directly</DropdownMenuLabel>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/SOW?mode=standalone')} style={{ color: 'white' }}>Scope of Work (SOW)</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/EOI')} style={{ color: 'white' }}>Expression of Interest (EOI)</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/RFQ')} style={{ color: 'white' }}>Request for Quotation (RFQ)</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/RFP')} style={{ color: 'white' }}>Request for Proposal (RFP)</DropdownMenuItem>
+                 </DropdownMenuContent>
+               </DropdownMenu>
+             </div>
            )}
           </div>
         ) : (
