@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, CreditCard, Plus, LogOut, Zap, AlertCircle } from 'lucide-react';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import TrialBanner from '@/components/pricing/TrialBanner';
@@ -75,7 +76,7 @@ export default function AppLayout({ children }) {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
+    <div className="min-h-screen bg-background">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: '#E8221A' }}>
         Skip to main content
       </a>
@@ -129,6 +130,7 @@ export default function AppLayout({ children }) {
                     </button>
                   </Link>
                  )}
+                 <ThemeToggle />
                  <Button variant="ghost" size="icon" className="ml-1 text-white/50 hover:text-white hover:bg-white/10" onClick={() => base44.auth.logout('/')}>
                   <LogOut className="w-4 h-4" />
                  </Button>

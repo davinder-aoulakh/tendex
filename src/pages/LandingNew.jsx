@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, TrendingUp, FileText, Shield, Clock, Zap, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -21,7 +22,7 @@ export default function LandingNew() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
+    <div className="min-h-screen bg-background text-foreground">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: '#E8221A' }}>
         Skip to main content
       </a>
@@ -56,6 +57,7 @@ export default function LandingNew() {
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <button
               onClick={() => base44.auth.redirectToLogin('/dashboard')}
               className="font-dm-sans text-sm text-[#A3A3A3] hover:text-[#E8221A] transition-colors"

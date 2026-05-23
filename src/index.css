@@ -5,40 +5,105 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: #0A0A0A;
-    --foreground: #F5F5F5;
-    --card: #111111;
-    --card-foreground: #F5F5F5;
-    --popover: #111111;
-    --popover-foreground: #F5F5F5;
-    --primary: #E8221A;
-    --primary-foreground: #FFFFFF;
-    --secondary: #F59E0B;
-    --secondary-foreground: #0A0A0A;
-    --muted: #1A1A1A;
-    --muted-foreground: #6B6B6B;
-    --accent: #E8221A;
-    --accent-foreground: #FFFFFF;
-    --destructive: #EF4444;
+
+  /* ── DARK THEME (default) ─────────────────────────────────────── */
+  :root,
+  .dark {
+    --background:          #080E1A;
+    --background-alt:      #0D1625;
+    --foreground:          #E8F0F8;
+    --card:                #111D2E;
+    --card-foreground:     #E8F0F8;
+    --popover:             #111D2E;
+    --popover-foreground:  #E8F0F8;
+    --primary:             #E8221A;
+    --primary-foreground:  #FFFFFF;
+    --secondary:           #F59E0B;
+    --secondary-foreground:#080E1A;
+    --muted:               #172238;
+    --muted-foreground:    #8FA5C0;
+    --accent:              #E8221A;
+    --accent-foreground:   #FFFFFF;
+    --destructive:         #EF4444;
     --destructive-foreground: #FEF2F2;
-    --border: rgba(255,255,255,0.09);
-    --input: #1A1A1A;
-    --ring: #E8221A;
-    --radius: 0.5rem;
-    --font-syne: 'Syne', sans-serif;
-    --font-dm-sans: 'DM Sans', sans-serif;
+    --border:              rgba(255,255,255,0.07);
+    --border-strong:       rgba(255,255,255,0.12);
+    --input:               #172238;
+    --ring:                #E8221A;
+    --radius:              0.5rem;
+    --font-syne:           'Syne', sans-serif;
+    --font-dm-sans:        'DM Sans', sans-serif;
+
+    --surface-1: #080E1A;
+    --surface-2: #0D1625;
+
+    --nav-bg: rgba(8, 14, 26, 0.85);
+    --nav-border: rgba(255, 255, 255, 0.07);
+
+    --text-primary:   #E8F0F8;
+    --text-secondary: #8FA5C0;
+    --text-muted:     #5C7A99;
+
+    --app-bg: #080E1A;
+    --app-sidebar-bg: rgba(8, 14, 26, 0.7);
+
+    /* Card backgrounds used across the app */
+    --card-surface:  rgba(255,255,255,0.04);
+    --card-surface-hover: rgba(255,255,255,0.07);
+  }
+
+  /* ── LIGHT THEME ──────────────────────────────────────────────── */
+  .light {
+    --background:          #FFFFFF;
+    --background-alt:      #F4F6F9;
+    --foreground:          #0F172A;
+    --card:                #FFFFFF;
+    --card-foreground:     #0F172A;
+    --popover:             #FFFFFF;
+    --popover-foreground:  #0F172A;
+    --primary:             #E8221A;
+    --primary-foreground:  #FFFFFF;
+    --secondary:           #D97706;
+    --secondary-foreground:#FFFFFF;
+    --muted:               #F1F5F9;
+    --muted-foreground:    #64748B;
+    --accent:              #E8221A;
+    --accent-foreground:   #FFFFFF;
+    --destructive:         #DC2626;
+    --destructive-foreground: #FFFFFF;
+    --border:              rgba(0,0,0,0.08);
+    --border-strong:       rgba(0,0,0,0.14);
+    --input:               #F8FAFC;
+    --ring:                #E8221A;
+
+    --surface-1: #FFFFFF;
+    --surface-2: #F4F6F9;
+
+    --nav-bg: rgba(255, 255, 255, 0.90);
+    --nav-border: rgba(0, 0, 0, 0.08);
+
+    --text-primary:   #0F172A;
+    --text-secondary: #475569;
+    --text-muted:     #94A3B8;
+
+    --app-bg: #F4F6F9;
+    --app-sidebar-bg: rgba(255, 255, 255, 0.85);
+
+    --card-surface:  rgba(0,0,0,0.03);
+    --card-surface-hover: rgba(0,0,0,0.055);
   }
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-dm-sans);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -49,7 +114,7 @@
   button:focus-visible,
   a:focus-visible,
   [role="button"]:focus-visible {
-    outline: 2px solid #E8221A;
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 }
@@ -74,9 +139,9 @@
   }
 
   .blur-nav {
-    background-color: rgba(8, 14, 26, 0.85);
+    background-color: var(--nav-bg);
     backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid var(--nav-border);
   }
 
   .card-hover {
@@ -85,12 +150,26 @@
 
   .card-hover:hover {
     transform: translateY(-3px);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--border-strong);
   }
 
   .primary-btn-hover:hover {
-    background-color: #FF4A42;
+    filter: brightness(1.08);
     transform: translateY(-2px);
     box-shadow: 0 0 20px rgba(232, 34, 26, 0.35);
   }
+
+  /* Theme-aware surface utility */
+  .surface-card {
+    background-color: var(--card-surface);
+  }
+
+  .surface-card-hover:hover {
+    background-color: var(--card-surface-hover);
+  }
+
+  /* Text hierarchy utilities */
+  .text-primary-themed   { color: var(--text-primary); }
+  .text-secondary-themed { color: var(--text-secondary); }
+  .text-muted-themed     { color: var(--text-muted); }
 }
