@@ -175,6 +175,8 @@
 
   .hover-muted:hover { background: var(--muted) !important; }
   .row-hover:hover { background: var(--muted); }
+
+  ::selection { background: var(--primary); color: var(--primary-foreground); }
 }
 
 @layer base {
@@ -183,4 +185,14 @@
     color: var(--text-muted);
     opacity: 1;
   }
+
+  ::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--muted); }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 }
