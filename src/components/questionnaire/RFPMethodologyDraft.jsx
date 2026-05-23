@@ -44,18 +44,18 @@ Return only the methodology question text — no headings, no preamble.`,
   return (
     <div className="rounded-xl border border-blue-400/20 p-5" style={{ background: 'rgba(59,130,246,0.05)' }}>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-medium text-blue-200/80">AI-Drafted Methodology Question</p>
+        <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>AI-Drafted Methodology Question</p>
         <div className="flex gap-2">
           {draft && !editing && (
             <Button type="button" size="sm" variant="ghost"
               onClick={() => setEditing(true)}
-              className="gap-1.5 text-xs text-blue-300/70 hover:text-blue-200 hover:bg-white/10">
+              className="gap-1.5 text-xs text-blue-300/70 hover:text-blue-200 hover-muted">
               <Pencil className="w-3 h-3" /> Edit
             </Button>
           )}
           <Button type="button" size="sm" variant="ghost"
             onClick={generate} disabled={generating}
-            className="gap-1.5 text-xs text-blue-300 hover:text-blue-200 hover:bg-white/10">
+            className="gap-1.5 text-xs text-blue-300 hover:text-blue-200 hover-muted">
             {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
             {draft ? 'Regenerate' : 'Generate'}
           </Button>
@@ -69,7 +69,7 @@ Return only the methodology question text — no headings, no preamble.`,
       )}
 
       {!generating && !draft && (
-        <p className="text-xs text-blue-200/40 italic">Click "Generate" to draft a methodology question based on your service type.</p>
+        <p className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Click "Generate" to draft a methodology question based on your service type.</p>
       )}
 
       {!generating && draft && (
@@ -78,7 +78,8 @@ Return only the methodology question text — no headings, no preamble.`,
             <Textarea
               value={draft}
               onChange={e => handleEdit(e.target.value)}
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus-visible:ring-blue-500/50 min-h-[100px] text-sm"
+              className="min-h-[100px] text-sm focus-visible:ring-1"
+              style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
             />
             <Button type="button" size="sm" onClick={() => setEditing(false)}
               className="gap-1.5 bg-blue-500 hover:bg-blue-400 text-white border-0 text-xs">
@@ -86,7 +87,7 @@ Return only the methodology question text — no headings, no preamble.`,
             </Button>
           </div>
         ) : (
-          <p className="text-sm text-white/80 leading-relaxed">{draft}</p>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{draft}</p>
         )
       )}
     </div>

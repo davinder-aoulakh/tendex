@@ -45,21 +45,21 @@ export default function GoodsItemsTable({ value = [], onChange }) {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto rounded-lg border border-white/10">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/5">
-              <th className="px-4 py-3 text-left font-medium text-blue-100">Item Name *</th>
-              <th className="px-4 py-3 text-left font-medium text-blue-100">Qty *</th>
-              <th className="px-4 py-3 text-left font-medium text-blue-100">Unit *</th>
-              <th className="px-4 py-3 text-left font-medium text-blue-100">Size / Spec</th>
-              <th className="px-4 py-3 text-left font-medium text-blue-100">Brand / Model</th>
-              <th className="px-4 py-3 text-center font-medium text-blue-100">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, idx) => (
-              <tr key={idx} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+      <div className="overflow-x-auto rounded-lg border" style={{ borderColor: 'var(--border)' }}>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--muted)' }}>
+            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Item Name *</th>
+            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Qty *</th>
+            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Unit *</th>
+            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Size / Spec</th>
+            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Brand / Model</th>
+            <th className="px-4 py-3 text-center font-medium" style={{ color: 'var(--text-primary)' }}>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, idx) => (
+            <tr key={idx} className="border-b row-hover transition-colors" style={{ borderColor: 'var(--border)' }}>
                 <td className="px-4 py-3">
                   <input
                     type="text"
@@ -69,24 +69,27 @@ export default function GoodsItemsTable({ value = [], onChange }) {
                       updateItem(idx, 'name', e.target.value);
                       suggestSpec(idx, e.target.value);
                     }}
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-white placeholder-blue-200/30 focus:border-blue-400 focus:outline-none"
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="100"
-                    value={item.quantity || ''}
-                    onChange={(e) => updateItem(idx, 'quantity', e.target.value)}
-                    className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-white placeholder-blue-200/30 focus:border-blue-400 focus:outline-none"
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <select
-                    value={item.unit || 'each'}
-                    onChange={(e) => updateItem(idx, 'unit', e.target.value)}
-                    className="w-24 bg-white/5 border border-white/10 rounded px-2 py-1 text-white focus:border-blue-400 focus:outline-none"
+                    className="w-full rounded px-2 py-1 focus:outline-none"
+                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                    />
+                    </td>
+                    <td className="px-4 py-3">
+                    <input
+                     type="number"
+                     min="1"
+                     placeholder="100"
+                     value={item.quantity || ''}
+                     onChange={(e) => updateItem(idx, 'quantity', e.target.value)}
+                     className="w-20 rounded px-2 py-1 focus:outline-none"
+                     style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                    />
+                    </td>
+                    <td className="px-4 py-3">
+                    <select
+                     value={item.unit || 'each'}
+                     onChange={(e) => updateItem(idx, 'unit', e.target.value)}
+                     className="w-24 rounded px-2 py-1 focus:outline-none"
+                     style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                   >
                     {UNITS.map(u => (
                       <option key={u} value={u}>{u}</option>
@@ -99,16 +102,18 @@ export default function GoodsItemsTable({ value = [], onChange }) {
                     placeholder="e.g. Black leather"
                     value={item.spec || ''}
                     onChange={(e) => updateItem(idx, 'spec', e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-white placeholder-blue-200/30 focus:border-blue-400 focus:outline-none"
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <input
+                    className="w-full rounded px-2 py-1 focus:outline-none"
+                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                    />
+                    </td>
+                    <td className="px-4 py-3">
+                    <input
                     type="text"
                     placeholder="e.g. Herman Miller"
                     value={item.brand || ''}
                     onChange={(e) => updateItem(idx, 'brand', e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-white placeholder-blue-200/30 focus:border-blue-400 focus:outline-none"
+                    className="w-full rounded px-2 py-1 focus:outline-none"
+                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                   />
                 </td>
                 <td className="px-4 py-3 text-center">
@@ -170,12 +175,12 @@ export default function GoodsItemsTable({ value = [], onChange }) {
       <Button
         onClick={addItem}
         variant="outline"
-        className="gap-2 border-white/20 text-white hover:bg-white/10"
+        className="gap-2 hover-muted" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
       >
         <Plus className="w-4 h-4" /> Add Another Item
       </Button>
 
-      <p className="text-xs text-blue-200/40">All items will be procured together from a single supplier.</p>
+      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>All items will be procured together from a single supplier.</p>
     </div>
   );
 }

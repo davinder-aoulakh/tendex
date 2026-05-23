@@ -83,7 +83,7 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
     <div className="space-y-6">
       {/* Drag-and-drop ranking */}
       <div>
-        <p className="text-sm text-blue-200/60 mb-3">Drag to rank from most important (top) to least important (bottom).</p>
+        <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Drag to rank from most important (top) to least important (bottom).</p>
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="criteria">
             {(provided) => (
@@ -94,23 +94,20 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
-                          snapshot.isDragging
-                            ? 'border-blue-400/60 shadow-lg shadow-blue-500/20'
-                            : 'border-white/10 hover:border-white/20'
-                        }`}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
                         style={{
-                          background: snapshot.isDragging ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)',
+                          borderColor: snapshot.isDragging ? 'var(--primary)' : 'var(--border)',
+                          background: snapshot.isDragging ? 'rgba(232,34,26,0.1)' : 'var(--card)',
                           ...provided.draggableProps.style,
                         }}
                       >
-                        <div {...provided.dragHandleProps} className="text-white/30 hover:text-white/60 cursor-grab active:cursor-grabbing">
+                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing" style={{ color: 'var(--text-muted)' }}>
                           <GripVertical className="w-4 h-4" />
                         </div>
                         <span className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold flex items-center justify-center flex-shrink-0">
                           {index + 1}
                         </span>
-                        <span className="text-sm text-white/90">{item.label}</span>
+                        <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{item.label}</span>
                       </div>
                     )}
                   </Draggable>
@@ -125,7 +122,7 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
       {/* AI Weighting */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-blue-100/80">Evaluation Weightings</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Evaluation Weightings</p>
           <Button
             type="button"
             size="sm"
@@ -140,14 +137,14 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
         </div>
 
         {Object.keys(weights).length === 0 && !generating && (
-          <p className="text-xs text-blue-200/40 italic mb-3">Click "AI Suggest Weightings" to generate based on your ranking, then adjust as needed.</p>
+          <p className="text-xs italic mb-3" style={{ color: 'var(--text-muted)' }}>Click "AI Suggest Weightings" to generate based on your ranking, then adjust as needed.</p>
         )}
 
         {(Object.keys(weights).length > 0 || generating) && (
           <div className="space-y-2">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <span className="text-sm text-white/70 flex-1">{item.label}</span>
+              <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 rounded-lg border" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+                <span className="text-sm flex-1" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -155,10 +152,11 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
                     max="100"
                     value={weights[item.id] || ''}
                     onChange={e => handleWeightChange(item.id, e.target.value)}
-                    className="w-16 text-center text-sm font-semibold text-white bg-white/10 border border-white/20 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400/60"
+                    className="w-16 text-center text-sm font-semibold rounded-lg px-2 py-1 focus:outline-none"
+                    style={{ background: 'var(--muted)', border: '1px solid var(--border-strong)', color: 'var(--text-primary)' }}
                     placeholder="0"
                   />
-                  <span className="text-sm text-blue-200/50 w-4">%</span>
+                  <span className="text-sm w-4" style={{ color: 'var(--text-muted)' }}>%</span>
                 </div>
               </div>
             ))}
@@ -168,7 +166,7 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
                 ? 'border-green-400/30 bg-green-500/5'
                 : 'border-red-400/30 bg-red-500/5'
             }`}>
-              <span className="text-sm font-semibold text-white/70">Total</span>
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Total</span>
               <span className={`text-sm font-bold ${total === 100 ? 'text-green-400' : 'text-red-400'}`}>
                 {total}%
               </span>

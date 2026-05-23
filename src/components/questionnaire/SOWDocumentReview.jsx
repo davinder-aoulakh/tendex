@@ -30,10 +30,10 @@ function EditableSection({ label, value, onChange }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-blue-200/80">{label}</h4>
+        <h4 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>{label}</h4>
         <button
           onClick={() => setEditing(e => !e)}
-          className="flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors"
+          className="flex items-center gap-1 text-xs transition-colors" style={{ color: 'var(--text-muted)' }}
         >
           {editing ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Pencil className="w-3 h-3" />}
           {editing ? 'Done' : 'Edit'}
@@ -43,12 +43,13 @@ function EditableSection({ label, value, onChange }) {
         <Textarea
           value={draft}
           onChange={e => { setDraft(e.target.value); onChange(e.target.value); }}
-          className="min-h-[100px] text-sm bg-white/5 border-white/15 text-white placeholder:text-white/30 focus:border-blue-400/40 resize-none font-mono text-xs leading-relaxed"
+          className="min-h-[100px] text-sm resize-none font-mono text-xs leading-relaxed focus-visible:ring-1"
+          style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
         />
       ) : (
-        <div className="rounded-xl border border-white/10 p-4 text-sm text-white/70 leading-relaxed whitespace-pre-wrap"
-          style={{ background: 'rgba(255,255,255,0.03)' }}>
-          {value || <span className="text-white/25 italic">Empty</span>}
+        <div className="rounded-xl border p-4 text-sm leading-relaxed whitespace-pre-wrap"
+          style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+          {value || <span className="italic" style={{ color: 'var(--text-muted)' }}>Empty</span>}
         </div>
       )}
     </div>
@@ -160,7 +161,7 @@ Write in formal, professional Australian English. Do not use markdown headers â€
           <Sparkles className="w-4 h-4 text-blue-400" />
           <span className="text-sm font-semibold text-blue-300">AI-Generated Scope of Work</span>
         </div>
-        <p className="text-xs text-blue-200/50">
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
           Review and edit each section below. Click "Confirm scope and continue" when you're ready to proceed to document type selection.
         </p>
       </div>
@@ -184,12 +185,12 @@ Write in formal, professional Australian English. Do not use markdown headers â€
             ))}
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-white/10 flex-wrap gap-3">
+          <div className="flex items-center justify-between pt-4 border-t flex-wrap gap-3" style={{ borderColor: 'var(--border)' }}>
             <Button
               variant="ghost"
               onClick={generate}
               disabled={loading}
-              className="gap-2 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
+              className="gap-2 hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
             >
               <Sparkles className="w-4 h-4" /> Regenerate
             </Button>

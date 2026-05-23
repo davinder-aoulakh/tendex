@@ -86,9 +86,9 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
         <div className="flex items-start gap-3">
           <LevelIcon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${level.iconClass}`} />
           <div>
-            <p className="font-semibold text-white text-base leading-snug">{statement}</p>
+            <p className="font-semibold text-base leading-snug" style={{ color: 'var(--text-primary)' }}>{statement}</p>
             {weakDimensions.length > 0 && (
-              <p className="text-sm text-white/50 mt-1">
+              <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
                 Areas to strengthen: {weakDimensions.map(d => DIMENSION_LABELS[d] || d).join(', ')}.
               </p>
             )}
@@ -97,14 +97,14 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
       </div>
 
       {/* Dimension breakdown */}
-      <div className="rounded-2xl border border-white/10 p-5 space-y-3" style={{ background: 'rgba(255,255,255,0.03)' }}>
-        <p className="text-xs text-blue-200/40 uppercase tracking-widest font-semibold">Scope Dimensions</p>
+      <div className="rounded-2xl border p-5 space-y-3" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>Scope Dimensions</p>
         {Object.entries(dimensions).map(([key, val]) => (
           <div key={key} className="flex items-start gap-3">
             <ScoreIcon ok={val?.ok} />
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium text-white/80">{DIMENSION_LABELS[key] || key}</span>
-              {val?.note && <p className="text-xs text-white/40 mt-0.5 leading-relaxed">{val.note}</p>}
+              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{DIMENSION_LABELS[key] || key}</span>
+              {val?.note && <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--text-muted)' }}>{val.note}</p>}
             </div>
           </div>
         ))}
@@ -112,11 +112,11 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
 
       {/* Recommendation */}
       <div className="rounded-2xl border border-blue-400/30 p-5" style={{ background: 'rgba(59,130,246,0.08)' }}>
-        <p className="text-xs text-blue-300/50 uppercase tracking-widest font-semibold mb-2">Our Recommendation</p>
-        <p className="text-white font-semibold text-lg mb-1">
-          We recommend <span className="text-blue-300">{recommendation}</span>
+        <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Our Recommendation</p>
+        <p className="font-semibold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>
+          We recommend <span style={{ color: 'var(--primary)' }}>{recommendation}</span>
         </p>
-        <p className="text-sm text-blue-200/60 leading-relaxed">{recommendationReason}</p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{recommendationReason}</p>
         <Button
           onClick={handleProceedRecommended}
           className="mt-4 gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20"
@@ -129,7 +129,7 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
       <div>
         <button
           onClick={() => setShowOverride(v => !v)}
-          className="flex items-center gap-1.5 text-sm text-blue-200/40 hover:text-blue-200 transition-colors"
+          className="flex items-center gap-1.5 text-sm transition-colors" style={{ color: 'var(--text-muted)' }}
         >
           <ChevronDown className={`w-4 h-4 transition-transform ${showOverride ? 'rotate-180' : ''}`} />
           I want to choose a different document type
@@ -148,16 +148,17 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
                   <button
                     key={opt.type}
                     onClick={() => setOverrideChoice(opt.type)}
-                    className={`text-left rounded-xl border p-4 transition-all ${
-                      overrideChoice === opt.type ? opt.border : 'border-white/10 hover:border-white/20'
-                    }`}
-                    style={{ background: overrideChoice === opt.type ? opt.bg : 'rgba(255,255,255,0.03)' }}
+                    className="text-left rounded-xl border p-4 transition-all"
+                    style={{
+                      borderColor: overrideChoice === opt.type ? opt.border.replace('border-', '').replace('/40', '') : 'var(--border)',
+                      background: overrideChoice === opt.type ? opt.bg : 'var(--card)',
+                    }}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <opt.icon className={`w-4 h-4 ${opt.color}`} />
-                      <span className="font-medium text-white text-sm">{opt.type} — {opt.label}</span>
+                      <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{opt.type} — {opt.label}</span>
                     </div>
-                    <p className="text-xs text-white/40 leading-relaxed">{opt.desc}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{opt.desc}</p>
                   </button>
                 ))}
 
@@ -165,7 +166,7 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
                   <Button
                     onClick={handleProceedWithOverride}
                     variant="outline"
-                    className="gap-2 border-white/20 text-white hover:bg-white/10 self-start"
+                    className="gap-2 hover-muted self-start" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                   >
                     Continue with {overrideChoice} <ArrowRight className="w-4 h-4" />
                   </Button>

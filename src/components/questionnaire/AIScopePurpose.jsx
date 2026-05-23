@@ -72,18 +72,19 @@ Write in formal Australian procurement language. Do not use bullet points. Retur
       ) : (
         <>
           <div className="space-y-2">
-            <label className="text-xs text-blue-200/50 uppercase tracking-widest font-semibold">
+            <label className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
               Your scope purpose statement — review and edit
             </label>
             {editing || !confirmed ? (
               <Textarea
                 value={draft}
                 onChange={e => { setDraft(e.target.value); onChange(e.target.value); }}
-                className="min-h-[90px] text-sm bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-blue-400/50 resize-none"
+                className="min-h-[90px] text-sm resize-none focus-visible:ring-1"
+                style={{ background: 'var(--input)', borderColor: 'var(--border-strong)', color: 'var(--text-primary)' }}
                 placeholder="Your scope purpose statement..."
               />
             ) : (
-              <p className="text-sm text-white/80 leading-relaxed bg-white/5 rounded-xl p-4 border border-white/10">
+              <p className="text-sm leading-relaxed rounded-xl p-4 border" style={{ color: 'var(--text-primary)', background: 'var(--card)', borderColor: 'var(--border)' }}>
                 {draft}
               </p>
             )}
@@ -99,7 +100,7 @@ Write in formal Australian procurement language. Do not use bullet points. Retur
                   size="sm"
                   variant="ghost"
                   onClick={() => { setEditing(true); setConfirmed(false); }}
-                  className="h-7 text-xs gap-1.5 text-white/50 hover:text-white hover:bg-white/10"
+                  className="h-7 text-xs gap-1.5 hover-muted" style={{ color: 'var(--text-muted)' }}
                 >
                   <Pencil className="w-3 h-3" /> Edit
                 </Button>
@@ -119,7 +120,7 @@ Write in formal Australian procurement language. Do not use bullet points. Retur
                   variant="ghost"
                   onClick={generate}
                   disabled={loading}
-                  className="h-8 text-xs gap-1.5 text-blue-300/60 hover:text-blue-200 hover:bg-white/10"
+                  className="h-8 text-xs gap-1.5 text-blue-300/60 hover:text-blue-200 hover-muted"
                 >
                   <Sparkles className="w-3 h-3" /> Regenerate
                 </Button>

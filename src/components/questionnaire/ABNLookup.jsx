@@ -97,26 +97,19 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
           }}
           disabled={isConfirmed}
           placeholder="e.g. 51 824 753 556"
-          className={`w-full rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/30 border transition-all focus:outline-none focus:border-blue-400/50 font-mono pr-10
-            ${isConfirmed
-              ? 'border-green-400/40 opacity-70 cursor-not-allowed'
-              : status === 'invalid' || status === 'error'
-                ? 'border-red-400/40'
-                : 'border-white/10'
-            }`}
+          className={`w-full rounded-xl px-4 py-3 text-sm border transition-all focus:outline-none font-mono pr-10
+            ${isConfirmed ? 'opacity-70 cursor-not-allowed' : ''}`}
           style={{
-            background: isConfirmed
-              ? 'rgba(34,197,94,0.08)'
-              : status === 'invalid' || status === 'error'
-                ? 'rgba(239,68,68,0.08)'
-                : 'rgba(255,255,255,0.05)',
+            background: isConfirmed ? 'rgba(34,197,94,0.08)' : status === 'invalid' || status === 'error' ? 'rgba(239,68,68,0.08)' : 'var(--input)',
+            borderColor: isConfirmed ? 'rgba(74,222,128,0.4)' : status === 'invalid' || status === 'error' ? 'rgba(248,113,113,0.4)' : 'var(--border)',
+            color: 'var(--text-primary)',
           }}
         />
 
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
           {(inputValue || value) && (status === 'idle' || status === 'invalid' || status === 'error' || isConfirmed) && (
             <button type="button" onClick={handleClear}
-              className="text-white/30 hover:text-white/70 transition-colors p-0.5" tabIndex={-1} title="Clear">
+              className="transition-colors p-0.5" style={{ color: 'var(--text-muted)' }} tabIndex={-1} title="Clear">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -125,7 +118,7 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
         </div>
       </div>
 
-      <p className="text-xs text-white/30 px-1">Enter your 11-digit ABN or 9-digit ACN</p>
+      <p className="text-xs px-1" style={{ color: 'var(--text-muted)' }}>Enter your 11-digit ABN or 9-digit ACN</p>
 
       {isConfirmed && (
         <div className="flex items-center justify-between gap-2 text-sm text-green-400 px-1">
@@ -134,7 +127,7 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
             <span>Verified: <strong>{entityName}</strong></span>
           </div>
           <button type="button" onClick={handleClear}
-            className="text-xs text-white/40 hover:text-white transition-colors underline underline-offset-2">
+            className="text-xs transition-colors underline underline-offset-2" style={{ color: 'var(--text-muted)' }}>
             Change
           </button>
         </div>
@@ -151,7 +144,7 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
               Yes, that's us
             </Button>
             <Button size="sm" variant="ghost" onClick={handleClear}
-              className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10 h-8 px-4 text-xs">
+              className="hover-muted h-8 px-4 text-xs" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
               No, re-enter
             </Button>
           </div>

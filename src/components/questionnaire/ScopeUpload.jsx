@@ -118,8 +118,8 @@ export default function ScopeUpload({ value, onChange, error }) {
             ) : (
               <div className="flex flex-col items-center gap-2">
                 <Upload className="w-6 h-6 text-blue-400" />
-                <p className="text-sm text-blue-100 font-medium">Click to upload or drag and drop</p>
-                <p className="text-xs text-blue-200/50">PDF or Word (.docx) — max 20MB</p>
+                <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Click to upload or drag and drop</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>PDF or Word (.docx) — max 20MB</p>
               </div>
             )}
           </div>
@@ -130,7 +130,7 @@ export default function ScopeUpload({ value, onChange, error }) {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate flex items-center gap-2">
+              <p className="text-sm font-medium truncate flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                 <FileText className="w-4 h-4 text-blue-300 flex-shrink-0" />
                 {fileInfo?.name || 'Scope Document'}
               </p>
@@ -145,12 +145,12 @@ export default function ScopeUpload({ value, onChange, error }) {
                 setDocumentContent(null);
                 setUploadError(null);
               }}
-              className="text-white/50 hover:text-white hover:bg-white/10 flex-shrink-0"
+              className="hover-muted flex-shrink-0" style={{ color: 'var(--text-muted)' }}
             >
               <X className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-blue-200/60">
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
             Your scope document has been saved. We'll analyze it to recommend the best document type for your procurement.
           </p>
         </div>

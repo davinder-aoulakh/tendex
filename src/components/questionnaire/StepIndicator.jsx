@@ -9,11 +9,8 @@ export default function StepIndicator({ currentStep, totalSteps, visiblePages = 
       {/* Progress bar segments */}
       <div className="flex items-center gap-1">
         {Array.from({ length: totalSteps }).map((_, i) => (
-          <div key={i} className={`h-1.5 rounded-full transition-all duration-300 flex-1 ${
-            i < currentStep  ? 'bg-blue-400' :
-            i === currentStep ? 'bg-blue-500' :
-            'bg-white/15'
-          }`} />
+        <div key={i} className="h-1.5 rounded-full transition-all duration-300 flex-1"
+          style={{ background: i < currentStep ? 'var(--primary)' : i === currentStep ? 'var(--primary)' : 'var(--border)' }} />
         ))}
       </div>
 
@@ -26,11 +23,8 @@ export default function StepIndicator({ currentStep, totalSteps, visiblePages = 
             const isCurrent = i === currentStep;
             return (
               <div key={page.id} className="flex-1 min-w-0 text-center">
-                <p className={`text-[10px] font-medium truncate transition-colors ${
-                  isCurrent ? 'text-blue-300' :
-                  isDone    ? 'text-blue-400/60' :
-                  'text-white/20'
-                }`}>
+                <p className="text-[10px] font-medium truncate transition-colors"
+                  style={{ color: isCurrent ? 'var(--primary)' : isDone ? 'var(--text-secondary)' : 'var(--text-muted)' }}>
                   {page.sectionLabel}
                 </p>
               </div>
@@ -39,7 +33,7 @@ export default function StepIndicator({ currentStep, totalSteps, visiblePages = 
         </div>
       )}
 
-      <p className="text-xs text-blue-200/40">Step {currentStep + 1} of {totalSteps}</p>
+      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Step {currentStep + 1} of {totalSteps}</p>
     </div>
   );
 }

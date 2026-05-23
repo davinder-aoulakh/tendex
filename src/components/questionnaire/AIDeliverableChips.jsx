@@ -99,7 +99,7 @@ Return ONLY a JSON array of short deliverable strings (1 sentence each, no bulle
 
       {!generated && !loading ? (
         <div className="text-center py-4">
-          <p className="text-sm text-white/40 mb-3">Let AI suggest deliverables based on your service description.</p>
+          <p className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>Let AI suggest deliverables based on your service description.</p>
           <Button
             size="sm"
             onClick={generate}
@@ -130,7 +130,8 @@ Return ONLY a JSON array of short deliverable strings (1 sentence each, no bulle
                         value={editText}
                         onChange={e => setEditText(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingIdx(null); }}
-                        className="text-xs text-white bg-transparent outline-none min-w-[120px] max-w-[220px]"
+                        className="text-xs bg-transparent outline-none min-w-[120px] max-w-[220px]"
+                        style={{ color: 'var(--text-primary)' }}
                       />
                       <button onClick={saveEdit}
                         className="text-purple-300 hover:text-white transition-colors">
@@ -138,15 +139,15 @@ Return ONLY a JSON array of short deliverable strings (1 sentence each, no bulle
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1 rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/80 hover:border-purple-400/40 transition-all cursor-default"
-                      style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <div className="flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs hover:border-purple-400/40 transition-all cursor-default"
+                      style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
                       <span className="max-w-[200px] truncate" title={chip}>{chip}</span>
                       <button onClick={() => startEdit(idx)}
-                        className="ml-1 text-white/30 hover:text-white/70 transition-colors">
+                        className="ml-1 transition-colors" style={{ color: 'var(--text-muted)' }}>
                         <Pencil className="w-2.5 h-2.5" />
                       </button>
                       <button onClick={() => removeChip(idx)}
-                        className="text-white/30 hover:text-red-400 transition-colors">
+                        className="transition-colors" style={{ color: 'var(--text-muted)' }}>
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -157,27 +158,29 @@ Return ONLY a JSON array of short deliverable strings (1 sentence each, no bulle
 
             {/* Add new chip */}
             {addingNew ? (
-              <div className="flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5"
-                style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex items-center gap-1.5 rounded-full border px-3 py-1.5"
+                style={{ background: 'var(--input)', borderColor: 'var(--border-strong)' }}>
                 <input
                   autoFocus
                   value={newChip}
                   onChange={e => setNewChip(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') addChip(); if (e.key === 'Escape') setAddingNew(false); }}
                   placeholder="Add deliverable..."
-                  className="text-xs text-white bg-transparent outline-none min-w-[120px] max-w-[180px] placeholder:text-white/30"
+                  className="text-xs bg-transparent outline-none min-w-[120px] max-w-[180px]"
+                  style={{ color: 'var(--text-primary)' }}
                 />
                 <button onClick={addChip} className="text-green-400 hover:text-green-300">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => setAddingNew(false)} className="text-white/30 hover:text-white/60">
+                <button onClick={() => setAddingNew(false)} className="transition-colors" style={{ color: 'var(--text-muted)' }}>
                   <X className="w-3 h-3" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => setAddingNew(true)}
-                className="flex items-center gap-1 rounded-full border border-dashed border-white/20 px-3 py-1.5 text-xs text-white/30 hover:text-white/60 hover:border-white/40 transition-all"
+                className="flex items-center gap-1 rounded-full border border-dashed px-3 py-1.5 text-xs transition-all"
+              style={{ borderColor: 'var(--border-strong)', color: 'var(--text-muted)' }}
               >
                 <Plus className="w-3 h-3" /> Add
               </button>
@@ -189,7 +192,7 @@ Return ONLY a JSON array of short deliverable strings (1 sentence each, no bulle
             variant="ghost"
             onClick={generate}
             disabled={loading}
-            className="h-7 text-xs gap-1.5 text-purple-300/50 hover:text-purple-200 hover:bg-white/10"
+            className="h-7 text-xs gap-1.5 text-purple-300/50 hover:text-purple-200 hover-muted"
           >
             <Sparkles className="w-3 h-3" /> Regenerate suggestions
           </Button>

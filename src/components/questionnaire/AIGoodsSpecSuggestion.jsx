@@ -96,10 +96,11 @@ Return only the specification text. No bullet points. No heading. Formal, precis
                 autoFocus
                 value={editText}
                 onChange={e => setEditText(e.target.value)}
-                className="w-full text-xs text-white/80 bg-white/5 border border-white/15 rounded-lg p-3 resize-none min-h-[60px] outline-none focus:border-green-400/40 leading-relaxed"
+                className="w-full text-xs rounded-lg p-3 resize-none min-h-[60px] outline-none leading-relaxed"
+                style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
               />
             ) : (
-              <p className="text-xs text-white/70 leading-relaxed">{suggestion}</p>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{suggestion}</p>
             )}
 
             {!accepted ? (
@@ -116,7 +117,7 @@ Return only the specification text. No bullet points. No heading. Formal, precis
                     size="sm"
                     variant="ghost"
                     onClick={() => { setEditText(suggestion); setEditMode(true); }}
-                    className="h-7 text-xs gap-1.5 text-white/40 hover:text-white hover:bg-white/10"
+                    className="h-7 text-xs gap-1.5 hover-muted" style={{ color: 'var(--text-muted)' }}
                   >
                     <Pencil className="w-3 h-3" /> Edit
                   </Button>
@@ -134,7 +135,7 @@ Return only the specification text. No bullet points. No heading. Formal, precis
             ) : (
               <button
                 onClick={() => { setAccepted(false); setEditMode(true); }}
-                className="flex items-center gap-1 text-xs text-white/30 hover:text-white/50 transition-colors"
+                className="flex items-center gap-1 text-xs transition-colors" style={{ color: 'var(--text-muted)' }}
               >
                 <Pencil className="w-3 h-3" /> Change
               </button>

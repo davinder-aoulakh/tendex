@@ -17,7 +17,7 @@ export default function WarrantyTable({ goodsItems = [], value = {}, onChange })
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-blue-200/60">
+      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
         Specify warranty requirements for each item. These will appear in the generated procurement document.
       </p>
 
@@ -27,11 +27,11 @@ export default function WarrantyTable({ goodsItems = [], value = {}, onChange })
         const hasWarranty = config.warranty === 'yes';
 
         return (
-          <div key={idx} className="rounded-lg border border-white/10 bg-white/5 p-3">
+          <div key={idx} className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', background: 'var(--card)' }}>
             {/* Item header with warranty toggle */}
             <button
               onClick={() => toggleExpanded(idx)}
-              className="w-full flex items-center justify-between text-left hover:bg-white/5 p-2 rounded transition-colors"
+              className="w-full flex items-center justify-between text-left hover-muted p-2 rounded transition-colors"
             >
               <div className="flex items-center gap-3 flex-1">
                 <ChevronDown
@@ -40,21 +40,22 @@ export default function WarrantyTable({ goodsItems = [], value = {}, onChange })
                   }`}
                 />
                 <div className="flex-1">
-                  <p className="font-medium text-white">{item.name || `Item ${idx + 1}`}</p>
-                  <p className="text-xs text-blue-200/50">{item.quantity} {item.unit}</p>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{item.name || `Item ${idx + 1}`}</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{item.quantity} {item.unit}</p>
                 </div>
               </div>
 
               {/* Warranty toggle */}
               <label className="flex items-center gap-2 cursor-pointer mr-2">
-                <span className="text-sm text-white">Warranty:</span>
+                <span className="text-sm" style={{ color: 'var(--text-primary)' }}>Warranty:</span>
                 <select
                   value={config.warranty || 'no'}
                   onChange={(e) => {
                     e.stopPropagation();
                     updateWarranty(idx, 'warranty', e.target.value);
                   }}
-                  className="bg-white/5 border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-blue-400 focus:outline-none"
+                  className="rounded px-2 py-1 text-sm focus:outline-none"
+                  style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 >
                   <option value="no">No</option>
                   <option value="yes">Yes</option>
@@ -64,8 +65,8 @@ export default function WarrantyTable({ goodsItems = [], value = {}, onChange })
 
             {/* Warranty duration field */}
             {isExpanded && hasWarranty && (
-              <div className="mt-3 border-t border-white/10 pt-3">
-                <label className="block text-xs font-medium text-blue-100 mb-2">
+              <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+                <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Warranty Duration
                 </label>
                 <input
@@ -73,7 +74,8 @@ export default function WarrantyTable({ goodsItems = [], value = {}, onChange })
                   placeholder="e.g. 12 months, 2 years, 5 years"
                   value={config.duration || ''}
                   onChange={(e) => updateWarranty(idx, 'duration', e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white placeholder-blue-200/30 focus:border-blue-400 focus:outline-none text-sm"
+                  className="w-full rounded px-2 py-1.5 focus:outline-none text-sm"
+                  style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 />
               </div>
             )}
@@ -82,7 +84,7 @@ export default function WarrantyTable({ goodsItems = [], value = {}, onChange })
       })}
 
       {goodsItems.length === 0 && (
-        <p className="text-xs text-blue-200/40 italic">Add items above to configure warranty requirements.</p>
+        <p className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Add items above to configure warranty requirements.</p>
       )}
     </div>
   );

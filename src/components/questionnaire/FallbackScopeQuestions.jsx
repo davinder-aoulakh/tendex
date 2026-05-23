@@ -57,14 +57,14 @@ export default function FallbackScopeQuestions({ answers, onSubmit }) {
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-white mb-1">{q.title}</h3>
+        <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{q.title}</h3>
         <div className="w-full bg-blue-400/20 rounded-full h-1 mt-4">
           <div
             className="bg-blue-400 h-1 rounded-full transition-all"
             style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
           />
         </div>
-        <p className="text-xs text-blue-200/50 mt-2">Question {currentQuestion + 1} of {questions.length}</p>
+        <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Question {currentQuestion + 1} of {questions.length}</p>
       </div>
 
       {/* Options */}
@@ -75,25 +75,23 @@ export default function FallbackScopeQuestions({ answers, onSubmit }) {
             <button
               key={opt.value}
               onClick={() => handleSelect(opt.value)}
-              className={`w-full text-left p-4 rounded-lg border transition-all ${
-                isSelected
-                  ? 'border-blue-400 bg-blue-400/10'
-                  : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-              }`}
+              className="w-full text-left p-4 rounded-lg border transition-all hover-muted"
+              style={isSelected
+                ? { borderColor: 'var(--primary)', background: 'rgba(232,34,26,0.08)' }
+                : { borderColor: 'var(--border)', background: 'var(--card)' }}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 transition-all ${
-                    isSelected
-                      ? 'border-blue-400 bg-blue-400'
-                      : 'border-white/30'
-                  }`}
+                  className="w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 transition-all"
+                  style={isSelected
+                    ? { borderColor: 'var(--primary)', background: 'var(--primary)' }
+                    : { borderColor: 'var(--border-strong)' }}
                 >
                   {isSelected && <CheckCircle2 className="w-5 h-5 text-blue-950" />}
                 </div>
                 <div>
-                  <p className="text-white font-medium">{opt.label}</p>
-                  <p className="text-sm text-blue-200/50 mt-1">{opt.description}</p>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{opt.label}</p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{opt.description}</p>
                 </div>
               </div>
             </button>
@@ -106,7 +104,7 @@ export default function FallbackScopeQuestions({ answers, onSubmit }) {
         <button
           onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
           disabled={currentQuestion === 0}
-          className="text-white/50 disabled:opacity-50 disabled:cursor-not-allowed hover:text-white transition-colors"
+          className="disabled:opacity-50 disabled:cursor-not-allowed transition-colors" style={{ color: 'var(--text-secondary)' }}
         >
           ← Back
         </button>
