@@ -285,6 +285,45 @@ export default function Questionnaire() {
     setErrors(prev => prev.filter(e => e !== key));
   };
 
+  const handleABNConfirmed = async (abnData) => {
+    // Update questionnaire answers immediately
+    updateAnswer('abn', abnData.abn);
+    updateAnswer('_abn_entity_name', abnData.entityName);
+    updateAnswer('_abn_entity_type_name', abnData.entityTypeName);
+    updateAnswer('_abn_gst_registered', abnData.gstRegistered);
+    updateAnswer('_abn_active_since', abnData.abnActiveSince);
+    updateAnswer('organisation_state', abnData.addressState);
+    updateAnswer('_abn_confirmed', true);
+
+    // Persist to User entity — best-effort, don't block UX
+    try {
+      const currentUser = await base44.auth.me();
+      if (!currentUser) return;
+
+      const updatePayload = {
+        abn: abnData.abn,
+        abn_entity_name: abnData.entityName,
+        abn_entity_type_code: abnData.entityTypeCode,
+        abn_entity_type_name: abnData.entityTypeName,
+        abn_address_state: abnData.addressState,
+        abn_address_postcode: abnData.addressPostcode,
+        abn_gst_registered: abnData.gstRegistered,
+        abn_gst_registered_since: abnData.gstRegisteredSince || null,
+        abn_active_since: abnData.abnActiveSince || null,
+        abn_acn: abnData.acn || null,
+        abn_verified_at: new Date().toISOString(),
+        abn_confirmed: true,
+      };
+
+      const users = await base44.entities.User.filter({ email: currentUser.email });
+      if (users.length > 0) {
+        await base44.entities.User.update(users[0].id, updatePayload);
+      }
+    } catch (err) {
+      console.error('Failed to save ABN to user profile:', err);
+    }
+  };
+
   const handleNext = async () => {
     const pageErrors = validatePage(page, answers);
     if (pageErrors.length > 0) {
@@ -703,30 +742,16 @@ export default function Questionnaire() {
                               updateAnswer('abn', val);
                               updateAnswer('_abn_confirmed', false);
                             }}
-                            onConfirmed={(data) => {
-                              updateAnswer('abn', data.abn);
-                              updateAnswer('_abn_entity_name', data.entityName);
-                              updateAnswer('_abn_confirmed', true);
-                              // Persist full ABN data to user profile if authenticated
-                              if (user) {
-                                base44.auth.updateMe({
-                                  abn: data.abn,
-                                  abn_entity_name: data.entityName,
-                                  abn_entity_type_code: data.entityTypeCode,
-                                  abn_entity_type_name: data.entityTypeName,
-                                  abn_address_state: data.addressState,
-                                  abn_address_postcode: data.addressPostcode,
-                                  abn_gst_registered: data.gstRegistered,
-                                  abn_gst_registered_since: data.gstRegisteredSince,
-                                  abn_active_since: data.abnActiveSince,
-                                  abn_acn: data.acn,
-                                  abn_verified_at: data.confirmedAt,
-                                  abn_confirmed: true,
-                                }).catch(() => {});
-                              }
-                            }}
+                            onConfirmed={handleABNConfirmed}
                             confirmed={answers._abn_confirmed}
-                            confirmedName={answers._abn_entity_name}
+                            confirmedData={answers._abn_confirmed ? {
+                              entityName: answers._abn_entity_name,
+                              entityTypeName: answers._abn_entity_type_name,
+                              addressState: answers.organisation_state,
+                              gstRegistered: answers._abn_gst_registered,
+                              abnActiveSince: answers._abn_active_since,
+                              abn: answers.abn,
+                            } : null}
                           />
                           {errors.includes(field.key) && (
                             <p className="text-xs text-red-400">Please verify your ABN before continuing.</p>
