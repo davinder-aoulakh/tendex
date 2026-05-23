@@ -1,79 +1,96 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
-  try {
-    const base44 = createClientFromRequest(req);
-    const { abn } = await req.json();
-
-    if (!abn) {
-      return Response.json({ error: 'ABN is required' }, { status: 400 });
-    }
-
-    const clean = abn.replace(/[^\d]/g, '');
-    if (clean.length !== 11 && clean.length !== 9) {
-      return Response.json({ error: 'Invalid ABN/ACN length' }, { status: 400 });
-    }
-
-    const guid = Deno.env.get('ABR_GUID');
-    if (!guid) {
-      return Response.json({ valid: false, error: 'ABR_GUID secret not configured' }, { status: 200 });
-    }
-    const url = `https://abr.business.gov.au/json/AbnDetails.aspx?abn=${clean}&callback=cb&guid=${guid}`;
-
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'text/javascript, application/json, */*',
-        'User-Agent': 'Mozilla/5.0 (compatible; TendeX/1.0)',
-      },
-    });
-
-    console.log('ABN API status:', response.status, response.statusText);
-    console.log('ABN API url:', url);
-
-    if (!response.ok) {
-      return Response.json({ valid: false, error: `ABN register unavailable: ${response.status}` }, { status: 200 });
-    }
-
-    const text = await response.text();
-    console.log('ABN API raw response:', text.substring(0, 500));
-
-    // Strip JSONP wrapper: cb({...})
-    const jsonMatch = text.match(/cb\s*\((\{.*\})\s*\)/s);
-    if (!jsonMatch) {
-      console.error('Could not parse JSONP response:', text.substring(0, 200));
-      return Response.json({ valid: false, error: 'Could not parse response' }, { status: 200 });
-    }
-
-    const data = JSON.parse(jsonMatch[1]);
-    console.log('Parsed ABN data:', JSON.stringify(data));
-    console.log('Abn field:', data.Abn, '| AbnStatus:', data.AbnStatus);
-
-    if (data.Message && data.Message.includes('GUID')) {
-      console.error('Invalid ABR GUID:', data.Message);
-      return Response.json({ valid: false, error: 'ABR GUID is not registered. Please register at https://abr.business.gov.au/Tools/WebServices' }, { status: 200 });
-    }
-
-    if (!data.Abn) {
-      return Response.json({ valid: false, message: 'ABN not found or not registered' }, { status: 200 });
-    }
-
-    if (data.AbnStatus !== 'Active') {
-      return Response.json({ valid: false, message: `ABN is not active (status: ${data.AbnStatus})` }, { status: 200 });
-    }
-
-    const entityName = data.EntityName || data.MainName || '';
-
-    return Response.json({
-      valid: true,
-      abn: data.Abn,
-      entityName,
-      abnStatus: data.AbnStatus,
-      entityType: data.EntityTypeName || '',
-      postcode: data.AddressPostcode || '',
-      state: data.AddressState || '',
-    });
-  } catch (error) {
-    console.error('ABN lookup error:', error.message);
-    return Response.json({ valid: false, error: error.message }, { status: 200 });
+  if (req.method !== 'POST') {
+    return Response.json({ error: 'Method not allowed' }, { status: 405 });
   }
+
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const abn = (body.abn || '').replace(/[^\d]/g, '');
+
+  if (abn.length !== 11) {
+    return Response.json({ valid: false, reason: 'invalid_format', message: 'ABN must be 11 digits' }, { status: 400 });
+  }
+
+  const guid = Deno.env.get('ABR_GUID');
+  if (!guid) {
+    console.error('ABR_GUID secret is not set');
+    return Response.json({ valid: false, reason: 'server_config_error', message: 'ABN lookup is not configured' }, { status: 500 });
+  }
+
+  const url = `https://abr.business.gov.au/json/AbnDetails.aspx?abn=${abn}&callback=callback&guid=${guid}`;
+
+  let rawText;
+  try {
+    const response = await fetch(url, {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'TendeX/1.0' },
+      signal: AbortSignal.timeout(10000),
+    });
+    rawText = await response.text();
+  } catch (err) {
+    console.error('ABR API fetch failed:', err);
+    return Response.json({
+      valid: false,
+      reason: 'api_unavailable',
+      message: 'Could not connect to the ABN Register. Please try again.',
+    }, { status: 502 });
+  }
+
+  let data;
+  try {
+    const jsonString = rawText.replace(/^callback\s*\(/, '').replace(/\s*\);\s*$/, '');
+    data = JSON.parse(jsonString);
+  } catch {
+    console.error('Failed to parse ABR response:', rawText.slice(0, 200));
+    return Response.json({ valid: false, reason: 'parse_error', message: 'Unexpected response from ABN Register' }, { status: 502 });
+  }
+
+  console.log('Parsed ABN data:', JSON.stringify(data));
+
+  if (data.Message && String(data.Message).trim() !== '') {
+    console.error('ABR message:', data.Message);
+    return Response.json({ valid: false, reason: 'not_found', message: 'This ABN was not found in the ABN Register' });
+  }
+
+  if (!data.Abn) {
+    return Response.json({ valid: false, reason: 'not_found', message: 'This ABN was not found in the ABN Register' });
+  }
+
+  if (data.AbnStatus !== 'Active') {
+    return Response.json({
+      valid: false,
+      reason: 'cancelled',
+      message: `This ABN is no longer active (status: ${data.AbnStatus}). Only active ABNs can be used in TendeX.`,
+    });
+  }
+
+  const entityName = String(data.EntityName || '').trim();
+  const addressState = String(data.AddressState || '').trim();
+  const addressPostcode = String(data.AddressPostcode || '').trim();
+  const gstRegistered = Boolean(data.Gst && String(data.Gst).trim() !== '');
+  const gstRegisteredSince = data.Gst ? String(data.Gst).trim() : null;
+  const abnActiveSince = data.AbnStatusEffectiveFrom ? String(data.AbnStatusEffectiveFrom).trim() : null;
+  const entityTypeCode = String(data.EntityTypeCode || '').trim();
+  const entityTypeName = String(data.EntityTypeName || '').trim();
+  const acn = String(data.Acn || '').trim();
+
+  return Response.json({
+    valid: true,
+    abn: String(data.Abn).replace(/\s/g, ''),
+    entityName,
+    entityTypeCode,
+    entityTypeName,
+    addressState,
+    addressPostcode,
+    gstRegistered,
+    gstRegisteredSince,
+    abnActiveSince,
+    acn: acn || null,
+  });
 });
