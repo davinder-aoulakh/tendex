@@ -190,6 +190,45 @@ export default function Questionnaire() {
     }).catch(() => setUser(null));
   }, []);
 
+  // Pre-fill ABN and org data from User entity (richer than auth.me fields)
+  useEffect(() => {
+    const prefillFromUserProfile = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        if (!currentUser) return;
+
+        const users = await base44.entities.User.filter({ email: currentUser.email });
+        if (users.length === 0) return;
+
+        const userProfile = users[0];
+
+        setAnswers(prev => {
+          const updates = {};
+
+          if (userProfile.abn_confirmed && userProfile.abn && !prev.abn) {
+            updates.abn = userProfile.abn;
+            updates._abn_entity_name = userProfile.abn_entity_name || '';
+            updates._abn_entity_type_name = userProfile.abn_entity_type_name || '';
+            updates._abn_confirmed = true;
+            updates._abn_gst_registered = userProfile.abn_gst_registered || false;
+            updates._abn_active_since = userProfile.abn_active_since || null;
+            updates.organisation_state = prev.organisation_state || userProfile.abn_address_state || '';
+          }
+
+          if (userProfile.abn_entity_name && !prev.organisation_name) {
+            updates.organisation_name = userProfile.abn_entity_name;
+          }
+
+          return Object.keys(updates).length > 0 ? { ...prev, ...updates } : prev;
+        });
+      } catch (err) {
+        console.error('Failed to pre-fill from user profile:', err);
+      }
+    };
+
+    prefillFromUserProfile();
+  }, []);
+
   // If resuming an existing draft, fetch its saved step from the DB
   useEffect(() => {
     if (!draftDocId) return;
@@ -743,14 +782,14 @@ export default function Questionnaire() {
                               updateAnswer('_abn_confirmed', false);
                             }}
                             onConfirmed={handleABNConfirmed}
-                            confirmed={answers._abn_confirmed}
+                            confirmed={!!answers._abn_confirmed}
                             confirmedData={answers._abn_confirmed ? {
+                              abn: answers.abn,
                               entityName: answers._abn_entity_name,
                               entityTypeName: answers._abn_entity_type_name,
                               addressState: answers.organisation_state,
                               gstRegistered: answers._abn_gst_registered,
                               abnActiveSince: answers._abn_active_since,
-                              abn: answers.abn,
                             } : null}
                           />
                           {errors.includes(field.key) && (
