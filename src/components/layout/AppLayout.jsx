@@ -41,7 +41,7 @@ export default function AppLayout({ children }) {
         if (currentUser) {
           setUser(currentUser);
           // Check if business profile is incomplete
-          if (!currentUser.organisation_name || !currentUser.abn) {
+          if (!currentUser.organisation_name) {
             setProfileIncomplete(true);
           }
           const subs = await base44.entities.Subscription.filter({

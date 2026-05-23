@@ -64,8 +64,8 @@ export default function Profile() {
   }, [navigate]);
 
   const handleSave = async () => {
-    if (!formData.org_name || !formData.abn) {
-      toast({ title: 'Validation error', description: 'Organisation name and ABN are required.', variant: 'destructive' });
+    if (!formData.org_name) {
+      toast({ title: 'Validation error', description: 'Organisation name is required.', variant: 'destructive' });
       return;
     }
 
