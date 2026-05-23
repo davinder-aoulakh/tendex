@@ -1,36 +1,53 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const ThemeContext = createContext();
+const STORAGE_KEY = 'tendex_theme';
+
+const ThemeContext = createContext({
+  theme: 'dark',
+  toggleTheme: () => {},
+  setTheme: () => {},
+});
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => {
+  const [theme, setThemeState] = useState(() => {
+    // Priority: localStorage → OS preference → dark (default)
     try {
-      const saved = localStorage.getItem('tendex-theme');
-      if (saved === 'light' || saved === 'dark') return saved;
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === 'light' || stored === 'dark') return stored;
     } catch {}
-    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    if (window.matchMedia?.('(prefers-color-scheme: light)').matches) return 'light';
+    return 'dark';
   });
 
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
-    try {
-      localStorage.setItem('tendex-theme', theme);
-    } catch {}
+    try { localStorage.setItem(STORAGE_KEY, theme); } catch {}
   }, [theme]);
 
-  const toggle = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+  // Listen for OS preference changes (only if user hasn't manually set a preference)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const handler = (e) => {
+      try {
+        if (!localStorage.getItem(STORAGE_KEY)) {
+          setThemeState(e.matches ? 'light' : 'dark');
+        }
+      } catch {}
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const toggleTheme = () => setThemeState(t => t === 'dark' ? 'light' : 'dark');
+  const setTheme = (t) => setThemeState(t);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggle }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
-  return ctx;
-}
+export const useTheme = () => useContext(ThemeContext);
