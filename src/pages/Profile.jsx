@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Save, ChevronLeft, LogOut, Zap, Crown, AlertCircle } from 'lucide-react';
+import { Save, ChevronLeft, LogOut, Zap, Crown, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
@@ -20,6 +20,7 @@ export default function Profile() {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = useState({});
   const [formData, setFormData] = useState({
     org_name: '',
     abn: '',
@@ -40,6 +41,10 @@ export default function Profile() {
           return;
         }
         setUser(currentUser);
+        // Load full profile from User entity for ABN fields
+        const users = await base44.entities.User.filter({ email: currentUser.email });
+        const userProfile = users[0] || {};
+        setProfile(userProfile);
         setFormData({
           org_name: currentUser.organisation_name || '',
           abn: currentUser.abn || '',
@@ -92,7 +97,28 @@ export default function Profile() {
     }
   };
 
-  const handleRemoveABN = () => {
+  const handleABNConfirmed = async (data) => {
+    const abnFields = {
+      abn: data.abn,
+      abn_confirmed: true,
+      abn_entity_name: data.entityName || '',
+      abn_entity_type_name: data.entityTypeName || '',
+      abn_entity_type_code: data.entityTypeCode || '',
+      abn_gst_registered: data.gstRegistered || false,
+      abn_address_state: data.addressState || '',
+      abn_address_postcode: data.addressPostcode || '',
+      abn_acn: data.acn || '',
+      abn_active_since: data.abnActiveSince || '',
+      abn_verified_at: new Date().toISOString(),
+    };
+    await base44.auth.updateMe(abnFields);
+    setFormData(prev => ({ ...prev, abn: data.abn, abn_entity_name: data.entityName || '' }));
+    setProfile(prev => ({ ...prev, ...abnFields }));
+  };
+
+  const handleRemoveABN = async () => {
+    await base44.auth.updateMe({ abn_confirmed: false, abn: '', abn_entity_name: '' });
+    setProfile(prev => ({ ...prev, abn_confirmed: false, abn: '', abn_entity_name: '' }));
     setFormData(prev => ({ ...prev, abn: '', abn_entity_name: '' }));
   };
 
@@ -147,22 +173,55 @@ export default function Profile() {
           {/* ABN Section */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-white mb-2">Australian Business Number (ABN)</label>
-            {formData.abn ? (
-              <div className="flex items-center gap-3">
-                <div className="flex-1 rounded-xl px-4 py-3 border" style={{ borderColor: 'rgba(34,197,94,0.4)', backgroundColor: 'rgba(34,197,94,0.08)' }}>
-                  <p className="text-white font-mono text-sm">{formData.abn}</p>
-                  <p className="text-green-400 text-xs mt-1">✓ Verified: <strong>{formData.abn_entity_name}</strong></p>
+            {profile.abn_confirmed ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-green-400">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>ABN verified against the Australian Business Register</span>
                 </div>
-                <button onClick={handleRemoveABN} className="text-xs transition-colors" style={{ color: 'rgba(229,57,53,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(229,57,53,0.5)'}>
-                  Remove and re-verify
+                <div className="rounded-xl border p-4 space-y-2"
+                  style={{ background: 'rgba(34,197,94,0.06)', borderColor: 'rgba(34,197,94,0.2)' }}>
+                  <div className="font-semibold text-white">{profile.abn_entity_name}</div>
+                  {profile.abn_entity_type_name && (
+                    <div className="text-sm text-white/60">{profile.abn_entity_type_name}</div>
+                  )}
+                  <div className="text-sm font-mono text-white/80">
+                    ABN: {(profile.abn || '').replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4')}
+                    {profile.abn_acn && ` · ACN: ${profile.abn_acn}`}
+                  </div>
+                  {profile.abn_address_state && (
+                    <div className="text-sm text-white/50">
+                      {profile.abn_address_state}{profile.abn_address_postcode ? ` ${profile.abn_address_postcode}` : ''}
+                      {profile.abn_gst_registered && <span className="ml-3 text-green-400/70">· GST registered</span>}
+                    </div>
+                  )}
+                  {profile.abn_verified_at && (
+                    <div className="text-xs text-white/30">
+                      Last verified: {new Date(profile.abn_verified_at).toLocaleDateString('en-AU')}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveABN}
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors underline"
+                >
+                  Re-verify ABN
                 </button>
               </div>
             ) : (
-              <ABNLookup
-                value={formData.abn}
-                onChange={val => setFormData({ ...formData, abn: val })}
-                onConfirmed={(data) => setFormData({ ...formData, abn: data.abn, abn_entity_name: data.entityName })}
-              />
+              <div>
+                <p className="text-sm text-white/60 mb-3">
+                  Enter your ABN to verify your organisation and pre-fill all procurement documents.
+                </p>
+                <ABNLookup
+                  value={profile.abn || ''}
+                  onChange={(val) => setProfile(p => ({ ...p, abn: val }))}
+                  onConfirmed={handleABNConfirmed}
+                  confirmed={false}
+                  confirmedData={null}
+                />
+              </div>
             )}
           </div>
 
