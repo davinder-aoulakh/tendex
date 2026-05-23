@@ -161,7 +161,7 @@ export default function Profile() {
               <ABNLookup
                 value={formData.abn}
                 onChange={val => setFormData({ ...formData, abn: val })}
-                onConfirmed={(abn, entityName) => setFormData({ ...formData, abn, abn_entity_name: entityName })}
+                onConfirmed={(data) => setFormData({ ...formData, abn: data.abn, abn_entity_name: data.entityName })}
               />
             )}
           </div>

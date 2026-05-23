@@ -1,166 +1,259 @@
 import { useState, useEffect, useRef } from 'react';
-import { CheckCircle2, XCircle, Loader2, X } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, Building2, MapPin, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import { cleanABN, formatABN, validateABNChecksum, describeEntityType } from '@/lib/abnValidation';
 
-export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed, confirmedName }) {
-  const [status, setStatus]           = useState('idle'); // idle | loading | valid | invalid | error
-  const [entityName, setEntityName]   = useState(confirmedName || '');
+/**
+ * ABNLookup — production-grade ABN validation component.
+ *
+ * Flow:
+ *   1. User types — strip and format to XX XXX XXX XXX
+ *   2. At 11 digits: run checksum locally (ATO algorithm) — instant, no API call
+ *   3. Checksum passes: call server-side proxy function (abnLookup) which holds the ABR GUID
+ *   4. ABR returns entity details — show for user confirmation
+ *   5. User clicks "Yes, that's us" — call onConfirmed with full entity data
+ *
+ * Props:
+ *   value           — current ABN string (digits only)
+ *   onChange        — (abn: string) => void
+ *   onConfirmed     — (data: AbnResult) => void  called when user confirms
+ *   confirmed       — boolean — restore confirmed state on remount
+ *   confirmedData   — object — restore full confirmed data on remount
+ */
+export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed, confirmedData }) {
+  const [status, setStatus]           = useState('idle'); // idle | loading | valid | invalid | cancelled | error
+  const [entityData, setEntityData]   = useState(confirmedData || null);
   const [isConfirmed, setIsConfirmed] = useState(confirmed || false);
-  const [inputValue, setInputValue]   = useState(value || '');
-  const debounceRef                   = useRef(null);
-
-  useEffect(() => {
-    if (!value) {
-      setInputValue('');
-      setStatus('idle');
-      setEntityName('');
-      setIsConfirmed(false);
-    }
-  }, [value]);
-
-  const cleanAbn = (raw) => raw.replace(/[^\d]/g, '');
+  const [errorMessage, setErrorMessage] = useState('');
+  const debounceRef = useRef(null);
 
   const lookupABN = async (abn) => {
     setStatus('loading');
-    setEntityName('');
+    setEntityData(null);
     setIsConfirmed(false);
+    setErrorMessage('');
 
-    const result = await base44.functions.invoke('abnLookup', { abn });
-    const data = result.data;
+    try {
+      const result = await base44.functions.invoke('abnLookup', { abn });
+      const data = result?.data ?? result;
 
-    if (!data.valid) {
-      setStatus('invalid');
-      return;
+      if (!data || !data.valid) {
+        if (data?.reason === 'cancelled') {
+          setStatus('cancelled');
+          setErrorMessage(data.message || 'This ABN is no longer active.');
+        } else {
+          setStatus('invalid');
+          setErrorMessage(data?.message || 'This ABN was not found in the ABN Register. Please check and try again.');
+        }
+        return;
+      }
+
+      setEntityData(data);
+      setStatus('valid');
+    } catch (err) {
+      console.error('ABN lookup error:', err);
+      setStatus('error');
+      setErrorMessage('Could not connect to the ABN Register. Please check your internet connection and try again.');
     }
-
-    setEntityName(data.entityName || '');
-    setStatus('valid');
   };
 
+  // Trigger lookup when we reach exactly 11 clean digits
   useEffect(() => {
-    const clean = cleanAbn(inputValue);
-    if (isConfirmed && clean === cleanAbn(value)) return;
+    const clean = cleanABN(value);
 
-    if (clean.length < 9) {
-      setStatus('idle');
-      setEntityName('');
-      if (clean.length === 0) setIsConfirmed(false);
+    // Reset if user clears or reduces below 11
+    if (clean.length !== 11) {
+      if (status !== 'idle') {
+        setStatus('idle');
+        setEntityData(null);
+        setIsConfirmed(false);
+        setErrorMessage('');
+      }
       return;
     }
 
-    if (clean.length !== 9 && clean.length !== 11) return;
+    // If already confirmed with this exact ABN, don't re-lookup
+    if (isConfirmed && entityData?.abn === clean) return;
 
+    // Step 1: Run checksum locally — instant, no network
+    if (!validateABNChecksum(clean)) {
+      setStatus('invalid');
+      setErrorMessage('This number is not a valid ABN format. Please check and re-enter.');
+      return;
+    }
+
+    // Step 2: Checksum passed — hit the ABR via our server proxy
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      lookupABN(clean).catch(() => setStatus('error'));
-    }, 400);
+      lookupABN(clean);
+    }, 400); // 400ms debounce — avoids lookup on fast paste
 
     return () => clearTimeout(debounceRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputValue]);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConfirmYes = () => {
-    const clean = cleanAbn(inputValue);
     setIsConfirmed(true);
-    onChange?.(clean);
-    onConfirmed?.(clean, entityName);
+    onConfirmed?.({
+      ...entityData,
+      confirmedAt: new Date().toISOString(),
+    });
   };
 
-  const handleClear = () => {
-    setInputValue('');
+  const handleConfirmNo = () => {
     setStatus('idle');
-    setEntityName('');
+    setEntityData(null);
     setIsConfirmed(false);
+    setErrorMessage('');
     onChange?.('');
   };
 
-  const formatDisplay = (raw) => {
-    const d = cleanAbn(raw);
-    if (d.length <= 2) return d;
-    if (d.length <= 5) return `${d.slice(0,2)} ${d.slice(2)}`;
-    if (d.length <= 8) return `${d.slice(0,2)} ${d.slice(2,5)} ${d.slice(5)}`;
-    if (d.length === 9) return `${d.slice(0,3)} ${d.slice(3,6)} ${d.slice(6,9)}`;
-    return `${d.slice(0,2)} ${d.slice(2,5)} ${d.slice(5,8)} ${d.slice(8,11)}`;
+  const inputStyle = () => {
+    if (isConfirmed || status === 'valid') return { background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.4)', color: 'var(--text-primary)' };
+    if (status === 'invalid' || status === 'cancelled' || status === 'error') return { background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.4)', color: 'var(--text-primary)' };
+    return { background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' };
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+
+      {/* Input field */}
       <div className="relative">
         <input
           type="text"
+          inputMode="numeric"
+          autoComplete="off"
           maxLength={14}
-          value={isConfirmed ? formatDisplay(value || inputValue) : formatDisplay(inputValue)}
+          value={formatABN(value)}
           onChange={e => {
-            const clean = cleanAbn(e.target.value);
-            if (clean.length <= 11) setInputValue(clean);
+            const clean = cleanABN(e.target.value);
+            if (clean.length <= 11) onChange?.(clean);
           }}
-          disabled={isConfirmed}
           placeholder="e.g. 51 824 753 556"
-          className={`w-full rounded-xl px-4 py-3 text-sm border transition-all focus:outline-none font-mono pr-10
-            ${isConfirmed ? 'opacity-70 cursor-not-allowed' : ''}`}
-          style={{
-            background: isConfirmed ? 'rgba(34,197,94,0.08)' : status === 'invalid' || status === 'error' ? 'rgba(239,68,68,0.08)' : 'var(--input)',
-            borderColor: isConfirmed ? 'rgba(74,222,128,0.4)' : status === 'invalid' || status === 'error' ? 'rgba(248,113,113,0.4)' : 'var(--border)',
-            color: 'var(--text-primary)',
-          }}
+          className="w-full rounded-xl px-4 py-3 text-sm border transition-all focus:outline-none font-mono"
+          style={inputStyle()}
+          aria-label="Australian Business Number"
+          aria-describedby="abn-status"
         />
 
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-          {(inputValue || value) && (status === 'idle' || status === 'invalid' || status === 'error' || isConfirmed) && (
-            <button type="button" onClick={handleClear}
-              className="transition-colors p-0.5" style={{ color: 'var(--text-muted)' }} tabIndex={-1} title="Clear">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-          {status === 'loading' && <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />}
-          {status === 'valid' && !isConfirmed && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+        {/* Status icon */}
+        <div className="absolute right-3 top-1/2 -translate-y-1/2" aria-hidden="true">
+          {status === 'loading' && <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--text-muted)' }} />}
+          {(status === 'valid' || isConfirmed) && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+          {(status === 'invalid' || status === 'cancelled' || status === 'error') && <XCircle className="w-4 h-4 text-red-400" />}
         </div>
       </div>
 
-      <p className="text-xs px-1" style={{ color: 'var(--text-muted)' }}>Enter your 11-digit ABN or 9-digit ACN</p>
+      {/* Loading state */}
+      {status === 'loading' && (
+        <p id="abn-status" className="text-sm px-1 flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          Checking ABN Register…
+        </p>
+      )}
 
-      {isConfirmed && (
-        <div className="flex items-center justify-between gap-2 text-sm text-green-400 px-1">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>Verified: <strong>{entityName}</strong></span>
+      {/* Valid — awaiting user confirmation */}
+      {status === 'valid' && !isConfirmed && entityData && (
+        <div
+          id="abn-status"
+          className="rounded-xl border px-4 py-4 space-y-3"
+          style={{ background: 'rgba(34,197,94,0.07)', borderColor: 'rgba(34,197,94,0.3)' }}
+          role="region"
+          aria-label="ABN verification result"
+        >
+          {/* Entity name */}
+          <div className="flex items-start gap-2.5">
+            <Building2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{entityData.entityName}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{entityData.entityTypeName || describeEntityType(entityData.entityTypeCode)}</p>
+            </div>
           </div>
-          <button type="button" onClick={handleClear}
-            className="text-xs transition-colors underline underline-offset-2" style={{ color: 'var(--text-muted)' }}>
+
+          {/* State and GST */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 pl-6">
+            {entityData.addressState && (
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <MapPin className="w-3 h-3" />
+                <span>{entityData.addressState}{entityData.addressPostcode ? ` ${entityData.addressPostcode}` : ''}</span>
+              </div>
+            )}
+            {entityData.gstRegistered && (
+              <div className="flex items-center gap-1.5 text-xs text-green-400/70">
+                <Receipt className="w-3 h-3" />
+                <span>GST registered</span>
+              </div>
+            )}
+            {entityData.abnActiveSince && (
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                Active since {entityData.abnActiveSince}
+              </div>
+            )}
+          </div>
+
+          {/* Confirmation question */}
+          <div className="border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+            <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Is this your organisation?</p>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={handleConfirmYes}
+                className="h-8 px-4 text-xs text-white border-0 bg-green-500 hover:bg-green-400"
+              >
+                Yes, that's us
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleConfirmNo}
+                className="h-8 px-4 text-xs hover-muted"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+              >
+                No, re-enter ABN
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmed state — compact summary */}
+      {isConfirmed && entityData && (
+        <div
+          id="abn-status"
+          className="flex items-center justify-between gap-2 text-sm px-1"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-2 text-green-400">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+            <span>
+              Verified: <strong style={{ color: 'var(--text-primary)' }}>{entityData.entityName}</strong>
+              {entityData.addressState && <span className="text-green-400/60 font-normal"> · {entityData.addressState}</span>}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleConfirmNo}
+            className="text-xs underline underline-offset-2 transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+          >
             Change
           </button>
         </div>
       )}
 
-      {status === 'valid' && !isConfirmed && (
-        <div className="rounded-xl border border-green-400/30 px-4 py-3 text-sm" style={{ background: 'rgba(34,197,94,0.08)' }}>
-          <p className="text-green-300 mb-2.5">
-            Found: <strong>{entityName}</strong> — is this your organisation?
-          </p>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleConfirmYes}
-              className="bg-green-500 hover:bg-green-400 text-white border-0 h-8 px-4 text-xs">
-              Yes, that's us
-            </Button>
-            <Button size="sm" variant="ghost" onClick={handleClear}
-              className="hover-muted h-8 px-4 text-xs" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-              No, re-enter
-            </Button>
-          </div>
+      {/* Invalid / cancelled / error */}
+      {(status === 'invalid' || status === 'cancelled' || status === 'error') && (
+        <div
+          id="abn-status"
+          className="flex items-start gap-2 text-sm text-red-400 px-1"
+          role="alert"
+        >
+          <XCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
-      {(status === 'invalid' || status === 'error') && (
-        <div className="flex items-center gap-2 text-sm text-red-400 px-1">
-          <XCircle className="w-3.5 h-3.5 flex-shrink-0" />
-          <span>
-            {status === 'error'
-              ? 'Could not connect to the ABN register. Please try again.'
-              : 'ABN/ACN not found or inactive. Please check and try again.'}
-          </span>
-        </div>
-      )}
     </div>
   );
 }

@@ -703,13 +703,26 @@ export default function Questionnaire() {
                               updateAnswer('abn', val);
                               updateAnswer('_abn_confirmed', false);
                             }}
-                            onConfirmed={(abn, entityName) => {
-                              updateAnswer('abn', abn);
-                              updateAnswer('_abn_entity_name', entityName);
+                            onConfirmed={(data) => {
+                              updateAnswer('abn', data.abn);
+                              updateAnswer('_abn_entity_name', data.entityName);
                               updateAnswer('_abn_confirmed', true);
-                              // Persist to user profile if authenticated
+                              // Persist full ABN data to user profile if authenticated
                               if (user) {
-                                base44.auth.updateMe({ abn, abn_entity_name: entityName }).catch(() => {});
+                                base44.auth.updateMe({
+                                  abn: data.abn,
+                                  abn_entity_name: data.entityName,
+                                  abn_entity_type_code: data.entityTypeCode,
+                                  abn_entity_type_name: data.entityTypeName,
+                                  abn_address_state: data.addressState,
+                                  abn_address_postcode: data.addressPostcode,
+                                  abn_gst_registered: data.gstRegistered,
+                                  abn_gst_registered_since: data.gstRegisteredSince,
+                                  abn_active_since: data.abnActiveSince,
+                                  abn_acn: data.acn,
+                                  abn_verified_at: data.confirmedAt,
+                                  abn_confirmed: true,
+                                }).catch(() => {});
                               }
                             }}
                             confirmed={answers._abn_confirmed}
