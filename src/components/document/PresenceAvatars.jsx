@@ -14,14 +14,14 @@ export default function PresenceAvatars({ presence }) {
   return (
     <TooltipProvider delayDuration={200}>
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-blue-200/40 mr-0.5">Also editing:</span>
+        <span className="text-xs mr-0.5" style={{ color: 'var(--text-muted)' }}>Also editing:</span>
         <div className="flex -space-x-1.5">
           {presence.slice(0, 5).map((p) => (
             <Tooltip key={p.id}>
               <TooltipTrigger asChild>
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white border-2 border-background cursor-default select-none ring-2 ring-offset-0 transition-transform hover:scale-110 hover:z-10"
-                  style={{ backgroundColor: p.color, borderColor: 'rgba(8,13,36,0.9)' }}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white border-2 cursor-default select-none ring-2 ring-offset-0 transition-transform hover:scale-110 hover:z-10"
+                  style={{ backgroundColor: p.color, borderColor: 'var(--background)' }}
                 >
                   {initials(p.user_name)}
                 </div>
@@ -29,14 +29,14 @@ export default function PresenceAvatars({ presence }) {
               <TooltipContent side="bottom" className="text-xs">
                 <p className="font-medium">{p.user_name}</p>
                 {p.active_section && (
-                  <p className="text-white/50">editing: {p.active_section}</p>
+                  <p style={{ color: 'var(--text-muted)' }}>editing: {p.active_section}</p>
                 )}
               </TooltipContent>
             </Tooltip>
           ))}
           {presence.length > 5 && (
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white border-2 bg-white/10"
-              style={{ borderColor: 'rgba(8,13,36,0.9)' }}>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white border-2"
+              style={{ borderColor: 'var(--background)', background: 'var(--muted)' }}>
               +{presence.length - 5}
             </div>
           )}

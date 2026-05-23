@@ -12,7 +12,7 @@ export default function TrialBanner({ daysRemaining, isExpired, onUpgradeClick }
           <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
           <div className="text-sm">
             <p className="font-semibold text-amber-300">Trial expired</p>
-            <p className="text-amber-200/70 text-xs">Upgrade to continue creating new documents</p>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Upgrade to continue creating new documents</p>
           </div>
         </div>
         <Link to="/billing">
@@ -32,7 +32,7 @@ export default function TrialBanner({ daysRemaining, isExpired, onUpgradeClick }
           <p className="font-semibold" style={{ color: '#EF9A9A' }}>
             {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining in your free trial
           </p>
-          <p className="text-xs" style={{ color: 'rgba(229,57,53,0.6)' }}>Upgrade anytime to unlock unlimited procurements</p>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Upgrade anytime to unlock unlimited procurements</p>
         </div>
       </div>
       <Link to="/billing">
