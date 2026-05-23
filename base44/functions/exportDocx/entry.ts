@@ -140,20 +140,32 @@ function makeCoverPage(docData, docId, genDate) {
     children: [new TextRun({ text: '' })],
   }));
 
-  // Organisation name
-  if (docData.organisation_name) {
+  // Organisation name (prefer verified ABN entity name)
+  const qd = docData.questionnaire_data || {};
+  const displayOrgName = (qd.abn_confirmed && qd._abn_entity_name) ? qd._abn_entity_name : docData.organisation_name;
+  const formattedABN = qd.abn ? qd.abn.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4') : null;
+
+  if (displayOrgName) {
     children.push(new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 400, after: 200 },
+      spacing: { before: 400, after: 100 },
       children: [
-        new TextRun({ text: `FOR ${docData.organisation_name}`, size: 28, color: GRAY_COLOR }),
+        new TextRun({ text: `FOR ${displayOrgName}`, size: 28, color: GRAY_COLOR }),
+      ],
+    }));
+  }
+  if (formattedABN) {
+    children.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 0, after: 200 },
+      children: [
+        new TextRun({ text: `ABN: ${formattedABN}`, size: 20, color: GRAY_COLOR }),
       ],
     }));
   }
 
   // Key metadata fields
   if (!isSow) {
-    const qd = docData.questionnaire_data || {};
     const metaRows = [
       ['Document ID', docId],
       ['Date Generated', genDate],

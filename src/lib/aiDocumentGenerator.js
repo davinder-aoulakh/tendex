@@ -4,9 +4,20 @@ import { base44 } from '@/api/base44Client';
 // Prompt builders — map Phase 1 questionnaire data
 // ─────────────────────────────────────────────
 
-const SOW_PROMPT = (d) => `You are an expert Australian procurement consultant. Generate a comprehensive, professional Scope of Work (SOW) document.
+const buildAbnContext = (d) => d._abn_confirmed ? `
+Organisation details (verified against the Australian Business Register):
+- Legal entity name: ${d._abn_entity_name || d.organisation_name || 'Not specified'}
+- Entity type: ${d._abn_entity_type_name || 'Not specified'}
+- ABN: ${d.abn ? d.abn.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4') : 'Not provided'}
+- State: ${d.organisation_state || 'Not specified'}
+- GST registered: ${d._abn_gst_registered ? 'Yes' : 'No'}
+` : `
+Organisation: ${d.organisation_name || 'Not specified'}
+ABN: ${d.abn ? d.abn.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4') : 'Not provided'}
+`;
 
-Organisation: ${d.organisation_name || 'N/A'}
+const SOW_PROMPT = (d) => `You are an expert Australian procurement consultant. Generate a comprehensive, professional Scope of Work (SOW) document.
+${buildAbnContext(d)}
 Project Name: ${d.project_name || 'N/A'}
 Procurement Type: ${d.procurement_type || 'N/A'}
 Service Type: ${d.service_type || 'N/A'}
@@ -47,8 +58,7 @@ const EOI_PROMPT = (d) => {
     : `By email to: ${d.eoi_contact_email || 'N/A'}`;
 
   return `You are an expert Australian procurement consultant. Generate a professional, formal Expression of Interest (EOI) document suitable for public release.
-
-Organisation: ${d.organisation_name || 'N/A'}
+${buildAbnContext(d)}
 Project / Procurement: ${d.project_name || d.eoi_title || 'N/A'}
 Industry / Scope: ${d.industry || d.procurement_type || 'N/A'}
 
@@ -127,8 +137,7 @@ const RFQ_PROMPT = (d) => {
   const scopeContent = d.summary_of_services || d.product_description || d.statement_of_requirements || 'Refer to specification section';
 
   return `You are an expert Australian procurement consultant. Generate a professional, formal Request for Quotation (RFQ) document suitable for release to market.
-
-Organisation: ${d.organisation_name || 'N/A'}
+${buildAbnContext(d)}
 Project / RFQ Reference: ${d.project_name || d.rfq_title || 'N/A'}
 Industry: ${d.industry || d.procurement_type || 'N/A'}
 
@@ -145,7 +154,7 @@ CONTACT PERSONS (Section 5):
 - Phone: ${r.rfq_contact_phone || 'N/A'}
 
 REQUEST DETAILS (Section 6 — table):
-- Organisation: ${d.organisation_name || 'N/A'}
+- Organisation: ${d._abn_entity_name || d.organisation_name || 'N/A'}
 - Commencement date: ${r.rfq_commencement_date || 'N/A'}
 - Price variation: Fixed
 
@@ -252,8 +261,7 @@ const RFP_PROMPT = (d) => {
   };
 
   return `You are an expert Australian procurement consultant. Generate a professional, formal Request for Proposal (RFP) document suitable for release to market.
-
-Organisation: ${d.organisation_name || 'N/A'}
+${buildAbnContext(d)}
 Project / RFP Reference: ${d.project_name || 'N/A'}
 Industry: ${d.industry || d.procurement_type || 'N/A'}
 
@@ -270,7 +278,7 @@ CONTACT PERSONS (Section 5):
 - Phone: ${r.rfp_contact_phone || 'N/A'}
 
 REQUEST DETAILS (Section 6):
-- Organisation: ${d.organisation_name || 'N/A'}
+- Organisation: ${d._abn_entity_name || d.organisation_name || 'N/A'}
 - Commencement date: ${r.rfp_commencement_date || 'N/A'}
 - Pricing structure: ${pricingStructureMap[r.rfp_pricing_structure] || 'N/A'}
 - Payment terms: ${paymentMap[r.rfp_payment_terms] || r.rfp_payment_terms || 'N/A'}

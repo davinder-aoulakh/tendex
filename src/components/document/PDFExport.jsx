@@ -163,18 +163,30 @@ export default function PDFExport({ doc, content, onClose }) {
       pdf.rect(margin + 10, y + 4, cw - 20, 1, 'F');
       y += 16;
 
-      // "FOR Organisation"
-      if (doc.organisation_name) {
+      // "FOR Organisation" (prefer verified ABN entity name)
+      const qd = doc.questionnaire_data || {};
+      const displayOrgName = (qd._abn_confirmed && qd._abn_entity_name) ? qd._abn_entity_name : doc.organisation_name;
+      const formattedABN = qd.abn ? qd.abn.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4') : null;
+
+      if (displayOrgName) {
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(...GRAY);
-        pdf.text(`FOR ${doc.organisation_name}`, pw / 2, y, { align: 'center' });
-        y += 18;
+        pdf.text(`FOR ${displayOrgName}`, pw / 2, y, { align: 'center' });
+        y += 8;
+      }
+      if (formattedABN) {
+        pdf.setFontSize(8.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...GRAY);
+        pdf.text(`ABN: ${formattedABN}`, pw / 2, y, { align: 'center' });
+        y += 10;
+      } else {
+        y += 10;
       }
 
       // Meta table
       y += 14;
-      const qd = doc.questionnaire_data || {};
       const closingDate = qd.eoi_closing_date || qd.rfq_closing_date || qd.rfp_closing_date || qd.closing_date;
       const contactName = qd.eoi_contact_name || qd.rfq_contact_name || qd.rfp_contact_name || qd.contact_name;
       const metaFields = [
