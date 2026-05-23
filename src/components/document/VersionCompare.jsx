@@ -55,7 +55,7 @@ function DiffPane({ tokens, side }) {
     <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
       {tokens.map((token, i) => {
         if (token.type === 'same') {
-          return <span key={i} className="text-blue-100/65">{token.text}</span>;
+          return <span key={i} style={{ color: 'var(--text-secondary)' }}>{token.text}</span>;
         }
         if (side === 'left') {
           if (token.type === 'removed')
@@ -95,19 +95,17 @@ function SectionDiff({ sectionKey, leftContent, rightContent, defaultExpanded })
 
   return (
     <div
-      className={`rounded-xl border overflow-hidden transition-all ${
-        changed ? 'border-blue-400/20' : 'border-white/8'
-      }`}
-      style={{ background: changed ? 'rgba(59,130,246,0.04)' : 'rgba(255,255,255,0.025)' }}
+      className="rounded-xl border overflow-hidden transition-all"
+      style={{ background: 'var(--card)', borderColor: changed ? 'var(--border-strong)' : 'var(--border)' }}
     >
       {/* Section header */}
       <button
         onClick={() => setExpanded(e => !e)}
-        className="w-full flex items-center justify-between px-5 py-3 border-b border-white/8 hover:bg-white/5 transition-colors text-left"
-        style={{ background: 'rgba(255,255,255,0.03)' }}
+        className="w-full flex items-center justify-between px-5 py-3 border-b hover-muted transition-colors text-left"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
       >
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-sm text-blue-100/80">{label}</span>
+          <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{label}</span>
           {changed ? (
             <div className="flex items-center gap-1.5">
               {added > 0 && (
@@ -126,7 +124,7 @@ function SectionDiff({ sectionKey, leftContent, rightContent, defaultExpanded })
             <Badge className="text-xs bg-white/5 text-white/25 border-white/10">Unchanged</Badge>
           )}
         </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
+        {expanded ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-muted)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />}
       </button>
 
       {/* Expandable diff body */}
@@ -139,25 +137,25 @@ function SectionDiff({ sectionKey, leftContent, rightContent, defaultExpanded })
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="grid grid-cols-2 divide-x divide-white/8">
+            <div className="grid grid-cols-2 divide-x" style={{ borderColor: 'var(--border)' }}>
               {/* Left pane */}
               <div className="p-5">
                 {!left ? (
-                  <span className="text-xs text-blue-200/25 italic">Not present in this version</span>
+                  <span className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Not present in this version</span>
                 ) : changed ? (
                   <DiffPane tokens={tokens} side="left" />
                 ) : (
-                  <p className="text-sm text-blue-100/65 leading-relaxed whitespace-pre-wrap break-words">{left}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ color: 'var(--text-secondary)' }}>{left}</p>
                 )}
               </div>
               {/* Right pane */}
               <div className="p-5">
                 {!right ? (
-                  <span className="text-xs text-blue-200/25 italic">Not present in this version</span>
+                  <span className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Not present in this version</span>
                 ) : changed ? (
                   <DiffPane tokens={tokens} side="right" />
                 ) : (
-                  <p className="text-sm text-blue-100/65 leading-relaxed whitespace-pre-wrap break-words">{right}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ color: 'var(--text-secondary)' }}>{right}</p>
                 )}
               </div>
             </div>
@@ -172,19 +170,19 @@ function SectionDiff({ sectionKey, leftContent, rightContent, defaultExpanded })
 function VersionSelector({ label, value, onChange, versions, isLoading, exclude }) {
   return (
     <div className="flex-1 min-w-0">
-      <p className="text-xs text-blue-200/40 mb-2 uppercase tracking-widest font-medium">{label}</p>
+      <p className="text-xs mb-2 uppercase tracking-widest font-medium" style={{ color: 'var(--text-muted)' }}>{label}</p>
       {isLoading ? (
-        <div className="h-10 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} />
+        <div className="h-10 rounded-lg animate-pulse" style={{ background: 'var(--muted)' }} />
       ) : (
         <select
           value={value || ''}
           onChange={e => onChange(e.target.value || null)}
-          className="w-full rounded-lg border border-white/10 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-colors cursor-pointer"
-          style={{ background: 'rgba(255,255,255,0.06)' }}
+          className="w-full rounded-lg text-sm px-3 py-2.5 focus:outline-none transition-colors cursor-pointer"
+          style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
         >
-          <option value="" style={{ background: '#0d1b4b' }}>Select a version…</option>
+          <option value="">Select a version…</option>
           {versions.filter(v => v.id !== exclude).map((v, i) => (
-            <option key={v.id} value={v.id} style={{ background: '#0d1b4b' }}>
+            <option key={v.id} value={v.id}>
               {i === 0 && !exclude ? '★ ' : ''}
               {v.label || (v.source === 'ai_generated' ? 'AI Generated' : 'Manual Save')}
               {v.created_date ? ` — ${format(new Date(v.created_date), 'dd MMM yy, h:mm a')}` : ''}
@@ -245,32 +243,32 @@ export default function VersionCompare({ documentId, documentType, onClose }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex flex-col overflow-hidden"
-      style={{ background: 'rgba(6,10,28,0.99)' }}
+      style={{ background: 'var(--background)' }}
     >
       {/* Top bar */}
       <div
-        className="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0"
-        style={{ background: 'rgba(8,13,36,0.9)' }}
+        className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-500/15 rounded-lg flex items-center justify-center border border-blue-400/20">
             <ArrowLeftRight className="w-4 h-4 text-blue-300" />
           </div>
           <div>
-            <h2 className="font-semibold text-white text-sm">Version Comparison</h2>
-            <p className="text-xs text-blue-200/40">Select two versions to compare changes side by side</p>
+            <h2 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Version Comparison</h2>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Select two versions to compare changes side by side</p>
           </div>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose}
-          className="text-white/40 hover:text-white hover:bg-white/10">
+          className="hover-muted" style={{ color: 'var(--text-muted)' }}>
           <X className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Version selector bar */}
       <div
-        className="flex items-end gap-4 px-6 py-4 border-b border-white/10 flex-shrink-0"
-        style={{ background: 'rgba(8,13,36,0.7)' }}
+        className="flex items-end gap-4 px-6 py-4 border-b flex-shrink-0"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
       >
         <VersionSelector
           label="Base version (older)"
@@ -295,9 +293,9 @@ export default function VersionCompare({ documentId, documentType, onClose }) {
 
       {/* Stats bar + column labels */}
       {canCompare && (
-        <div className="flex-shrink-0 border-b border-white/10" style={{ background: 'rgba(8,13,36,0.6)' }}>
+        <div className="flex-shrink-0 border-b" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {/* Stats */}
-          <div className="flex items-center gap-4 px-6 py-3 border-b border-white/8">
+          <div className="flex items-center gap-4 px-6 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
             <div className="flex items-center gap-3 text-xs flex-1">
               <span className="flex items-center gap-1.5 text-blue-200/50">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
@@ -321,23 +319,23 @@ export default function VersionCompare({ documentId, documentType, onClose }) {
               variant="ghost"
               size="sm"
               onClick={() => setShowUnchanged(v => !v)}
-              className="text-xs text-white/40 hover:text-white hover:bg-white/10 border border-white/10 h-7 px-3"
+              className="text-xs hover-muted h-7 px-3" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
             >
               {showUnchanged ? 'Hide unchanged' : 'Show all'}
             </Button>
           </div>
 
           {/* Column labels */}
-          <div className="grid grid-cols-2 divide-x divide-white/8">
+          <div className="grid grid-cols-2 divide-x" style={{ borderColor: 'var(--border)' }}>
             {[leftVersion, rightVersion].map((v, i) => (
               <div key={i} className="px-5 py-2.5 flex items-center gap-2">
                 {v.source === 'ai_generated'
                   ? <Sparkles className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                   : <Pencil className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />}
-                <span className="text-sm font-medium text-white truncate">
+                <span className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                   {v.label || (v.source === 'ai_generated' ? 'AI Generated' : 'Manual Save')}
                 </span>
-                <span className="text-xs text-blue-200/40 flex items-center gap-1 flex-shrink-0">
+                <span className="text-xs flex items-center gap-1 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
                   <Clock className="w-3 h-3" />
                   {v.created_date ? format(new Date(v.created_date), 'dd MMM yy, h:mm a') : '—'}
                 </span>
@@ -360,8 +358,8 @@ export default function VersionCompare({ documentId, documentType, onClose }) {
             <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-400/15 mb-5">
               <ArrowLeftRight className="w-7 h-7 text-blue-300/40" />
             </div>
-            <p className="text-white/50 font-medium mb-1">No versions selected</p>
-            <p className="text-blue-200/30 text-sm max-w-xs">
+            <p className="font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>No versions selected</p>
+            <p className="text-sm max-w-xs" style={{ color: 'var(--text-muted)' }}>
               {isLoading
                 ? 'Loading versions…'
                 : versions.length < 2
@@ -372,8 +370,8 @@ export default function VersionCompare({ documentId, documentType, onClose }) {
         ) : visibleSections.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <CheckCircle2 className="w-10 h-10 text-emerald-400/40 mx-auto mb-4" />
-            <p className="text-white/40 font-medium">No changes detected</p>
-            <p className="text-blue-200/30 text-sm mt-1">These two versions are identical.</p>
+            <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>No changes detected</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>These two versions are identical.</p>
           </div>
         ) : (
           visibleSections.map((sectionKey, i) => {

@@ -41,17 +41,15 @@ function CommentThread({ comment, replies, me, onReply, onResolve }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className={`rounded-xl border overflow-hidden transition-all ${
-      comment.resolved ? 'border-white/5 opacity-50' : 'border-white/10'
-    }`} style={{ background: 'rgba(255,255,255,0.04)' }}>
+    <div className="rounded-xl border overflow-hidden transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)', opacity: comment.resolved ? 0.6 : 1 }}>
       {/* Comment header */}
       <div className="px-4 pt-3 pb-2">
         <div className="flex items-start gap-2.5">
           <Avatar name={comment.author_name} email={comment.author_email} size={7} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-semibold text-white/80">{comment.author_name}</span>
-              <span className="text-xs text-blue-200/30">
+              <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{comment.author_name}</span>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 {comment.created_date ? format(new Date(comment.created_date), 'dd MMM, h:mm a') : ''}
               </span>
               {comment.resolved && (
@@ -59,20 +57,22 @@ function CommentThread({ comment, replies, me, onReply, onResolve }) {
               )}
             </div>
             {!collapsed && (
-              <p className="text-sm text-blue-100/70 mt-1.5 leading-relaxed">{comment.text}</p>
+              <p className="text-sm mt-1.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{comment.text}</p>
             )}
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {!comment.resolved && me && (
               <Button variant="ghost" size="icon"
-                className="w-6 h-6 text-white/20 hover:text-emerald-400 hover:bg-white/5"
+                className="w-6 h-6 hover-muted"
+                style={{ color: 'var(--text-muted)' }}
                 onClick={() => onResolve(comment.id)}
                 title="Mark resolved">
                 <Check className="w-3 h-3" />
               </Button>
             )}
             <Button variant="ghost" size="icon"
-              className="w-6 h-6 text-white/20 hover:text-white hover:bg-white/5"
+              className="w-6 h-6 hover-muted"
+              style={{ color: 'var(--text-muted)' }}
               onClick={() => setCollapsed(c => !c)}>
               {collapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
             </Button>
@@ -82,19 +82,19 @@ function CommentThread({ comment, replies, me, onReply, onResolve }) {
 
       {/* Replies */}
       {!collapsed && replies.length > 0 && (
-        <div className="border-t border-white/8 px-4 py-2 space-y-2.5">
+        <div className="border-t px-4 py-2 space-y-2.5" style={{ borderColor: 'var(--border)' }}>
           {replies.map(r => (
             <div key={r.id} className="flex items-start gap-2">
-              <CornerDownRight className="w-3 h-3 text-white/20 mt-1 flex-shrink-0" />
+              <CornerDownRight className="w-3 h-3 mt-1 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
               <Avatar name={r.author_name} email={r.author_email} size={5} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-white/70">{r.author_name}</span>
-                  <span className="text-xs text-blue-200/25">
+                  <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{r.author_name}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     {r.created_date ? format(new Date(r.created_date), 'dd MMM, h:mm a') : ''}
                   </span>
                 </div>
-                <p className="text-xs text-blue-100/60 mt-0.5 leading-relaxed">{r.text}</p>
+                <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{r.text}</p>
               </div>
             </div>
           ))}
@@ -103,14 +103,15 @@ function CommentThread({ comment, replies, me, onReply, onResolve }) {
 
       {/* Reply area */}
       {!collapsed && !comment.resolved && me && (
-        <div className="border-t border-white/8 px-3 py-2">
+        <div className="border-t px-3 py-2" style={{ borderColor: 'var(--border)' }}>
           {showReply ? (
             <div className="flex items-end gap-2">
               <Textarea
                 value={replyText}
                 onChange={e => setReplyText(e.target.value)}
                 placeholder="Write a reply…"
-                className="flex-1 min-h-[56px] text-xs resize-none bg-white/5 border-white/10 text-white placeholder:text-white/25 focus-visible:ring-blue-500/40"
+                className="flex-1 min-h-[56px] text-xs resize-none focus-visible:ring-1"
+                style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 autoFocus
                 onKeyDown={e => {
                   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && replyText.trim()) {
@@ -122,13 +123,13 @@ function CommentThread({ comment, replies, me, onReply, onResolve }) {
               />
               <div className="flex flex-col gap-1.5">
                 <Button size="icon"
-                  className="w-7 h-7 bg-blue-500 hover:bg-blue-400 text-white border-0"
+                  className="w-7 h-7 text-white border-0" style={{ backgroundColor: 'var(--primary)' }}
                   disabled={!replyText.trim()}
                   onClick={() => { onReply(comment.id, replyText.trim()); setReplyText(''); setShowReply(false); }}>
                   <Send className="w-3 h-3" />
                 </Button>
                 <Button size="icon" variant="ghost"
-                  className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/10"
+                  className="w-7 h-7 hover-muted" style={{ color: 'var(--text-muted)' }}
                   onClick={() => { setShowReply(false); setReplyText(''); }}>
                   <X className="w-3 h-3" />
                 </Button>
@@ -136,7 +137,7 @@ function CommentThread({ comment, replies, me, onReply, onResolve }) {
             </div>
           ) : (
             <button onClick={() => setShowReply(true)}
-              className="text-xs text-blue-300/40 hover:text-blue-300/70 transition-colors">
+              className="text-xs transition-colors" style={{ color: 'var(--text-muted)' }}>
               Reply…
             </button>
           )}
@@ -223,16 +224,16 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: '100%', opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed top-0 right-0 h-full w-80 z-40 flex flex-col border-l border-white/10 shadow-2xl"
-      style={{ background: 'rgba(8,13,36,0.98)' }}
+      className="fixed top-0 right-0 h-full w-80 z-40 flex flex-col shadow-2xl"
+      style={{ background: 'var(--card)', borderLeft: '1px solid var(--border)' }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-blue-400" />
-          <h3 className="font-semibold text-white text-sm">Comments</h3>
+          <MessageSquare className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Comments</h3>
           {unresolvedCount > 0 && (
-            <span className="text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30 px-1.5 py-0.5 rounded-full">
+            <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }}>
               {unresolvedCount}
             </span>
           )}
@@ -240,11 +241,11 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm"
             onClick={() => setShowResolved(v => !v)}
-            className="h-7 px-2 text-xs text-white/30 hover:text-white hover:bg-white/10">
+            className="h-7 px-2 text-xs hover-muted" style={{ color: 'var(--text-muted)' }}>
             {showResolved ? 'Hide resolved' : 'Show resolved'}
           </Button>
           <Button variant="ghost" size="icon" onClick={onClose}
-            className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/10">
+            className="w-7 h-7 hover-muted" style={{ color: 'var(--text-muted)' }}>
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -252,24 +253,22 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
 
       {/* Section filter tabs */}
       {activeSections.length > 0 && (
-        <div className="flex gap-1.5 px-4 py-2.5 border-b border-white/8 overflow-x-auto scrollbar-none">
+        <div className="flex gap-1.5 px-4 py-2.5 border-b overflow-x-auto scrollbar-none" style={{ borderColor: 'var(--border)' }}>
           <button
             onClick={() => setActiveSection('all')}
-            className={`text-xs px-2.5 py-1 rounded-full flex-shrink-0 transition-colors ${
-              activeSection === 'all'
-                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                : 'text-white/40 hover:text-white border border-white/10'
-            }`}>
+            className="text-xs px-2.5 py-1 rounded-full flex-shrink-0 transition-colors"
+            style={activeSection === 'all'
+              ? { background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }
+              : { color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
             All
           </button>
           {activeSections.map(sk => (
             <button key={sk}
               onClick={() => setActiveSection(sk)}
-              className={`text-xs px-2.5 py-1 rounded-full flex-shrink-0 transition-colors truncate max-w-[120px] ${
-                activeSection === sk
-                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                  : 'text-white/40 hover:text-white border border-white/10'
-              }`}>
+              className="text-xs px-2.5 py-1 rounded-full flex-shrink-0 transition-colors truncate max-w-[120px]"
+              style={activeSection === sk
+                ? { background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }
+                : { color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
               {SECTION_LABELS[sk] || sk}
             </button>
           ))}
@@ -280,9 +279,9 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {filtered.length === 0 ? (
           <div className="text-center py-10">
-            <MessageSquare className="w-8 h-8 text-blue-300/15 mx-auto mb-3" />
-            <p className="text-sm text-blue-200/30">No comments yet.</p>
-            <p className="text-xs text-blue-200/20 mt-1">Be the first to comment on this document.</p>
+            <MessageSquare className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No comments yet.</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Be the first to comment on this document.</p>
           </div>
         ) : (
           filtered.map(comment => (
@@ -299,9 +298,9 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
       </div>
 
       {/* New comment form */}
-      <div className="border-t border-white/10 px-4 py-4 space-y-2.5">
+      <div className="border-t px-4 py-4 space-y-2.5" style={{ borderColor: 'var(--border)' }}>
         {!me ? (
-          <p className="text-xs text-blue-200/40 text-center py-2">Sign in to leave comments.</p>
+          <p className="text-xs text-center py-2" style={{ color: 'var(--text-muted)' }}>Sign in to leave comments.</p>
         ) : (
           <>
             <div className="flex items-center gap-2">
@@ -309,12 +308,12 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
               <select
                 value={newSection}
                 onChange={e => setNewSection(e.target.value)}
-                className="flex-1 text-xs rounded-lg border border-white/10 bg-white/5 text-white/70 px-2.5 py-1.5 focus:outline-none focus:border-blue-500/50"
-                style={{ background: 'rgba(255,255,255,0.05)' }}
+                className="flex-1 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none"
+                style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
               >
-                <option value="" style={{ background: '#0d1b4b' }}>General</option>
+                <option value="">General</option>
                 {sections.map(sk => (
-                  <option key={sk} value={sk} style={{ background: '#0d1b4b' }}>
+                  <option key={sk} value={sk}>
                     {SECTION_LABELS[sk] || sk}
                   </option>
                 ))}
@@ -324,7 +323,8 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
               value={newText}
               onChange={e => setNewText(e.target.value)}
               placeholder="Add a comment… (⌘+Enter to post)"
-              className="min-h-[72px] text-sm resize-none bg-white/5 border-white/10 text-white placeholder:text-white/25 focus-visible:ring-blue-500/40"
+              className="min-h-[72px] text-sm resize-none focus-visible:ring-1"
+              style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               onKeyDown={e => {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && newText.trim()) handlePost();
               }}
@@ -333,7 +333,7 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
               onClick={handlePost}
               disabled={!newText.trim() || addComment.isPending}
               size="sm"
-              className="w-full gap-1.5 bg-blue-500 hover:bg-blue-400 text-white border-0 disabled:opacity-40">
+              className="w-full gap-1.5 text-white border-0 disabled:opacity-40" style={{ backgroundColor: 'var(--primary)' }}>
               <Send className="w-3.5 h-3.5" />Post Comment
             </Button>
           </>

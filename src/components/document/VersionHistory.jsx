@@ -38,24 +38,24 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: '100%', opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed top-0 right-0 h-full w-80 z-40 flex flex-col border-l border-white/10 shadow-2xl"
-      style={{ background: 'rgba(8,13,36,0.98)' }}
+      className="fixed top-0 right-0 h-full w-80 z-40 flex flex-col shadow-2xl"
+      style={{ background: 'var(--card)', borderLeft: '1px solid var(--border)' }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-2">
-          <History className="w-4 h-4" style={{ color: '#00C9A7' }} />
-          <h3 className="font-semibold text-white text-sm">Version History</h3>
+          <History className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Version History</h3>
         </div>
         <div className="flex items-center gap-1">
           {onCompare && (
             <Button variant="ghost" size="sm" onClick={onCompare}
-              className="h-7 px-2 text-xs gap-1.5 hover:bg-white/10" style={{ color: 'rgba(0,201,167,0.6)', '--tw-text-opacity': 1 }} onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(0,201,167,0.9)'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(0,201,167,0.6)'}>
+              className="h-7 px-2 text-xs gap-1.5 hover-muted" style={{ color: 'var(--text-secondary)' }}>
               <ArrowLeftRight className="w-3.5 h-3.5" />Compare
             </Button>
           )}
           <Button variant="ghost" size="icon" onClick={onClose}
-            className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/10">
+            className="w-7 h-7 hover-muted" style={{ color: 'var(--text-muted)' }}>
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -66,26 +66,26 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
         {isLoading ? (
           <div className="space-y-2 pt-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div key={i} className="h-16 rounded-lg animate-pulse" style={{ background: 'var(--muted)' }} />
             ))}
           </div>
         ) : versions.length === 0 ? (
           <div className="text-center py-12">
-            <Clock className="w-8 h-8 mx-auto mb-3" style={{ color: 'rgba(0,201,167,0.2)' }} />
-            <p className="text-sm" style={{ color: 'rgba(0,201,167,0.4)' }}>No versions yet.</p>
-            <p className="text-xs mt-1" style={{ color: 'rgba(0,201,167,0.3)' }}>Versions are saved each time you save or regenerate.</p>
+            <Clock className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No versions yet.</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Versions are saved each time you save or regenerate.</p>
           </div>
         ) : (
           versions.map((v, i) => (
             <div key={v.id}
-              className="rounded-xl border border-white/10 p-4 hover:border-blue-400/30 transition-all"
-              style={{ background: 'rgba(255,255,255,0.04)' }}>
+              className="rounded-xl border p-4 transition-all"
+              style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   {v.source === 'ai_generated'
-                    ? <Sparkles className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#00C9A7' }} />
+                    ? <Sparkles className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--primary)' }} />
                     : <Pencil className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#A78BFA' }} />}
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                     {v.label || (v.source === 'ai_generated' ? 'AI Generated' : 'Manual Save')}
                   </span>
                 </div>
@@ -93,7 +93,7 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
                   <Badge className="text-xs bg-green-500/20 text-green-300 border-green-500/30 flex-shrink-0">Latest</Badge>
                 )}
               </div>
-              <p className="text-xs mb-3 flex items-center gap-1" style={{ color: 'rgba(0,201,167,0.4)' }}>
+              <p className="text-xs mb-3 flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
                 <Clock className="w-3 h-3" />
                 {v.created_date ? format(new Date(v.created_date), 'dd MMM yyyy, h:mm a') : '—'}
               </p>
@@ -106,13 +106,13 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
                       Confirm Restore
                     </Button>
                   <Button size="sm" variant="ghost" onClick={() => setConfirmId(null)}
-                    className="h-7 text-xs text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                    className="h-7 text-xs hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                     Cancel
                   </Button>
                 </div>
               ) : (
                 <Button size="sm" variant="ghost" onClick={() => setConfirmId(v.id)}
-                  className="w-full h-7 text-xs gap-1.5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                  className="w-full h-7 text-xs gap-1.5 hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                   <RotateCcw className="w-3 h-3" />Restore this version
                 </Button>
               )}
@@ -121,8 +121,8 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
         )}
       </div>
 
-      <div className="px-4 py-3 border-t border-white/10">
-         <p className="text-xs text-center" style={{ color: 'rgba(0,201,167,0.3)' }}>
+      <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
+         <p className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
            Versions are saved automatically on each save, regeneration, or custom snapshots.
          </p>
        </div>

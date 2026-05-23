@@ -27,12 +27,10 @@ export default function DocumentSection({ title, sectionKey, content, onChange, 
   };
 
   return (
-    <div className={`rounded-xl border overflow-hidden group transition-all ${
-      activeEditors.length > 0 ? 'border-amber-400/30' : 'border-white/10'
-    }`} style={{ background: 'rgba(255,255,255,0.04)' }}>
-      <div className="flex items-center justify-between px-5 py-3 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
+    <div className="rounded-xl border overflow-hidden group transition-all" style={{ background: 'var(--card)', borderColor: activeEditors.length > 0 ? 'rgba(251,191,36,0.3)' : 'var(--border)' }}>
+      <div className="flex items-center justify-between px-5 py-3 border-b" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm text-blue-100/80">{title}</h3>
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{title}</h3>
           {activeEditors.length > 0 && (
             <div className="flex items-center gap-1.5">
               {activeEditors.map((p, i) => (
@@ -51,7 +49,7 @@ export default function DocumentSection({ title, sectionKey, content, onChange, 
         </div>
         {!editing && (
           <Button variant="ghost" size="sm" onClick={startEditing}
-            className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity text-white/40 hover:text-white hover:bg-white/10">
+            className="gap-1.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity hover-muted" style={{ color: 'var(--text-muted)' }}>
             <Edit3 className="w-3.5 h-3.5" />Edit
           </Button>
         )}
@@ -62,22 +60,23 @@ export default function DocumentSection({ title, sectionKey, content, onChange, 
             <Textarea
               value={draft}
               onChange={e => setDraft(e.target.value)}
-              className="min-h-[140px] text-sm leading-relaxed resize-none bg-white/5 border-white/10 text-white focus-visible:ring-blue-500/50"
+              className="min-h-[140px] text-sm leading-relaxed resize-none focus-visible:ring-1"
+              style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               autoFocus
             />
             <AITextAssist text={draft} onApply={(val) => setDraft(val)} />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleSave} className="gap-1.5 bg-blue-500 hover:bg-blue-400 text-white border-0">
+              <Button size="sm" onClick={handleSave} className="gap-1.5 text-white border-0" style={{ backgroundColor: 'var(--primary)' }}>
                 <Check className="w-3.5 h-3.5" />Save
               </Button>
               <Button size="sm" variant="ghost" onClick={handleCancel}
-                className="gap-1.5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                className="gap-1.5 hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <X className="w-3.5 h-3.5" />Cancel
               </Button>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-blue-100/70 leading-relaxed whitespace-pre-wrap">{content}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>{content}</p>
         )}
       </div>
     </div>

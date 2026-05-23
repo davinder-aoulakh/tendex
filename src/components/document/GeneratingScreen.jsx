@@ -25,16 +25,16 @@ export default function GeneratingScreen({ done, documentId }) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-      style={{ background: 'linear-gradient(135deg, #080d24 0%, #0d1b4b 50%, #0a1535 100%)' }}>
+      style={{ background: 'var(--background)' }}>
 
       {/* TendeX logo */}
       <div className="flex items-center gap-2 mb-12">
-        <div className="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-400/20">
-          <svg className="w-5 h-5 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(232,34,26,0.12)', border: '1px solid var(--border-strong)' }}>
+          <svg className="w-5 h-5" style={{ color: 'var(--primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
-        <span className="font-display text-xl font-semibold text-white">TendeX</span>
+        <span className="font-syne text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>TendeX</span>
       </div>
 
       <AnimatePresence mode="wait">
@@ -45,8 +45,8 @@ export default function GeneratingScreen({ done, documentId }) {
             {/* Animated ring */}
             <div className="relative w-24 h-24 mb-8">
               <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
-                <circle cx="48" cy="48" r="40" fill="none" stroke="#3b82f6" strokeWidth="6"
+                <circle cx="48" cy="48" r="40" fill="none" stroke="var(--border)" strokeWidth="6" />
+                <circle cx="48" cy="48" r="40" fill="none" stroke="var(--primary)" strokeWidth="6"
                   strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 40}`}
                   strokeDashoffset={`${2 * Math.PI * 40 * (1 - progress / 100)}`}
@@ -54,17 +54,17 @@ export default function GeneratingScreen({ done, documentId }) {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-bold text-white">{Math.round(progress)}%</span>
+                <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{Math.round(progress)}%</span>
               </div>
             </div>
 
             <AnimatePresence mode="wait">
               <motion.p key={msgIndex} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-                className="text-lg font-medium text-white mb-2">
+                className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                 {STATUS_MESSAGES[msgIndex]}
               </motion.p>
             </AnimatePresence>
-            <p className="text-sm text-blue-200/40">This usually takes under 60 seconds</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>This usually takes under 60 seconds</p>
           </motion.div>
         ) : (
           <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
@@ -72,18 +72,18 @@ export default function GeneratingScreen({ done, documentId }) {
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}>
               <CheckCircle className="w-20 h-20 text-emerald-400 mb-6" />
             </motion.div>
-            <h2 className="text-2xl font-display font-semibold text-white mb-2">Your document is ready!</h2>
-            <p className="text-blue-200/50 mb-8">Review and edit your AI-generated content below.</p>
+            <h2 className="text-2xl font-syne font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Your document is ready!</h2>
+            <p className="mb-8" style={{ color: 'var(--text-secondary)' }}>Review and edit your AI-generated content below.</p>
             <div className="flex gap-3">
               {documentId && (
                 <Link to={`/document/${documentId}`}>
-                  <Button className="bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20">
+                  <Button className="text-white border-0" style={{ backgroundColor: 'var(--primary)' }}>
                     View Document
                   </Button>
                 </Link>
               )}
               <Link to="/dashboard">
-                <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
+                <Button variant="ghost" className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                   Dashboard
                 </Button>
               </Link>

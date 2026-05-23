@@ -150,13 +150,13 @@ export default function DocumentEditor() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <button onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-1.5 text-sm transition-colors mb-3" style={{ color: 'rgba(0,201,167,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(0,201,167,0.5)'}>
+              className="flex items-center gap-1.5 text-sm transition-colors mb-3" style={{ color: 'var(--text-muted)' }}>
               <ChevronLeft className="w-4 h-4" />Back to Dashboard
             </button>
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="font-display text-2xl font-semibold text-white">{doc?.title || 'Document'}</h1>
-              <Badge style={{ background: 'rgba(0,201,167,0.2)', color: '#00C9A7', borderColor: 'rgba(0,201,167,0.3)', border: '1px solid' }}>{doc?.document_type}</Badge>
-              <Badge className={`capitalize border ${doc?.status === 'complete' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-white/10 text-white/50 border-white/10'}`}>
+              <h1 className="font-syne text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{doc?.title || 'Document'}</h1>
+              <Badge style={{ background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', borderColor: 'var(--border-strong)', border: '1px solid' }}>{doc?.document_type}</Badge>
+              <Badge className={`capitalize border ${doc?.status === 'complete' ? 'bg-green-500/20 text-green-300 border-green-500/30' : ''}`} style={doc?.status !== 'complete' ? { background: 'var(--muted)', color: 'var(--text-muted)', borderColor: 'var(--border)' } : {}}>
                 {doc?.status}
               </Badge>
             </div>
@@ -164,24 +164,24 @@ export default function DocumentEditor() {
           <div className="flex items-center gap-2 flex-wrap">
             <PresenceAvatars presence={presence} />
             <Button variant="ghost" size="sm" onClick={() => setShowComments(c => !c)}
-              className={`gap-2 border border-white/10 ${showComments ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}>
+              className="gap-2 hover-muted" style={{ border: '1px solid var(--border)', color: showComments ? 'var(--text-primary)' : 'var(--text-secondary)', background: showComments ? 'var(--muted)' : undefined }}>
               <MessageSquare className="w-4 h-4" />Comments
             </Button>
             <Button variant="ghost" size="sm" onClick={() => handleGenerate()} disabled={generating}
-              className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
+              className="gap-2 hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
               <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />Regenerate
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving}
-              className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
+              className="gap-2 hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
               {saved ? <Check className="w-4 h-4 text-green-400" /> : saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saved ? 'Saved!' : 'Save'}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setShowSnapshotDialog(true)}
-              className="gap-2 text-white/60 hover:text-white hover:bg-white/10 border border-white/10">
+              className="gap-2 hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
               <Camera className="w-4 h-4" />Snapshot
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setShowHistory(h => !h)}
-              className={`gap-2 border border-white/10 ${showHistory ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}>
+              className="gap-2 hover-muted" style={{ border: '1px solid var(--border)', color: showHistory ? 'var(--text-primary)' : 'var(--text-secondary)', background: showHistory ? 'var(--muted)' : undefined }}>
               <History className="w-4 h-4" />History
             </Button>
             <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent}
@@ -224,10 +224,10 @@ export default function DocumentEditor() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/10 p-16 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <Sparkles className="w-10 h-10 mx-auto mb-4" style={{ color: 'rgba(0,201,167,0.3)' }} />
-                  <h3 className="font-semibold text-white mb-2">No content yet</h3>
-                  <p className="mb-6" style={{ color: 'rgba(0,201,167,0.5)' }}>Generate AI content based on your questionnaire answers.</p>
+                <div className="rounded-2xl border p-16 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+                  <Sparkles className="w-10 h-10 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+                  <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No content yet</h3>
+                  <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>Generate AI content based on your questionnaire answers.</p>
                   <Button onClick={() => handleGenerate()} className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
                     <Sparkles className="w-4 h-4" />Generate Document
                   </Button>
@@ -236,7 +236,7 @@ export default function DocumentEditor() {
             </div>
 
             {/* Right: PDF Preview */}
-            <div className="hidden lg:flex flex-col w-[480px] flex-shrink-0 rounded-xl border border-white/10 overflow-hidden sticky top-20" style={{ height: 'calc(100vh - 140px)', background: 'rgba(255,255,255,0.03)' }}>
+            <div className="hidden lg:flex flex-col w-[480px] flex-shrink-0 rounded-xl overflow-hidden sticky top-20" style={{ height: 'calc(100vh - 140px)', background: 'var(--card)', border: '1px solid var(--border)' }}>
               <PDFPreview doc={doc} content={editedContent} />
             </div>
           </div>
