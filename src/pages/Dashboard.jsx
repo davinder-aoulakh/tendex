@@ -14,11 +14,11 @@ import OnboardingBanner from '@/components/dashboard/OnboardingBanner';
 import VersionHistory from '@/components/document/VersionHistory';
 import { useToast } from '@/components/ui/use-toast';
 
-const docTypeColors = {
-  SOW: 'bg-[#1A0000] text-[#FF6B65] border-[#E8221A]/30',
-  EOI: 'bg-[#1A0A00] text-[#F59E0B] border-[#F59E0B]/30',
-  RFQ: 'bg-[#001A0A] text-[#10B981] border-[#10B981]/30',
-  RFP: 'bg-[#0A001A] text-[#A78BFA] border-[#A78BFA]/30',
+const docTypeStyles = {
+  SOW: { background: 'rgba(232,34,26,0.12)', color: '#E8221A', borderColor: 'rgba(232,34,26,0.35)' },
+  EOI: { background: 'rgba(245,158,11,0.12)', color: '#D97706', borderColor: 'rgba(245,158,11,0.35)' },
+  RFQ: { background: 'rgba(16,185,129,0.12)', color: '#059669', borderColor: 'rgba(16,185,129,0.35)' },
+  RFP: { background: 'rgba(139,92,246,0.12)', color: '#7C3AED', borderColor: 'rgba(139,92,246,0.35)' },
 };
 
 // Map document type + status to procurement status label
@@ -125,12 +125,12 @@ export default function Dashboard() {
                   Quick create <ChevronDown className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.09)' }}>
-                <DropdownMenuLabel className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Create a document directly</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigate('/questionnaire/SOW?mode=standalone')} style={{ color: 'white' }}>Scope of Work (SOW)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/questionnaire/EOI')} style={{ color: 'white' }}>Expression of Interest (EOI)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/questionnaire/RFQ')} style={{ color: 'white' }}>Request for Quotation (RFQ)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/questionnaire/RFP')} style={{ color: 'white' }}>Request for Proposal (RFP)</DropdownMenuItem>
+              <DropdownMenuContent align="end" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+                <DropdownMenuLabel className="text-xs" style={{ color: 'var(--text-muted)' }}>Create a document directly</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/SOW?mode=standalone')} style={{ color: 'var(--text-primary)' }}>Scope of Work (SOW)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/EOI')} style={{ color: 'var(--text-primary)' }}>Expression of Interest (EOI)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/RFQ')} style={{ color: 'var(--text-primary)' }}>Request for Quotation (RFQ)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/questionnaire/RFP')} style={{ color: 'var(--text-primary)' }}>Request for Proposal (RFP)</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Link to="/start-procurement">
@@ -196,9 +196,9 @@ export default function Dashboard() {
             { label: 'Completed', value: stats.complete, color: 'text-green-400' },
           ].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="rounded-xl border border-white/10 p-5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              style={{ background: 'var(--card)', border: '1px solid var(--border)' }} className="rounded-xl p-5">
               <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-              <div className="text-sm text-white/40 mt-1">{s.label}</div>
+              <div className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
             </motion.div>
           ))}
         </div>
@@ -210,7 +210,8 @@ export default function Dashboard() {
              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(232,34,26,0.4)' }} />
              <Input
                placeholder="Search by title or document ID..."
-               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-[#E8221A]/50"
+               className="pl-9 focus-visible:ring-[#E8221A]/50"
+               style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                value={search}
                onChange={e => setSearch(e.target.value)}
              />
@@ -221,10 +222,10 @@ export default function Dashboard() {
             {['all', 'draft', 'complete'].map(s => (
               <Button key={s} size="sm"
                 onClick={() => setFilterStatus(s)}
-                style={filterStatus === s ? { backgroundColor: '#E8221A' } : {}}
-                className={`text-xs capitalize transition-colors ${filterStatus === s
-                  ? 'text-white border-0'
-                  : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}>
+                style={filterStatus === s
+                  ? { background: 'var(--primary)', color: 'var(--primary-foreground)', border: 'none' }
+                  : { background: 'var(--muted)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+                className="text-xs capitalize transition-colors hover-muted">
                 {s === 'all' ? 'All Status' : s === 'draft' ? 'In Progress' : 'Completed'}
               </Button>
             ))}
@@ -234,15 +235,15 @@ export default function Dashboard() {
         {/* Document List */}
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: 'var(--muted)' }} />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
            <FileText className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(232,34,26,0.2)' }} />
-           <h3 className="text-lg font-medium text-white mb-2">
+           <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
              {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
            </h3>
-           <p className="text-[#A3A3A3] mb-6">
+           <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
              {documents.length === 0 ? 'Start your first one to begin.' : 'Try adjusting your search or filters.'}
            </p>
            {documents.length === 0 && (
@@ -254,16 +255,16 @@ export default function Dashboard() {
                </Link>
                <DropdownMenu>
                  <DropdownMenuTrigger asChild>
-                   <Button variant="ghost" size="sm" className="gap-1 text-xs text-white/40 hover:text-white border border-white/10 hover:bg-white/10">
+                   <Button variant="ghost" size="sm" className="gap-1 text-xs hover-muted" style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
                      Quick create <ChevronDown className="w-3 h-3" />
                    </Button>
                  </DropdownMenuTrigger>
-                 <DropdownMenuContent align="center" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.09)' }}>
-                   <DropdownMenuLabel className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Create a document directly</DropdownMenuLabel>
-                   <DropdownMenuItem onClick={() => navigate('/questionnaire/SOW?mode=standalone')} style={{ color: 'white' }}>Scope of Work (SOW)</DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => navigate('/questionnaire/EOI')} style={{ color: 'white' }}>Expression of Interest (EOI)</DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => navigate('/questionnaire/RFQ')} style={{ color: 'white' }}>Request for Quotation (RFQ)</DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => navigate('/questionnaire/RFP')} style={{ color: 'white' }}>Request for Proposal (RFP)</DropdownMenuItem>
+                 <DropdownMenuContent align="center" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+                   <DropdownMenuLabel className="text-xs" style={{ color: 'var(--text-muted)' }}>Create a document directly</DropdownMenuLabel>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/SOW?mode=standalone')} style={{ color: 'var(--text-primary)' }}>Scope of Work (SOW)</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/EOI')} style={{ color: 'var(--text-primary)' }}>Expression of Interest (EOI)</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/RFQ')} style={{ color: 'var(--text-primary)' }}>Request for Quotation (RFQ)</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/questionnaire/RFP')} style={{ color: 'var(--text-primary)' }}>Request for Proposal (RFP)</DropdownMenuItem>
                  </DropdownMenuContent>
                </DropdownMenu>
              </div>
@@ -272,22 +273,22 @@ export default function Dashboard() {
         ) : (
           <>
             {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto rounded-xl border border-white/10" style={{ background: 'rgba(255,255,255,0.04)' }}>
+            <div className="hidden md:block overflow-x-auto rounded-xl" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Title</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">ID</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Type</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Status</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Last Modified</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-[#A3A3A3]">Actions</th>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                     <th className="px-6 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Title</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>ID</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Type</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Status</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Last Modified</th>
+                     <th className="px-6 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Actions</th>
                    </tr>
                 </thead>
                 <tbody>
                   {filtered.map((doc, i) => (
                     <motion.tr key={doc.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
-                      className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      className="row-hover transition-colors" style={{ borderBottom: '1px solid var(--border)' }}>
                       <td className="px-6 py-3.5">
                         <button onClick={() => {
                           if (doc.status === 'draft' && doc.questionnaire_type && !doc.final_content) {
@@ -299,7 +300,7 @@ export default function Dashboard() {
                           } else {
                             navigate(`/document/${doc.id}`);
                           }
-                        }} className="font-medium text-white hover:text-red-300 transition-colors text-sm text-left">
+                        }} className="font-medium hover:text-[#E8221A] transition-colors text-sm text-left" style={{ color: 'var(--text-primary)' }}>
                           {doc.title}
                         </button>
                       </td>
@@ -307,7 +308,7 @@ export default function Dashboard() {
                          <span className="text-xs font-mono text-[#6B6B6B]">{doc.procurement_id || '—'}</span>
                        </td>
                       <td className="px-6 py-3.5">
-                        <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
+                        <Badge className="text-xs border font-semibold px-2 py-0.5 rounded-full" style={docTypeStyles[doc.document_type]}>{doc.document_type}</Badge>
                       </td>
                       <td className="px-6 py-3.5">
                         <span className={`text-xs font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
@@ -345,12 +346,12 @@ export default function Dashboard() {
                           )}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/10">
+                              <Button variant="ghost" size="icon" className="w-7 h-7 hover-muted" style={{ color: 'var(--text-muted)' }}>
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48" style={{ background: '#111111', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
-                              <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'white' }}>
+                            <DropdownMenuContent align="end" className="w-48" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+                             <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'var(--text-primary)' }}>
                                 <FileText className="w-4 h-4 mr-2" />Open
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => {
@@ -371,13 +372,13 @@ export default function Dashboard() {
                                   queryClient.invalidateQueries({ queryKey: ['documents'] });
                                   toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
                                 });
-                              }} style={{ color: 'white' }}>
+                              }} style={{ color: 'var(--text-primary)' }}>
                                 <FileText className="w-4 h-4 mr-2" />Duplicate
                               </DropdownMenuItem>
                               <DropdownMenuItem style={{ color: '#EF4444' }} onClick={() => deleteMutation.mutate(doc.id)}>
                                 <Trash2 className="w-4 h-4 mr-2" />Delete
                               </DropdownMenuItem>
-                            </DropdownMenuContent>
+                              </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
                       </td>
@@ -391,7 +392,7 @@ export default function Dashboard() {
             <div className="md:hidden space-y-4">
               {filtered.map((doc, i) => (
                 <motion.div key={doc.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  className="rounded-xl border border-white/10 p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  className="rounded-xl p-4 space-y-3" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
                   {/* Title */}
                   <button onClick={() => {
                     if (doc.status === 'draft' && doc.questionnaire_type && !doc.final_content) {
@@ -403,14 +404,14 @@ export default function Dashboard() {
                     } else {
                       navigate(`/document/${doc.id}`);
                     }
-                  }} className="text-left font-medium text-white hover:text-[#E53935] transition-colors truncate w-full">
+                  }} className="text-left font-medium hover:text-[#E8221A] transition-colors truncate w-full" style={{ color: 'var(--text-primary)' }}>
                     {doc.title}
                   </button>
 
                   {/* ID + Type Row */}
                   <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="font-mono text-[#6B6B6B]">{doc.procurement_id || '—'}</span>
-                    <Badge className={`text-xs border ${docTypeColors[doc.document_type]}`}>{doc.document_type}</Badge>
+                    <span className="font-mono" style={{ color: 'var(--text-muted)' }}>{doc.procurement_id || '—'}</span>
+                    <Badge className="text-xs border font-semibold px-2 py-0.5 rounded-full" style={docTypeStyles[doc.document_type]}>{doc.document_type}</Badge>
                   </div>
 
                   {/* Status + Last Modified Row */}
@@ -430,7 +431,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                  <div className="flex items-center gap-2 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
                         className="flex-1 gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
@@ -455,12 +456,12 @@ export default function Dashboard() {
                     )}
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="w-8 h-8 text-white/40 hover:text-white hover:bg-white/10">
+                      <Button variant="ghost" size="icon" className="w-8 h-8 hover-muted" style={{ color: 'var(--text-muted)' }}>
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48" style={{ background: '#111111', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
-                      <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'white' }}>
+                    <DropdownMenuContent align="end" className="w-48" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+                      <DropdownMenuItem onClick={() => navigate(`/document/${doc.id}`)} style={{ color: 'var(--text-primary)' }}>
                         <FileText className="w-4 h-4 mr-2" />Open
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => {
@@ -480,7 +481,7 @@ export default function Dashboard() {
                           queryClient.invalidateQueries({ queryKey: ['documents'] });
                           toast({ title: 'Document duplicated', description: 'New copy created successfully.' });
                         });
-                      }} style={{ color: 'white' }}>
+                      }} style={{ color: 'var(--text-primary)' }}>
                         <FileText className="w-4 h-4 mr-2" />Duplicate
                       </DropdownMenuItem>
                       <DropdownMenuItem style={{ color: '#EF4444' }} onClick={() => deleteMutation.mutate(doc.id)}>

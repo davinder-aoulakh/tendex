@@ -30,20 +30,20 @@ export default function OnboardingBanner({ documentCount }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className="rounded-2xl p-6 mb-8 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, rgba(232,34,26,0.08) 0%, rgba(26,26,26,0.6) 100%)', border: '1px solid rgba(232,34,26,0.2)' }}
+          style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
         >
           {/* Glow */}
           <div className="absolute inset-0 pointer-events-none"
             style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(232,34,26,0.12) 0%, transparent 70%)' }} />
 
-          <button onClick={dismiss} className="absolute top-4 right-4 text-white/30 hover:text-white transition-colors">
+          <button onClick={dismiss} className="absolute top-4 right-4 transition-colors" style={{ color: 'var(--text-muted)' }}>
             <X className="w-4 h-4" />
           </button>
 
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5" style={{ color: '#E8221A' }} />
-              <h3 className="font-semibold text-white">Welcome to TendeX! Here's how it works:</h3>
+              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Welcome to TendeX! Here's how it works:</h3>
             </div>
             <div className="grid sm:grid-cols-4 gap-4 mb-5">
               {steps.map((step, i) => (
@@ -52,8 +52,8 @@ export default function OnboardingBanner({ documentCount }) {
                     <step.icon className="w-3.5 h-3.5" style={{ color: '#E8221A' }} />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-white mb-0.5">{step.title}</div>
-                    <div className="text-xs text-white/50">{step.desc}</div>
+                    <div className="text-xs font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>{step.title}</div>
+                     <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{step.desc}</div>
                   </div>
                 </div>
               ))}
@@ -64,7 +64,7 @@ export default function OnboardingBanner({ documentCount }) {
                   Create your first document <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
-              <button onClick={dismiss} className="text-xs text-white/40 hover:text-white transition-colors ml-3">Dismiss</button>
+              <button onClick={dismiss} className="text-xs transition-colors ml-3" style={{ color: 'var(--text-muted)' }}>Dismiss</button>
             </div>
           </div>
         </motion.div>

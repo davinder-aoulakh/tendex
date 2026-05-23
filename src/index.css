@@ -174,4 +174,5 @@
   .text-muted-themed     { color: var(--text-muted); }
 
   .hover-muted:hover { background: var(--muted) !important; }
+  .row-hover:hover { background: var(--muted); }
 }
