@@ -16,11 +16,53 @@
     },
     "abn": {
       "type": "string",
-      "description": "Verified Australian Business Number (11 digits, no spaces)"
+      "description": "11-digit Australian Business Number, digits only (no spaces)"
     },
     "abn_entity_name": {
       "type": "string",
-      "description": "Registered entity name returned by ABN Register lookup"
+      "description": "Registered entity name returned by the ABR when the ABN was verified"
+    },
+    "abn_entity_type_code": {
+      "type": "string",
+      "description": "ABR entity type code e.g. PRV, IND, TRT, PTR"
+    },
+    "abn_entity_type_name": {
+      "type": "string",
+      "description": "Human-readable entity type e.g. Australian Private Company, Trust"
+    },
+    "abn_address_state": {
+      "type": "string",
+      "description": "State code from ABR address e.g. NSW, VIC, QLD, WA, SA, TAS, ACT, NT"
+    },
+    "abn_address_postcode": {
+      "type": "string",
+      "description": "Postcode from ABR address"
+    },
+    "abn_gst_registered": {
+      "type": "boolean",
+      "description": "Whether the entity is registered for GST",
+      "default": false
+    },
+    "abn_gst_registered_since": {
+      "type": "string",
+      "description": "Date the entity registered for GST, format YYYY-MM-DD"
+    },
+    "abn_active_since": {
+      "type": "string",
+      "description": "Date the ABN became active, format YYYY-MM-DD"
+    },
+    "abn_acn": {
+      "type": "string",
+      "description": "Australian Company Number if applicable (9 digits)"
+    },
+    "abn_verified_at": {
+      "type": "string",
+      "description": "ISO timestamp of when the ABN was last verified against the ABR"
+    },
+    "abn_confirmed": {
+      "type": "boolean",
+      "description": "Whether the user has confirmed this ABN belongs to their organisation",
+      "default": false
     }
   },
   "required": [
