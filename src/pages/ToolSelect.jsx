@@ -133,23 +133,24 @@ export default function ToolSelect() {
         )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="font-syne text-4xl font-semibold text-white mb-3">What do you need?</h1>
-          <p className="text-lg text-[#A3A3A3]">Start a full procurement journey or create a standalone document.</p>
+          <h1 className="font-syne text-4xl font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>What do you need?</h1>
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>Start a full procurement journey or create a standalone document.</p>
         </motion.div>
 
         {/* AI Assist */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-white/10 p-6 mb-10" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          className="rounded-2xl border p-6 mb-10" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Bot className="w-5 h-5" style={{ color: '#E8221A' }} />
-            <h2 className="font-semibold text-white">Not sure? Describe your need</h2>
+            <Bot className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Not sure? Describe your need</h2>
           </div>
           <div className="flex gap-3">
             <Textarea
               placeholder="e.g. I need to hire a web developer to build our e-commerce site..."
               value={aiQuery}
               onChange={e => setAiQuery(e.target.value)}
-              className="min-h-[80px] resize-none flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="min-h-[80px] resize-none flex-1 focus-visible:ring-1"
+              style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
             />
             <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()}
               className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
@@ -157,9 +158,9 @@ export default function ToolSelect() {
             </Button>
           </div>
           {aiSuggestion && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid rgba(232,34,26,0.3)', background: 'rgba(232,34,26,0.1)' }}>
-              <span className="font-semibold" style={{ color: '#E8221A' }}>Recommended: {aiSuggestion.type}</span>
-              <span className="ml-2 text-white/60">— {aiSuggestion.reason}</span>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 p-3 rounded-lg text-sm" style={{ background: 'var(--muted)', border: '1px solid var(--border-strong)' }}>
+              <span className="font-semibold" style={{ color: 'var(--primary)' }}>Recommended: {aiSuggestion.type}</span>
+              <span className="ml-2" style={{ color: 'var(--text-secondary)' }}>— {aiSuggestion.reason}</span>
             </motion.div>
           )}
         </motion.div>
@@ -170,8 +171,8 @@ export default function ToolSelect() {
           <div
             className="rounded-2xl border-2 p-6 mb-10 cursor-pointer transition-all"
             style={{
-              background: selected === 'SOW' ? 'rgba(0,201,167,0.08)' : 'rgba(255,255,255,0.04)',
-              borderColor: selected === 'SOW' ? 'rgba(0,201,167,0.5)' : 'rgba(255,255,255,0.1)',
+              background: selected === 'SOW' ? 'rgba(0,201,167,0.08)' : 'var(--card)',
+              borderColor: selected === 'SOW' ? 'var(--primary)' : 'var(--border)',
               boxShadow: selected === 'SOW' ? '0 0 24px rgba(0,201,167,0.1)' : 'none',
             }}
             onClick={() => setSelected('SOW')}
@@ -185,7 +186,7 @@ export default function ToolSelect() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1 flex-wrap">
-                  <h3 className="font-syne font-700 text-white text-lg">Full Procurement Journey</h3>
+                  <h3 className="font-syne font-700 text-lg" style={{ color: 'var(--text-primary)' }}>Full Procurement Journey</h3>
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: 'rgba(0,201,167,0.1)', color: '#00C9A7', border: '1px solid rgba(0,201,167,0.2)' }}>
                     Recommended starting point
@@ -197,7 +198,7 @@ export default function ToolSelect() {
                 <div className="flex flex-wrap gap-2">
                   {['Define scope of work', 'AI quality scoring', 'Recommend EOI / RFQ / RFP', 'Generate market-ready document'].map(step => (
                     <span key={step} className="text-xs px-2 py-1 rounded-md"
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#8FA5C0' }}>
+                      style={{ background: 'var(--muted)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                       {step}
                     </span>
                   ))}
@@ -216,18 +217,18 @@ export default function ToolSelect() {
                 onClick={() => setSelected(tool.id)}
                 className="text-left p-6 rounded-2xl border-2 transition-all"
                 style={{
-                  borderColor: selected === tool.id ? 'rgba(232,34,26,0.6)' : 'rgba(255,255,255,0.1)',
-                  background: selected === tool.id ? 'rgba(232,34,26,0.12)' : 'rgba(255,255,255,0.04)',
+                  borderColor: selected === tool.id ? 'var(--primary)' : 'var(--border)',
+                  background: selected === tool.id ? 'rgba(232,34,26,0.12)' : 'var(--card)',
                   boxShadow: selected === tool.id ? '0 0 20px rgba(232,34,26,0.15)' : 'none',
                 }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
                   <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{tool.title}</h3>
-                <p className="text-sm mb-3 leading-relaxed text-[#A3A3A3]">{tool.description}</p>
+                <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{tool.title}</h3>
+                <p className="text-sm mb-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{tool.description}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {tool.examples.map(ex => (
-                    <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' }}>{ex}</span>
+                    <span key={ex} className="text-xs px-2 py-1 rounded-md" style={{ background: 'var(--muted)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>{ex}</span>
                   ))}
                 </div>
               </motion.button>
@@ -238,7 +239,7 @@ export default function ToolSelect() {
         {/* Continue button */}
         <div className="flex flex-col items-end gap-3">
           <Button size="lg" onClick={handleProceed} disabled={!selected}
-            className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+            className="gap-2 px-8 border-0" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 4px 12px rgba(232,34,26,0.2)' }}>
             {continueLabel()} {selected && <ArrowRight className="w-4 h-4" />}
           </Button>
           <button
