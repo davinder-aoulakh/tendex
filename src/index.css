@@ -172,4 +172,6 @@
   .text-primary-themed   { color: var(--text-primary); }
   .text-secondary-themed { color: var(--text-secondary); }
   .text-muted-themed     { color: var(--text-muted); }
+
+  .hover-muted:hover { background: var(--muted) !important; }
 }

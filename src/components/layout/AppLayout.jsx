@@ -105,38 +105,41 @@ export default function AppLayout({ children }) {
                 )}
 
                 {navItems.map(item => {
-                   const active = location.pathname === item.path;
-                   return (
-                     <Link key={item.path + item.label} to={item.path}>
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         className={`gap-2 text-sm hidden sm:flex transition-colors ${active ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-                       >
-                         <item.icon className="w-4 h-4" />{item.label}
-                       </Button>
-                     </Link>
-                   );
-                 })}
-                 <Link to="/start-procurement">
-                   <Button size="sm" className="gap-2 ml-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
-                     <Plus className="w-4 h-4" />New
-                   </Button>
+                  const active = location.pathname === item.path;
+                  return (
+                    <Link key={item.path + item.label} to={item.path}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-sm hidden sm:flex transition-colors hover-muted"
+                        style={active
+                          ? { background: 'var(--border)', color: 'var(--text-primary)' }
+                          : { color: 'var(--text-secondary)' }}
+                      >
+                        <item.icon className="w-4 h-4" />{item.label}
+                      </Button>
+                    </Link>
+                  );
+                })}
+                <ThemeToggle variant="icon" />
+                <Link to="/start-procurement">
+                  <Button size="sm" className="gap-2 ml-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+                    <Plus className="w-4 h-4" />New
+                  </Button>
+                </Link>
+                {user && (
+                 <Link to="/profile">
+                   <button className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
+                     {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : user.email.split('@')[0].substring(0, 2).toUpperCase()}
+                   </button>
                  </Link>
-                 {user && (
-                  <Link to="/profile">
-                    <button className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
-                      {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : user.email.split('@')[0].substring(0, 2).toUpperCase()}
-                    </button>
-                  </Link>
-                 )}
-                 <ThemeToggle />
-                 <Button variant="ghost" size="icon" className="ml-1 text-white/50 hover:text-white hover:bg-white/10" onClick={() => base44.auth.logout('/')}>
-                  <LogOut className="w-4 h-4" />
-                 </Button>
+                )}
+                <Button variant="ghost" size="icon" className="ml-1 hover-muted" style={{ color: 'var(--text-muted)' }} onClick={() => base44.auth.logout('/')}>
+                 <LogOut className="w-4 h-4" />
+                </Button>
               </>
             ) : (
-              <Button size="sm" className="bg-white text-slate-900 hover:bg-white/90"
+              <Button size="sm" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
                 onClick={() => base44.auth.redirectToLogin('/dashboard')}>
                 Sign In
               </Button>
