@@ -9,10 +9,13 @@ import AppLayout from '@/components/layout/AppLayout';
 import ABNLookup from '@/components/questionnaire/ABNLookup';
 import LogoUpload from '@/components/questionnaire/LogoUpload';
 import { useToast } from '@/components/ui/use-toast';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme } = useTheme();
   const [user, setUser] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -260,8 +263,25 @@ export default function Profile() {
             )}
           </div>
 
+          {/* Appearance */}
+          <div className="mt-8 pt-8 border-t" style={{ borderColor: 'var(--border)' }}>
+            <h3 className="font-syne font-700 text-base mb-4" style={{ color: 'var(--text-primary)' }}>
+              Appearance
+            </h3>
+            <div className="flex items-center justify-between p-4 rounded-xl border"
+              style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+              <div>
+                <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Theme</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  Currently using {theme} mode
+                </p>
+              </div>
+              <ThemeToggle variant="pill" />
+            </div>
+          </div>
+
           {/* Subscription Actions */}
-          <div className="flex items-center gap-3">
+          <div className="mt-8 flex items-center gap-3">
             <Button onClick={() => navigate('/billing')} className="gap-2 text-white border-0" style={{ backgroundColor: '#E53935' }}>
               Manage Subscription →
             </Button>
