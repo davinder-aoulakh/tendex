@@ -122,11 +122,11 @@ export default function Billing() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <button onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors mb-6">
+          className="flex items-center gap-1.5 text-sm transition-colors mb-6" style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="font-display text-3xl font-bold text-white mb-2">Billing & Plans</h1>
-        <p className="text-white/50 mb-8">Manage your subscription and upgrade your plan</p>
+        <h1 className="font-syne text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Billing & Plans</h1>
+        <p className="mb-8" style={{ color: 'var(--text-secondary)' }}>Manage your subscription and upgrade your plan</p>
 
         {/* Current subscription status */}
         {subscription && (
@@ -137,21 +137,21 @@ export default function Billing() {
           }`}>
             <div className="flex items-center gap-2 mb-1">
               <Check className="w-5 h-5 text-green-400" />
-              <h3 className="font-semibold text-white">
+              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                 {subscription.plan === 'free' ? 'Free Trial Active' : `${PLANS[subscription.plan]?.name} Active`}
               </h3>
             </div>
-            <p className="text-sm text-white/50">
-              Status: <span className="font-semibold text-white/80">{subscription.status}</span>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Status: <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{subscription.status}</span>
             </p>
             {subscription.plan === 'free' && subscription.renewal_date && (
-              <p className="text-sm text-white/50 mt-2">
-                Trial expires: <span className="font-semibold text-white/80">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
+              <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+                Trial expires: <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
               </p>
             )}
             {subscription.status === 'active' && subscription.plan !== 'free' && subscription.renewal_date && (
-              <p className="text-sm text-white/50 mt-2">
-                Renews: <span className="font-semibold text-white/80">{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
+              <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+                Renews: <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{new Date(subscription.renewal_date).toLocaleDateString('en-AU')}</span>
               </p>
             )}
           </div>
@@ -167,28 +167,27 @@ export default function Billing() {
 
         {/* Plans comparison */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Available Plans</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Available Plans</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {Object.entries(PLANS).map(([key, plan]) => (
               <div
                 key={key}
-                className={`rounded-xl border p-6 transition-all ${
-                  subscription?.plan === key
-                    ? 'border-red-400/50 bg-red-500/10 ring-2 ring-red-400/30'
-                    : 'border-white/10 bg-white/5'
-                }`}
+                className="rounded-xl border p-6 transition-all"
+              style={subscription?.plan === key
+                ? { borderColor: 'var(--primary)', background: 'rgba(232,34,26,0.08)', boxShadow: '0 0 0 2px rgba(232,34,26,0.2)' }
+                : { borderColor: 'var(--border)', background: 'var(--card)' }}
               >
                 <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-white mb-1">{plan.name}</h3>
-                  <p className="text-2xl font-bold text-red-300">{plan.price}</p>
-                  <p className="text-sm text-white/40">{plan.duration}</p>
+                  <h3 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>{plan.price}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{plan.duration}</p>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-white/70">{feature}</span>
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
+                      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -220,8 +219,8 @@ export default function Billing() {
 
         {/* Subscription management */}
         {subscription?.status === 'active' && subscription?.plan !== 'free' && (
-          <div className="rounded-lg border border-white/10 bg-white/5 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Subscription Management</h3>
+          <div className="rounded-lg border p-6" style={{ borderColor: 'var(--border)', background: 'var(--card)' }}>
+            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Subscription Management</h3>
             <Button
               onClick={handleCancelSubscription}
               disabled={processingPayment}
@@ -230,7 +229,7 @@ export default function Billing() {
             >
               Cancel Subscription
             </Button>
-            <p className="text-xs text-white/40 mt-3">
+            <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
               You will retain access until the end of your current billing period.
             </p>
           </div>
@@ -238,7 +237,7 @@ export default function Billing() {
 
         {/* Footer note */}
         <div className="mt-12 text-center">
-          <p className="text-xs text-white/40">
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Pricing and features are placeholder values [TBC] pending final confirmation.
             <br />
             For support, contact support@tendex.com.au
