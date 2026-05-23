@@ -462,14 +462,14 @@ export default function Questionnaire() {
         {/* Header */}
         <div className="mb-8">
           <button onClick={handleBack}
-            className="flex items-center gap-1.5 text-sm transition-colors mb-6" style={{ color: 'rgba(0,201,167,0.5)' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(0,201,167,0.5)'}>
+            className="flex items-center gap-1.5 text-sm transition-colors mb-6" style={{ color: 'var(--text-muted)' }}>
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid rgba(0,201,167,0.3)', color: '#00C9A7', background: 'rgba(0,201,167,0.1)' }}>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid var(--border-strong)', color: 'var(--primary)', background: 'rgba(232,34,26,0.08)' }}>
               {type}
             </span>
-            <h1 className="font-display text-2xl font-semibold text-white">{docTypeLabels[type] || type}</h1>
+            <h1 className="font-syne text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{docTypeLabels[type] || type}</h1>
           </div>
           {type === 'SOW' && (
             <p className="text-xs mt-2" style={{ color: '#5C7A99' }}>
@@ -479,7 +479,7 @@ export default function Questionnaire() {
             </p>
           )}
           {type !== 'SOW' && (
-            <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>Answer a few questions and AI will draft your document.</p>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Answer a few questions and AI will draft your document.</p>
           )}
         </div>
 
@@ -487,7 +487,7 @@ export default function Questionnaire() {
         {atLimit && (
           <div className="mb-8 rounded-xl border border-red-400/30 p-5 text-center" style={{ background: 'rgba(239,68,68,0.08)' }}>
             <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-            <h3 className="font-semibold text-white mb-1">Document limit reached</h3>
+            <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Document limit reached</h3>
             <p className="text-sm text-red-300/80 mb-4">You've used all {docsLimit} documents on your {currentPlan} plan. Upgrade to create more.</p>
             <Link to="/billing">
               <Button className="text-white border-0" style={{ backgroundColor: '#00C9A7' }}>Upgrade Plan</Button>
@@ -506,8 +506,8 @@ export default function Questionnaire() {
         {aiStep === 'purpose' && (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">Scope Purpose</h2>
-              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>AI has drafted a scope purpose statement based on your answers.</p>
+              <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Scope Purpose</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>AI has drafted a scope purpose statement based on your answers.</p>
             </div>
             <AIScopePurpose
               answers={answers}
@@ -523,7 +523,7 @@ export default function Questionnaire() {
             />
             <div className="mt-6">
               <Button variant="ghost" onClick={() => { setAiStep(null); }}
-                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                className="hover-muted" style={{ borderColor: 'var(--border)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Questions
               </Button>
             </div>
@@ -534,8 +534,8 @@ export default function Questionnaire() {
         {aiStep === 'deliverables' && (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">Key Deliverables</h2>
-              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>AI has suggested deliverables based on your service description. Edit as needed.</p>
+              <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Key Deliverables</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>AI has suggested deliverables based on your service description. Edit as needed.</p>
             </div>
             <AIDeliverableChips
               answers={answers}
@@ -544,7 +544,7 @@ export default function Questionnaire() {
             />
             <div className="mt-6 flex justify-between">
               <Button variant="ghost" onClick={() => setAiStep(null)}
-                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
               <Button
@@ -567,8 +567,8 @@ export default function Questionnaire() {
         {aiStep === 'sow_review' && (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">Generate Scope of Work</h2>
-              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>AI is assembling your complete Scope of Work from all your answers.</p>
+              <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Generate Scope of Work</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>AI is assembling your complete Scope of Work from all your answers.</p>
             </div>
             <SOWDocumentReview
               answers={answers}
@@ -593,7 +593,7 @@ export default function Questionnaire() {
             />
             <div className="mt-4">
               <Button variant="ghost" onClick={() => setAiStep(null)}
-                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Questions
               </Button>
             </div>
@@ -604,8 +604,8 @@ export default function Questionnaire() {
         {aiStep === 'fallback_scope_questions' && (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">Help Us Understand Your Scope</h2>
-              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>We couldn't automatically read your document. Please answer a few quick questions so we can recommend the right document type.</p>
+              <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Help Us Understand Your Scope</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>We couldn't automatically read your document. Please answer a few quick questions so we can recommend the right document type.</p>
             </div>
             <FallbackScopeQuestions
               answers={answers}
@@ -623,7 +623,7 @@ export default function Questionnaire() {
             />
             <div className="mt-8">
               <Button variant="ghost" onClick={() => setAiStep(null)}
-                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
             </div>
@@ -634,14 +634,14 @@ export default function Questionnaire() {
         {showScoring && !aiStep && (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">AI Scope Review</h2>
-              <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>We've analysed your scope to recommend the best document type.</p>
+              <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>AI Scope Review</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>We've analysed your scope to recommend the best document type.</p>
             </div>
 
             {scoring ? (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
                 <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00C9A7' }} />
-                <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>Evaluating your scope...</p>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Evaluating your scope...</p>
               </div>
             ) : (
               <ScopeScoreResult
@@ -654,7 +654,7 @@ export default function Questionnaire() {
             {!scoring && (
               <div className="mt-8">
                 <Button variant="ghost" onClick={() => { setShowScoring(false); setScoreData(null); }}
-                  className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                  className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                   <ArrowLeft className="w-4 h-4 mr-2" /> Back to Questions
                 </Button>
               </div>
@@ -674,8 +674,8 @@ export default function Questionnaire() {
                 transition={{ duration: 0.25 }}
               >
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-white mb-1">{page?.title}</h2>
-                    {page?.description && <p className="text-sm" style={{ color: 'rgba(0,201,167,0.5)' }}>{page.description}</p>}
+                  <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{page?.title}</h2>
+                    {page?.description && <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{page.description}</p>}
                 </div>
 
                 {errors.length > 0 && (
@@ -696,7 +696,7 @@ export default function Questionnaire() {
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <ABNLookup
                             value={answers.abn || ''}
                             onChange={val => {
@@ -727,7 +727,7 @@ export default function Questionnaire() {
                       return (
                         <div key={field.key} className="space-y-2">
                           <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <LogoUpload
                             value={answers.logo_url || null}
                             onChange={url => updateAnswer('logo_url', url)}
@@ -744,7 +744,7 @@ export default function Questionnaire() {
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <ScopeUpload
                             value={answers.own_scope_document || null}
                             onChange={url => updateAnswer('own_scope_document', url)}
@@ -765,7 +765,7 @@ export default function Questionnaire() {
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <RFPEvaluationCriteria
                             ranking={answers.rfp_criteria_ranking}
                             weightings={answers.rfp_criteria_weightings}
@@ -784,7 +784,7 @@ export default function Questionnaire() {
                       return (
                         <div key={field.key} className="space-y-2">
                           <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <RFPMethodologyDraft
                             answers={answers}
                             value={answers.rfp_methodology_question}
@@ -819,7 +819,7 @@ export default function Questionnaire() {
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <GoodsItemsTable
                             value={answers[field.key] || []}
                             onChange={val => updateAnswer(field.key, val)}
@@ -836,7 +836,7 @@ export default function Questionnaire() {
                       return (
                         <div key={field.key} className="space-y-2">
                           <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <PerItemDelivery
                             goodsItems={answers.goods_items || []}
                             value={answers[field.key] || {}}
@@ -851,7 +851,7 @@ export default function Questionnaire() {
                       return (
                         <div key={field.key} className="space-y-2">
                           <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
-                          {field.helpText && <p className="text-xs" style={{ color: 'rgba(0,201,167,0.3)' }}>{field.helpText}</p>}
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <WarrantyTable
                             goodsItems={answers.goods_items || []}
                             value={answers[field.key] || {}}
@@ -890,7 +890,7 @@ export default function Questionnaire() {
 
             <div className="mt-10 flex justify-between items-center">
               <Button variant="ghost" onClick={handleBack}
-                className="text-white/50 hover:text-white hover:bg-white/10 border border-white/10">
+                className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
 

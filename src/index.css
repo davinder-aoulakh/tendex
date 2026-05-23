@@ -176,3 +176,11 @@
   .hover-muted:hover { background: var(--muted) !important; }
   .row-hover:hover { background: var(--muted); }
 }
+
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+}
