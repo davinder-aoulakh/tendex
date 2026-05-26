@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lightbulb, ClipboardList, Search, ArrowRight, Bot, Sparkles, AlertCircle, Layers } from 'lucide-react';
+import { Lightbulb, ClipboardList, Search, ArrowRight, Bot, Sparkles, AlertCircle, Layers, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import AppLayout from '@/components/layout/AppLayout';
 
 const standaloneTools = [
+  {
+    id: 'SOW',
+    icon: FileText,
+    title: 'Scope of Work (SOW)',
+    description: 'Define deliverables, timelines, and responsibilities for a known engagement.',
+    iconColor: 'text-blue-300',
+    examples: ['Contractor engagement', 'Consulting services', 'Project deliverables'],
+    route: '/questionnaire/SOW?mode=standalone',
+  },
   {
     id: 'EOI',
     icon: Lightbulb,
@@ -83,7 +92,8 @@ export default function ToolSelect() {
       },
     });
     setAiSuggestion(result);
-    setSelected(result.type);
+    // SOW from AI means full journey; map accordingly
+    setSelected(result.type === 'SOW' ? 'JOURNEY' : result.type);
     setAiLoading(false);
   };
 
@@ -91,13 +101,16 @@ export default function ToolSelect() {
     if (isTrialExpired) { navigate('/billing'); return; }
     if (subscription?.plan === 'free' && docsUsed >= subscription.documents_limit) { navigate('/billing'); return; }
     if (!selected) return;
-    // SOW goes through full procurement journey; EOI/RFQ/RFP go directly to questionnaire
+    const tool = standaloneTools.find(t => t.id === selected);
+    if (tool?.route) { navigate(tool.route); return; }
+    if (selected === 'JOURNEY') { navigate('/questionnaire/SOW'); return; }
     navigate(`/questionnaire/${selected}`);
   };
 
   const continueLabel = () => {
     if (!selected) return 'Select a document type';
-    if (selected === 'SOW') return 'Start procurement journey →';
+    if (selected === 'JOURNEY') return 'Start procurement journey →';
+    if (selected === 'SOW') return 'Create SOW document →';
     return `Create ${selected} document →`;
   };
 
@@ -171,13 +184,13 @@ export default function ToolSelect() {
           <div
             className="rounded-2xl border-2 p-6 mb-10 cursor-pointer transition-all"
             style={{
-              background: selected === 'SOW' ? 'rgba(0,201,167,0.08)' : 'var(--card)',
-              borderColor: selected === 'SOW' ? 'var(--primary)' : 'var(--border)',
-              boxShadow: selected === 'SOW' ? '0 0 24px rgba(0,201,167,0.1)' : 'none',
+              background: selected === 'JOURNEY' ? 'rgba(0,201,167,0.08)' : 'var(--card)',
+              borderColor: selected === 'JOURNEY' ? 'var(--primary)' : 'var(--border)',
+              boxShadow: selected === 'JOURNEY' ? '0 0 24px rgba(0,201,167,0.1)' : 'none',
             }}
-            onClick={() => setSelected('SOW')}
+            onClick={() => setSelected('JOURNEY')}
             role="button"
-            aria-pressed={selected === 'SOW'}
+            aria-pressed={selected === 'JOURNEY'}
           >
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -211,7 +224,7 @@ export default function ToolSelect() {
         {/* SECTION B — Standalone document types */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#5C7A99' }}>Or create a standalone document</p>
-          <div className="grid md:grid-cols-3 gap-5 mb-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             {standaloneTools.map((tool, i) => (
               <motion.button key={tool.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 + 0.25 }}
                 onClick={() => setSelected(tool.id)}
@@ -237,20 +250,11 @@ export default function ToolSelect() {
         </motion.div>
 
         {/* Continue button */}
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex justify-end">
           <Button size="lg" onClick={handleProceed} disabled={!selected}
             className="gap-2 px-8 border-0" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 4px 12px rgba(232,34,26,0.2)' }}>
             {continueLabel()} {selected && <ArrowRight className="w-4 h-4" />}
           </Button>
-          <button
-            className="text-sm transition-colors"
-            style={{ color: '#5C7A99' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#8FA5C0'}
-            onMouseLeave={e => e.currentTarget.style.color = '#5C7A99'}
-            onClick={() => navigate('/questionnaire/SOW?mode=standalone')}
-          >
-            Just need a Scope of Work document? Create one directly →
-          </button>
         </div>
       </div>
     </AppLayout>
