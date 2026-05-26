@@ -293,9 +293,8 @@ export default function Questionnaire() {
 
   const currentSub = subscriptions[0];
   const currentPlan = currentSub?.plan || 'free';
-  const planLimits = { free: 3, starter: 20, professional: 999 };
-  const docsLimit = planLimits[currentPlan] || 3;
-  const atLimit = documents.length >= docsLimit && docsLimit !== 999;
+  const docsLimit = currentSub?.documents_limit ?? 25;
+  const atLimit = documents.length >= docsLimit && currentPlan !== 'professional';
 
   // Recompute visible pages whenever answers change
   const visiblePages = getVisiblePages(type, answers);
