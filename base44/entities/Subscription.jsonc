@@ -29,7 +29,7 @@
     },
     "documents_limit": {
       "type": "number",
-      "default": 3
+      "default": 25
     },
     "billing_cycle": {
       "type": "string",
