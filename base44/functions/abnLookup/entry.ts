@@ -44,10 +44,14 @@ Deno.serve(async (req) => {
 
   let data;
   try {
-    const jsonString = rawText.replace(/^callback\s*\(/, '').replace(/\s*\);\s*$/, '');
+    // Strip JSONP wrapper: callback({...}) or callback({...});
+    const firstBrace = rawText.indexOf('{');
+    const lastBrace = rawText.lastIndexOf('}');
+    if (firstBrace === -1 || lastBrace === -1) throw new Error('No JSON object found');
+    const jsonString = rawText.slice(firstBrace, lastBrace + 1);
     data = JSON.parse(jsonString);
   } catch {
-    console.error('Failed to parse ABR response:', rawText.slice(0, 200));
+    console.error('Failed to parse ABR response:', rawText.slice(0, 500));
     return Response.json({ valid: false, reason: 'parse_error', message: 'Unexpected response from ABN Register' }, { status: 502 });
   }
 
