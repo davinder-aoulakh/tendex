@@ -111,7 +111,7 @@ export default function Billing() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 text-red-400 animate-spin" />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
         </div>
       </AppLayout>
     );
@@ -130,13 +130,11 @@ export default function Billing() {
 
         {/* Current subscription status */}
         {subscription && (
-          <div className={`rounded-lg border px-6 py-4 mb-8 ${
-            subscription.status === 'active'
-              ? 'border-green-400/30 bg-green-400/10'
-              : 'border-yellow-400/30 bg-yellow-400/10'
-          }`}>
+          <div className="rounded-lg border px-6 py-4 mb-8" style={subscription.status === 'active'
+            ? { borderColor: 'var(--success-border)', background: 'var(--success-subtle)' }
+            : { borderColor: 'var(--warning-border)', background: 'var(--warning-subtle)' }}>
             <div className="flex items-center gap-2 mb-1">
-              <Check className="w-5 h-5 text-green-400" />
+              <Check className="w-5 h-5" style={{ color: 'var(--success)' }} />
               <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                 {subscription.plan === 'free' ? 'Free Trial Active' : `${PLANS[subscription.plan]?.name} Active`}
               </h3>
@@ -159,9 +157,9 @@ export default function Billing() {
 
         {/* Error message */}
         {error && (
-          <div className="mb-8 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-            <p className="text-sm text-red-300">{error}</p>
+          <div className="mb-8 rounded-lg border px-4 py-3 flex items-center gap-3" style={{ borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)' }}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--destructive)' }} />
+            <p className="text-sm" style={{ color: 'var(--destructive)' }}>{error}</p>
           </div>
         )}
 
@@ -193,14 +191,14 @@ export default function Billing() {
                 </div>
 
                 {subscription?.plan === key ? (
-                  <Button disabled className="w-full bg-green-500/20 text-green-400 border border-green-400/30">
+                  <Button disabled className="w-full border" style={{ background: 'var(--success-subtle)', color: 'var(--success)', borderColor: 'var(--success-border)' }}>
                     <Check className="w-4 h-4 mr-2" /> Current Plan
                   </Button>
                 ) : key === 'professional' ? (
                   <Button
                     onClick={handleUpgradeToPaid}
                     disabled={processingPayment}
-                    className="w-full bg-[#E53935] hover:bg-[#EF5350] text-white border-0"
+                    className="w-full border-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
                   >
                     {processingPayment ? (
                       <>

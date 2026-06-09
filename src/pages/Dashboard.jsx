@@ -300,7 +300,7 @@ export default function Dashboard() {
                           } else {
                             navigate(`/document/${doc.id}`);
                           }
-                        }} className="font-medium hover:text-[#E8221A] transition-colors text-sm text-left" style={{ color: 'var(--text-primary)' }}>
+                        }} className="font-medium transition-colors text-sm text-left" style={{ color: 'var(--text-primary)' }}>
                           {doc.title}
                         </button>
                       </td>
@@ -375,9 +375,9 @@ export default function Dashboard() {
                               }} style={{ color: 'var(--text-primary)' }}>
                                 <FileText className="w-4 h-4 mr-2" />Duplicate
                               </DropdownMenuItem>
-                              <DropdownMenuItem style={{ color: '#EF4444' }} onClick={() => deleteMutation.mutate(doc.id)}>
-                                <Trash2 className="w-4 h-4 mr-2" />Delete
-                              </DropdownMenuItem>
+                              <DropdownMenuItem style={{ color: 'var(--destructive)' }} onClick={() => deleteMutation.mutate(doc.id)}>
+                                                 <Trash2 className="w-4 h-4 mr-2" />Delete
+                                               </DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -404,7 +404,7 @@ export default function Dashboard() {
                     } else {
                       navigate(`/document/${doc.id}`);
                     }
-                  }} className="text-left font-medium hover:text-[#E8221A] transition-colors truncate w-full" style={{ color: 'var(--text-primary)' }}>
+                  }} className="text-left font-medium transition-colors truncate w-full" style={{ color: 'var(--text-primary)' }}>
                     {doc.title}
                   </button>
 
@@ -434,7 +434,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-2 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                        className="flex-1 gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
                           onClick={() => {
                             try {
                               localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -449,7 +449,7 @@ export default function Dashboard() {
                     )}
                     {doc.status === 'complete' && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                        className="flex-1 gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
                           onClick={() => navigate(`/document/${doc.id}`)}>
                           <FileText className="w-3 h-3" />View
                       </Button>
@@ -484,9 +484,9 @@ export default function Dashboard() {
                       }} style={{ color: 'var(--text-primary)' }}>
                         <FileText className="w-4 h-4 mr-2" />Duplicate
                       </DropdownMenuItem>
-                      <DropdownMenuItem style={{ color: '#EF4444' }} onClick={() => deleteMutation.mutate(doc.id)}>
-                        <Trash2 className="w-4 h-4 mr-2" />Delete
-                      </DropdownMenuItem>
+                      <DropdownMenuItem style={{ color: 'var(--destructive)' }} onClick={() => deleteMutation.mutate(doc.id)}>
+                         <Trash2 className="w-4 h-4 mr-2" />Delete
+                       </DropdownMenuItem>
                     </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
