@@ -150,7 +150,7 @@ export default function LandingNew() {
               <div className="space-y-3 mb-8">
                 {[
                   { num: 1, title: 'Business profile', complete: true, ai: false },
-                  { num: 2, title: 'Scope of work', complete: true, ai: true },
+                  { num: 2, title: 'Document Creation', complete: true, ai: true },
                   { num: 3, title: 'Market engagement', active: true, ai: true, sub: 'Generating your RFP…' },
                   { num: 4, title: 'Issue to market', future: true, ai: false, sub: 'Word + PDF export ready' },
                 ].map((step) => (
