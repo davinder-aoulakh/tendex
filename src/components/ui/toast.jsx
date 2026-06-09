@@ -26,7 +26,7 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
+        default: "border-border-strong text-foreground",
         destructive:
           "destructive group border-destructive bg-destructive text-destructive-foreground",
       },
@@ -42,6 +42,7 @@ const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
     <div
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
+      style={{ backgroundColor: 'var(--card)', boxShadow: '0 4px 24px rgba(0,0,0,0.4)' }}
       {...props}
     />
   );
@@ -101,4 +102,4 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
-}; 
+};
