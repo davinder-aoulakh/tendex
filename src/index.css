@@ -50,6 +50,24 @@
     /* Card backgrounds used across the app */
     --card-surface:  rgba(255,255,255,0.04);
     --card-surface-hover: rgba(255,255,255,0.07);
+
+    /* Semantic state colours */
+    --success:         #22C55E;
+    --success-fg:      #FFFFFF;
+    --success-subtle:  rgba(34,197,94,0.08);
+    --success-border:  rgba(34,197,94,0.3);
+
+    --warning:         #F59E0B;
+    --warning-fg:      #080E1A;
+    --warning-subtle:  rgba(245,158,11,0.08);
+    --warning-border:  rgba(245,158,11,0.3);
+
+    --action:          #00C9A7;
+    --action-fg:       #080E1A;
+    --action-subtle:   rgba(0,201,167,0.1);
+    --action-border:   rgba(0,201,167,0.3);
+
+    --text-disabled:   #3A5070;
   }
 
   /* ── LIGHT THEME ──────────────────────────────────────────────── */
@@ -91,6 +109,24 @@
 
     --card-surface:  rgba(0,0,0,0.03);
     --card-surface-hover: rgba(0,0,0,0.055);
+
+    /* Semantic state colours */
+    --success:         #16A34A;
+    --success-fg:      #FFFFFF;
+    --success-subtle:  rgba(22,163,74,0.08);
+    --success-border:  rgba(22,163,74,0.25);
+
+    --warning:         #D97706;
+    --warning-fg:      #FFFFFF;
+    --warning-subtle:  rgba(217,119,6,0.08);
+    --warning-border:  rgba(217,119,6,0.25);
+
+    --action:          #0D9488;
+    --action-fg:       #FFFFFF;
+    --action-subtle:   rgba(13,148,136,0.08);
+    --action-border:   rgba(13,148,136,0.25);
+
+    --text-disabled:   #94A3B8;
   }
 }
 

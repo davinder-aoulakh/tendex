@@ -16,9 +16,9 @@ import { useToast } from '@/components/ui/use-toast';
 
 const docTypeStyles = {
   SOW: { background: 'rgba(232,34,26,0.12)', color: '#E8221A', borderColor: 'rgba(232,34,26,0.35)' },
-  EOI: { background: 'rgba(245,158,11,0.12)', color: '#D97706', borderColor: 'rgba(245,158,11,0.35)' },
-  RFQ: { background: 'rgba(16,185,129,0.12)', color: '#059669', borderColor: 'rgba(16,185,129,0.35)' },
-  RFP: { background: 'rgba(139,92,246,0.12)', color: '#7C3AED', borderColor: 'rgba(139,92,246,0.35)' },
+  EOI: { background: 'var(--warning-subtle)', color: 'var(--warning)', borderColor: 'var(--warning-border)' },
+  RFQ: { background: 'var(--success-subtle)', color: 'var(--success)', borderColor: 'var(--success-border)' },
+  RFP: { background: 'var(--action-subtle)', color: 'var(--action)', borderColor: 'var(--action-border)' },
 };
 
 // Map document type + status to procurement status label
@@ -115,8 +115,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-syne font-800 text-3xl text-white">My Documents</h1>
-            <p className="text-[#A3A3A3] mt-1">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
+            <h1 className="font-syne font-800 text-3xl" style={{ color: 'var(--text-primary)' }}>My Documents</h1>
+            <p className="mt-1" style={{ color: 'var(--text-muted)' }}>Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</p>
           </div>
           <div className="flex items-center gap-2">
             <DropdownMenu>
@@ -134,7 +134,7 @@ export default function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link to="/start-procurement">
-              <Button className="gap-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+              <Button className="gap-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
                 <Plus className="w-4 h-4" /> Start Procurement
               </Button>
             </Link>
@@ -144,23 +144,23 @@ export default function Dashboard() {
         {/* Usage / upgrade banner */}
         {atLimit ? (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between gap-3 rounded-xl border border-red-400/30 px-5 py-3.5 mb-6"
-            style={{ background: 'rgba(239,68,68,0.08)' }}>
-            <div className="flex items-center gap-2 text-sm text-red-300">
+            className="flex items-center justify-between gap-3 rounded-xl px-5 py-3.5 mb-6"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}>
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--destructive)' }}>
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               You've reached your {docsLimit}-document limit on the <span className="font-semibold capitalize">{currentPlan}</span> plan.
             </div>
-            <Link to="/billing"><Button size="sm" className="text-white border-0 flex-shrink-0" style={{ backgroundColor: '#E8221A' }}>Upgrade</Button></Link>
+            <Link to="/billing"><Button size="sm" className="border-0 flex-shrink-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>Upgrade</Button></Link>
           </motion.div>
         ) : nearLimit ? (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/30 px-5 py-3.5 mb-6"
-            style={{ background: 'rgba(245,158,11,0.07)' }}>
-            <div className="flex items-center gap-2 text-sm text-amber-300">
+            className="flex items-center justify-between gap-3 rounded-xl px-5 py-3.5 mb-6"
+            style={{ background: 'var(--warning-subtle)', border: '1px solid var(--warning-border)' }}>
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--warning)' }}>
               <Zap className="w-4 h-4 flex-shrink-0" />
               {documents.length} of {docsLimit} documents used — consider upgrading.
             </div>
-            <Link to="/billing"><Button size="sm" variant="ghost" className="text-[#F59E0B] hover:text-white border border-[#F59E0B]/30 hover:bg-white/10 flex-shrink-0 h-7 text-xs">View Plans</Button></Link>
+            <Link to="/billing"><Button size="sm" variant="ghost" className="flex-shrink-0 h-7 text-xs" style={{ color: 'var(--warning)', border: '1px solid var(--warning-border)' }}>View Plans</Button></Link>
           </motion.div>
         ) : null}
 
@@ -169,21 +169,21 @@ export default function Dashboard() {
            <div className="rounded-xl border border-white/10 px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
              <div className="flex-1">
                <div className="flex justify-between text-xs mb-1.5">
-                 <span className="text-[#A3A3A3] flex items-center gap-1.5">
+                 <span className="flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
                    {currentPlan === 'free' ? <Zap className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
                    <span className="capitalize">{currentPlan} plan</span>
                  </span>
                  <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
                </div>
                <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                 <div className={`rounded-full h-1.5 transition-all ${atLimit ? 'bg-red-500' : nearLimit ? 'bg-[#F59E0B]' : 'bg-[#E8221A]'}`}
+                 <div className="rounded-full h-1.5 transition-all" style={{ backgroundColor: atLimit ? 'var(--destructive)' : nearLimit ? 'var(--warning)' : 'var(--primary)' }}
                    style={{ width: `${usagePct}%` }} />
                </div>
              </div>
              {currentPlan === 'free' && (
                <Link to="/billing">
-                 <Button size="sm" className="text-xs text-[#E8221A] border border-[#E8221A]/30 h-7" style={{ backgroundColor: 'rgba(232,34,26,0.15)' }}>Upgrade</Button>
-               </Link>
+                   <Button size="sm" className="text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)', backgroundColor: 'rgba(232,34,26,0.1)' }}>Upgrade</Button>
+                 </Link>
              )}
            </div>
          )}
@@ -191,13 +191,13 @@ export default function Dashboard() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Total Documents', value: stats.total, color: 'text-white' },
-            { label: 'In Progress', value: stats.drafts, color: 'text-amber-400' },
-            { label: 'Completed', value: stats.complete, color: 'text-green-400' },
+            { label: 'Total Documents', value: stats.total, varColor: 'var(--text-primary)' },
+            { label: 'In Progress', value: stats.drafts, varColor: 'var(--warning)' },
+            { label: 'Completed', value: stats.complete, varColor: 'var(--success)' },
           ].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               style={{ background: 'var(--card)', border: '1px solid var(--border)' }} className="rounded-xl p-5">
-              <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
+              <div className="text-3xl font-bold" style={{ color: s.varColor }}>{s.value}</div>
               <div className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
             </motion.div>
           ))}
@@ -218,7 +218,7 @@ export default function Dashboard() {
            </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-           <span className="text-xs text-[#A3A3A3] self-center">Filter:</span>
+           <span className="text-xs self-center" style={{ color: 'var(--text-muted)' }}>Filter:</span>
             {['all', 'draft', 'complete'].map(s => (
               <Button key={s} size="sm"
                 onClick={() => setFilterStatus(s)}
@@ -249,9 +249,9 @@ export default function Dashboard() {
            {documents.length === 0 && (
              <div className="flex flex-col items-center gap-3">
                <Link to="/start-procurement">
-                 <Button className="gap-2 text-white border-0" style={{ backgroundColor: '#E8221A' }}>
-                   <Plus className="w-4 h-4" />Start a new procurement
-                 </Button>
+                 <Button className="gap-2 border-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                     <Plus className="w-4 h-4" />Start a new procurement
+                   </Button>
                </Link>
                <DropdownMenu>
                  <DropdownMenuTrigger asChild>
@@ -305,18 +305,18 @@ export default function Dashboard() {
                         </button>
                       </td>
                       <td className="px-6 py-3.5">
-                         <span className="text-xs font-mono text-[#6B6B6B]">{doc.procurement_id || '—'}</span>
+                         <span className="text-xs font-mono" style={{ color: 'var(--text-disabled)' }}>{doc.procurement_id || '—'}</span>
                        </td>
                       <td className="px-6 py-3.5">
                         <Badge className="text-xs border font-semibold px-2 py-0.5 rounded-full" style={docTypeStyles[doc.document_type]}>{doc.document_type}</Badge>
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className={`text-xs font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
+                        <span className="text-xs font-medium" style={{ color: doc.status === 'complete' ? 'var(--success)' : 'var(--warning)' }}>
                           {getProcurementStatus(doc)}
                         </span>
                       </td>
                       <td className="px-6 py-3.5">
-                         <span className="text-xs text-[#6B6B6B]">
+                         <span className="text-xs" style={{ color: 'var(--text-disabled)' }}>
                           {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
                          </span>
                        </td>
@@ -324,7 +324,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                           {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                             <Button variant="ghost" size="sm"
-                                className="gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                                className="gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
                                     onClick={() => {
                                       try {
                                         localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -339,7 +339,7 @@ export default function Dashboard() {
                           )}
                           {doc.status === 'complete' && (
                             <Button variant="ghost" size="sm"
-                              className="gap-1 text-xs text-[#E8221A] hover:text-white hover:bg-[#E8221A]/20 border border-[#E8221A]/30 h-7"
+                              className="gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
                                 onClick={() => navigate(`/document/${doc.id}`)}>
                                 <FileText className="w-3 h-3" />View
                               </Button>
@@ -417,14 +417,14 @@ export default function Dashboard() {
                   {/* Status + Last Modified Row */}
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="text-[#A3A3A3]">Status:</span>
-                      <div className={`mt-0.5 font-medium ${doc.status === 'complete' ? 'text-green-300' : 'text-amber-300'}`}>
+                      <span style={{ color: 'var(--text-muted)' }}>Status:</span>
+                      <div className="mt-0.5 font-medium" style={{ color: doc.status === 'complete' ? 'var(--success)' : 'var(--warning)' }}>
                         {getProcurementStatus(doc)}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#A3A3A3]">Modified:</span>
-                      <div className="mt-0.5 text-[#6B6B6B]">
+                      <span style={{ color: 'var(--text-muted)' }}>Modified:</span>
+                        <div className="mt-0.5" style={{ color: 'var(--text-disabled)' }}>
                         {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d') : '—'}
                       </div>
                     </div>

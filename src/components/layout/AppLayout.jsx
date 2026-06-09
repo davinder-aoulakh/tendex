@@ -98,7 +98,7 @@ export default function AppLayout({ children }) {
                 {/* Upgrade button for trial users */}
                 {subscription?.plan === 'free' && (
                   <Link to="/billing">
-                    <Button size="sm" className="gap-2 ml-1 bg-[#F59E0B]/20 hover:bg-[#F59E0B]/30 text-[#F59E0B] border border-[#F59E0B]/30">
+                    <Button size="sm" className="gap-2 ml-1" style={{ background: 'var(--warning-subtle)', color: 'var(--warning)', border: '1px solid var(--warning-border)' }}>
                       <Zap className="w-4 h-4" />Upgrade
                     </Button>
                   </Link>
@@ -123,7 +123,7 @@ export default function AppLayout({ children }) {
                 })}
                 <ThemeToggle variant="icon" />
                 <Link to="/start-procurement">
-                  <Button size="sm" className="gap-2 ml-2 text-white border-0 shadow-lg" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+                  <Button size="sm" className="gap-2 ml-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
                     <Plus className="w-4 h-4" />New
                   </Button>
                 </Link>
@@ -160,13 +160,13 @@ export default function AppLayout({ children }) {
         {/* Business profile incomplete banner */}
         {isAuthenticated && profileIncomplete && location.pathname !== '/profile' && (
           <div className="max-w-7xl mx-auto px-6 pt-4">
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/30 px-5 py-3 text-sm" style={{ background: 'rgba(245,158,11,0.07)' }}>
-              <div className="flex items-center gap-2 text-amber-300">
+            <div className="flex items-center justify-between gap-3 rounded-xl px-5 py-3 text-sm" style={{ background: 'var(--warning-subtle)', border: '1px solid var(--warning-border)' }}>
+              <div className="flex items-center gap-2" style={{ color: 'var(--warning)' }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 Your business profile is incomplete. Add your organisation name and ABN to get started.
               </div>
               <Link to="/profile">
-                <Button size="sm" variant="ghost" className="text-amber-300 hover:text-white border border-amber-400/30 hover:bg-white/10 flex-shrink-0 h-7 text-xs whitespace-nowrap">
+                <Button size="sm" variant="ghost" className="flex-shrink-0 h-7 text-xs whitespace-nowrap" style={{ color: 'var(--warning)', border: '1px solid var(--warning-border)' }}>
                   Complete Profile →
                 </Button>
               </Link>

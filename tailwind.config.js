@@ -48,6 +48,24 @@ module.exports = {
   			border: 'var(--border)',
   			input: 'var(--input)',
   			ring: 'var(--ring)',
+  			success: {
+  				DEFAULT: 'var(--success)',
+  				foreground: 'var(--success-fg)',
+  				subtle: 'var(--success-subtle)',
+  				border: 'var(--success-border)',
+  			},
+  			warning: {
+  				DEFAULT: 'var(--warning)',
+  				foreground: 'var(--warning-fg)',
+  				subtle: 'var(--warning-subtle)',
+  				border: 'var(--warning-border)',
+  			},
+  			action: {
+  				DEFAULT: 'var(--action)',
+  				foreground: 'var(--action-fg)',
+  				subtle: 'var(--action-subtle)',
+  				border: 'var(--action-border)',
+  			},
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',
