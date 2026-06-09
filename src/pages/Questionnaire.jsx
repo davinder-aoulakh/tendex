@@ -946,6 +946,8 @@ export default function Questionnaire() {
                           onChange={val => updateAnswer(field.key, val)}
                           error={errors.includes(field.key)}
                           docType={type}
+                          sameAsValue={field.sameAsKey ? answers[field.sameAsKey] : undefined}
+                          onSameAs={field.sameAsKey ? () => updateAnswer(field.key, answers[field.sameAsKey]) : undefined}
                         />
                         {/* AI Assist 2: spec suggestion after product_description on S3 */}
                         {type === 'SOW' && field.key === 'product_description' && page?.id === 's3_goods_list' && (

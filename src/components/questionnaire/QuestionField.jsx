@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import EnhancedTextarea from './EnhancedTextarea';
 
-export default function QuestionField({ field, value, onChange, error, docType }) {
+export default function QuestionField({ field, value, onChange, error, docType, sameAsValue, onSameAs }) {
   const inputStyle = {
     background: 'var(--input)',
     borderColor: error ? 'rgba(248,113,113,0.6)' : 'var(--border)',
@@ -18,12 +18,19 @@ export default function QuestionField({ field, value, onChange, error, docType }
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2">
         <Label htmlFor={field.key} className={cn('text-sm font-medium', error ? 'text-red-400' : '')} style={error ? {} : { color: 'var(--text-primary)' }}>
           {field.label}
           {!field.required && <span className="font-normal ml-1" style={{ color: 'var(--text-muted)' }}>(optional)</span>}
           {field.required && <span className="text-red-400 ml-1">*</span>}
         </Label>
+        {onSameAs && sameAsValue && (
+          <button type="button" onClick={onSameAs}
+            className="text-xs px-2 py-0.5 rounded-md border transition-colors flex-shrink-0"
+            style={{ color: 'var(--action)', borderColor: 'var(--action-border)', background: 'var(--action-subtle)' }}>
+            Same as above
+          </button>
+        )}
       </div>
 
       {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
