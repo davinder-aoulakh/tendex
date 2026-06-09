@@ -24,7 +24,7 @@ export default function GeneratingScreen({ done, documentId }) {
   }, [done]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
       style={{ background: 'var(--background)' }}>
 
       {/* TendeX logo */}
@@ -45,8 +45,8 @@ export default function GeneratingScreen({ done, documentId }) {
             {/* Animated ring */}
             <div className="relative w-24 h-24 mb-8">
               <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                <circle cx="48" cy="48" r="40" fill="none" stroke="var(--border)" strokeWidth="6" />
-                <circle cx="48" cy="48" r="40" fill="none" stroke="var(--primary)" strokeWidth="6"
+                <circle cx="48" cy="48" r="40" fill="none" strokeWidth="6" style={{ stroke: 'var(--border)' }} />
+                <circle cx="48" cy="48" r="40" fill="none" strokeWidth="6" style={{ stroke: 'var(--primary)' }}
                   strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 40}`}
                   strokeDashoffset={`${2 * Math.PI * 40 * (1 - progress / 100)}`}
