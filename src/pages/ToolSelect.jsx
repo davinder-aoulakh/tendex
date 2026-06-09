@@ -109,9 +109,9 @@ export default function ToolSelect() {
 
   const continueLabel = () => {
     if (!selected) return 'Select a document type';
-    if (selected === 'JOURNEY') return 'Start procurement journey →';
-    if (selected === 'SOW') return 'Create SOW document →';
-    return `Create ${selected} document →`;
+    if (selected === 'JOURNEY') return 'Start Procurement Journey';
+    const tool = standaloneTools.find(t => t.id === selected);
+    return `Continue with ${tool?.id || selected}`;
   };
 
   return (
@@ -249,14 +249,17 @@ export default function ToolSelect() {
           </div>
         </motion.div>
 
-        {/* Continue button */}
-        <div className="flex justify-end">
-          <Button size="lg" onClick={handleProceed} disabled={!selected}
-            className="gap-2 px-8 border-0" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 4px 12px rgba(232,34,26,0.2)' }}>
-            {continueLabel()} {selected && <ArrowRight className="w-4 h-4" />}
+      </div>
+
+      {/* Sticky Continue button — rendered outside the scrollable content, above toasts */}
+      {selected && (
+        <div className="fixed bottom-6 right-6 z-[200]">
+          <Button size="lg" onClick={handleProceed}
+            className="gap-2 px-8 border-0 shadow-2xl" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 4px 24px rgba(232,34,26,0.4)' }}>
+            {continueLabel()} <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
-      </div>
+      )}
     </AppLayout>
   );
 }
