@@ -317,7 +317,7 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-3.5">
                          <span className="text-xs" style={{ color: 'var(--text-disabled)' }}>
-                          {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d, yyyy') : '—'}
+                          {doc.updated_date ? format(new Date(doc.updated_date), 'd MMMM yyyy') : '—'}
                          </span>
                        </td>
                       <td className="px-6 py-3.5">
@@ -425,7 +425,7 @@ export default function Dashboard() {
                     <div>
                       <span style={{ color: 'var(--text-muted)' }}>Modified:</span>
                         <div className="mt-0.5" style={{ color: 'var(--text-disabled)' }}>
-                        {doc.updated_date ? format(new Date(doc.updated_date), 'MMM d') : '—'}
+                        {doc.updated_date ? format(new Date(doc.updated_date), 'd MMM yyyy') : '—'}
                       </div>
                     </div>
                   </div>

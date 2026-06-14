@@ -255,7 +255,7 @@ export default function Questionnaire() {
     if (draftDocId) return; // already have one
     const procId = generateProcurementId();
     base44.entities.Document.create({
-      title: `Draft ${type} — ${new Date().toLocaleDateString('en-AU')}`,
+      title: `Draft ${type} — ${new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}`,
       document_type: type,
       status: 'draft',
       procurement_id: procId,
@@ -472,7 +472,7 @@ export default function Questionnaire() {
   const handleGenerate = async (finalDocType, overrideDocType) => {
     setGenerating(true);
     const resolvedType = overrideDocType || finalDocType || type;
-    const title = answers.project_name || answers.rfq_title || answers.rfp_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU')}`;
+    const title = answers.project_name || answers.rfq_title || answers.rfp_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}`;
     const orgName = answers.organisation_name || answers.company_name || '';
     const updateData = {
       title,
