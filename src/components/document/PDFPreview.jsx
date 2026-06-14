@@ -31,7 +31,7 @@ export default function PDFPreview({ doc, content }) {
 
     const RED = [220, 30, 30];
     const BLACK = [15, 15, 15];
-    const DARK_GRAY = [40, 40, 40];
+    const DARK_GRAY = [15, 15, 15];
     const MID_GRAY = [100, 100, 100];
     const LIGHT_GRAY = [180, 180, 180];
     const WHITE = [255, 255, 255];
