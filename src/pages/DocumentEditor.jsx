@@ -110,7 +110,7 @@ export default function DocumentEditor() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     queryClient.invalidateQueries({ queryKey: ['document', id] });
-    toast({ title: 'Document saved', description: 'Your changes have been saved.' });
+    toast({ title: 'Document saved', description: 'Your changes have been saved.', duration: 3000 });
   };
 
   const handleSectionChange = (sectionKey, value) => {
@@ -119,7 +119,7 @@ export default function DocumentEditor() {
 
   const handleSaveSnapshot = async () => {
     if (!snapshotName.trim()) {
-      toast({ title: 'Snapshot name required', description: 'Please enter a name for your snapshot.', variant: 'destructive' });
+      toast({ title: 'Snapshot name required', description: 'Please enter a name for your snapshot.', variant: 'destructive', duration: 3000 });
       return;
     }
     setSavingSnapshot(true);
@@ -127,7 +127,7 @@ export default function DocumentEditor() {
     setSavingSnapshot(false);
     setSnapshotName('');
     setShowSnapshotDialog(false);
-    toast({ title: 'Snapshot saved', description: `Saved snapshot: "${snapshotName}"` });
+    toast({ title: 'Snapshot saved', description: `Saved snapshot: "${snapshotName}"`, duration: 3000 });
   };
 
   if (isLoading) {
@@ -266,7 +266,7 @@ export default function DocumentEditor() {
         {showHistory && (
           <VersionHistory
             documentId={id}
-            onRestore={(content) => { setEditedContent(content); setShowHistory(false); toast({ title: 'Version restored', description: 'The document has been restored to the selected version.' }); }}
+            onRestore={(content) => { setEditedContent(content); setShowHistory(false); toast({ title: 'Version restored', description: 'The document has been restored to the selected version.', duration: 3000 }); }}
             onClose={() => setShowHistory(false)}
             onCompare={() => { setShowHistory(false); setShowCompare(true); }}
           />
