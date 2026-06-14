@@ -121,6 +121,8 @@ export default function PDFExport({ doc, content, onClose }) {
 
     const addContentPage = () => {
       pdf.addPage();
+      pdf.setFillColor(...WHITE);
+      pdf.rect(0, 0, pw, ph, 'F');
       addHeader();
       addFooter();
       y = 24;
@@ -220,6 +222,8 @@ export default function PDFExport({ doc, content, onClose }) {
       // Add new page after cover
       pdf.addPage();
     }
+    pdf.setFillColor(...WHITE);
+    pdf.rect(0, 0, pw, ph, 'F');
     addHeader();
     addFooter();
     y = 24;

@@ -98,6 +98,10 @@ export default function PDFPreview({ doc, content }) {
     };
     const checkBreak = (height) => { if (y + height > ph - 20) addPage(); };
 
+    // Ensure first content page also has white background
+    pdf.setFillColor(...WHITE);
+    pdf.rect(0, 0, pw, ph, 'F');
+
     addPage();
     sections.forEach((sectionKey) => {
       const sectionContent = content[sectionKey];
