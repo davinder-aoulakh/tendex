@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
+import CatLoader from '@/components/ui/CatLoader';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -42,29 +43,22 @@ export default function GeneratingScreen({ done, documentId }) {
           <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="flex flex-col items-center text-center px-6">
 
-            {/* Animated ring */}
-            <div className="relative w-24 h-24 mb-8">
-              <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                <circle cx="48" cy="48" r="40" fill="none" strokeWidth="6" style={{ stroke: 'var(--border)' }} />
-                <circle cx="48" cy="48" r="40" fill="none" strokeWidth="6" style={{ stroke: 'var(--primary)' }}
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 40}`}
-                  strokeDashoffset={`${2 * Math.PI * 40 * (1 - progress / 100)}`}
-                  style={{ transition: 'stroke-dashoffset 1s ease' }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{Math.round(progress)}%</span>
-              </div>
-            </div>
+            <CatLoader
+              message={STATUS_MESSAGES[msgIndex]}
+              subMessage="This usually takes under 60 seconds"
+              size="lg"
+            />
 
-            <AnimatePresence mode="wait">
-              <motion.p key={msgIndex} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-                className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                {STATUS_MESSAGES[msgIndex]}
-              </motion.p>
-            </AnimatePresence>
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>This usually takes under 60 seconds</p>
+            {/* Progress bar */}
+            <div className="mt-6 w-48">
+              <div className="w-full rounded-full h-1.5" style={{ background: 'var(--border)' }}>
+                <motion.div
+                  className="rounded-full h-1.5"
+                  style={{ backgroundColor: 'var(--primary)', width: `${progress}%`, transition: 'width 1s ease' }}
+                />
+              </div>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>{Math.round(progress)}%</p>
+            </div>
           </motion.div>
         ) : (
           <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}

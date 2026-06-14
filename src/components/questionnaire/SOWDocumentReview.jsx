@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Loader2, ArrowRight, Pencil, CheckCircle2 } from 'lucide-react';
+import { Sparkles, ArrowRight, Pencil, CheckCircle2 } from 'lucide-react';
+import CatLoader from '@/components/ui/CatLoader';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
@@ -167,10 +168,8 @@ Write in formal, professional Australian English. Do not use markdown headers �
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
-          <p className="text-sm text-blue-200/50">Generating your Scope of Work...</p>
-          <p className="text-xs text-blue-200/30">This may take 20–30 seconds</p>
+        <div className="flex flex-col items-center justify-center py-16">
+          <CatLoader message="Generating your Scope of Work..." subMessage="This may take 20–30 seconds" />
         </div>
       ) : sections ? (
         <>
