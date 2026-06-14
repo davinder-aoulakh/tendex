@@ -130,7 +130,7 @@ export default function AppLayout({ children }) {
                 {user && (
                  <Link to="/profile">
                    <button className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
-                     {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : user.email.split('@')[0].substring(0, 2).toUpperCase()}
+                     {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'}
                    </button>
                  </Link>
                 )}
