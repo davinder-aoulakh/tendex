@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import EnhancedTextarea from './EnhancedTextarea';
+import SuppliersList from './SuppliersList';
 
 export default function QuestionField({ field, value, onChange, error, docType, sameAsValue, onSameAs }) {
   const inputStyle = {
@@ -138,6 +139,10 @@ export default function QuestionField({ field, value, onChange, error, docType, 
             );
           })}
         </div>
+      )}
+
+      {field.type === 'suppliers-list' && (
+        <SuppliersList value={value} onChange={onChange} />
       )}
 
       {error && <p className="text-xs text-red-400 mt-1">This field is required.</p>}

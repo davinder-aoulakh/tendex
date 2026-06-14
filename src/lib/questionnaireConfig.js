@@ -327,14 +327,17 @@ export const SOW_PAGES = [
   {
     id: 's6_supplier',
     title: 'Known Suppliers',
-    description: 'If you have a supplier in mind, provide their details (optional).',
+    description: 'If you have any suppliers in mind, provide their details (optional). You can add multiple.',
     sectionLabel: 'Suppliers',
     condition: (a) => !!a.procurement_type,
     fields: [
-      { key: 'supplier_name',    label: 'Supplier Name',   type: 'text',  placeholder: 'Company name',           required: false },
-      { key: 'supplier_contact', label: 'Contact Person',  type: 'text',  placeholder: 'Full name',              required: false },
-      { key: 'supplier_email',   label: 'Email Address',   type: 'email', placeholder: 'supplier@company.com',   required: false },
-      { key: 'supplier_phone',   label: 'Phone Number',    type: 'text',  placeholder: '+61 4xx xxx xxx',         required: false },
+      {
+        key: 'suppliers_list',
+        label: 'Known Suppliers',
+        type: 'suppliers-list',
+        required: false,
+        helpText: 'Add one or more suppliers. Leave blank if none are known.',
+      },
     ],
   },
 ];

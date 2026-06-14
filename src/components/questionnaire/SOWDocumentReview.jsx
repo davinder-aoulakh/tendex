@@ -107,11 +107,15 @@ COMBINED:
 Combined Scope: ${answers.combined_scope_description || '—'}
 Primary Outcome: ${answers.combined_primary_outcome || '—'}
 
-SUPPLIER:
-Supplier Name: ${answers.supplier_name || 'None specified'}
-Supplier Contact: ${answers.supplier_contact || '—'}
-Supplier Email: ${answers.supplier_email || '—'}
-Supplier Phone: ${answers.supplier_phone || '—'}
+SUPPLIERS:
+${Array.isArray(answers.suppliers_list) && answers.suppliers_list.some(s => s.name)
+  ? answers.suppliers_list.filter(s => s.name).map((s, i) =>
+      `Supplier ${i + 1}: ${s.name || '—'} | Contact: ${s.contact || '—'} | Email: ${s.email || '—'} | Phone: ${s.phone || '—'}`
+    ).join('\n')
+  : answers.supplier_name
+    ? `Supplier 1: ${answers.supplier_name} | Contact: ${answers.supplier_contact || '—'} | Email: ${answers.supplier_email || '—'} | Phone: ${answers.supplier_phone || '—'}`
+    : 'None specified'
+}
 
 --- OUTPUT INSTRUCTIONS ---
 Generate each of these 8 sections as professional, formal Australian procurement text.
@@ -122,7 +126,7 @@ Generate each of these 8 sections as professional, formal Australian procurement
 4. delivery_schedule: Timeline, key milestones, delivery date, commencement date, and any phasing. Structure as clear paragraphs or a descriptive schedule.
 5. qualitative_requirements: A professional paragraph describing the non-price criteria the supplier must demonstrate: capacity, experience, personnel qualifications, methodology, references.
 6. price_schedule: A plain-text table formatted for a Scope of Work document. Columns: Item Description | Quantity | Unit | Unit Price (ex GST) | Total Price (ex GST). Pre-fill known items with quantities. Leave price columns blank for supplier to complete. Include a row for GST and Total. Format as a readable text table.
-7. known_suppliers: If a supplier is named, list their details. If not, write "No known suppliers identified. This Scope of Work will be issued via open or select tender."
+7. known_suppliers: If one or more suppliers are named, list each with their details. If multiple, number them. If none, write "No known suppliers identified. This Scope of Work will be issued via open or select tender."
 8. signature_blocks: A formal signature block with: Prepared by (name/title/date/signature line), Reviewed by (name/title/date/signature line), Approved by (name/title/date/signature line). Format as readable plain text.
 
 Write in formal, professional Australian English. Do not use markdown headers — plain text only within each field.`,
