@@ -84,12 +84,12 @@ export default function Login() {
         }} />
 
         {/* Logo */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png" alt="TendeX" style={{ zIndex: 1, position: 'relative', height: 28, width: 'auto', filter: 'brightness(10)' }} />
+        <div>
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png" alt="TendeX" style={{ height: 28, width: 'auto', filter: 'brightness(10)' }} />
         </div>
 
         {/* Mascot and headline */}
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center', padding: '16px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center', padding: '16px 0' }}>
           <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/338bcfb75_1000044834.png" alt="" style={{ display: 'block', width: 140, height: 'auto', margin: '0 auto 8px', mixBlendMode: 'screen' }} />
           <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: '#F1EFE9', lineHeight: 1.25, marginBottom: 12 }}>
             Procurement,<br />made simple.
@@ -100,7 +100,7 @@ export default function Login() {
         </div>
 
         {/* Credential pills */}
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {['Guided from scope to issued document', 'Privacy Act compliant, stored in Australia', 'Built by procurement professionals'].map(text => (
             <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.82rem', color: 'rgba(241,239,233,0.75)' }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#C81E3A', flexShrink: 0 }} />
