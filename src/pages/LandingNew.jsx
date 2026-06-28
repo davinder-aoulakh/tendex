@@ -74,7 +74,7 @@ export default function LandingNew() {
             src={theme === 'dark'
               ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png'
               : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/619512359_Gemini_Generated_Image_nymk92nymk92nymk.png'}
-            alt="TendeX" height={44} style={{ display: 'block', filter: theme === 'dark' ? 'brightness(10)' : 'none' }} />
+            alt="TendeX" style={{ display: 'block', height: 32, width: 'auto', filter: theme === 'dark' ? 'brightness(10)' : 'none' }} />
 
           {/* Nav links (desktop) */}
           <div className="hidden-mobile" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
