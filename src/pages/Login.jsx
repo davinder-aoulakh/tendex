@@ -90,7 +90,7 @@ export default function Login() {
 
         {/* Mascot and headline */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center', padding: '16px 0' }}>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/b9b2fefd3_10000448331.png" alt="" style={{ display: 'block', width: 160, height: 'auto', margin: '0 auto 8px', mixBlendMode: 'screen' }} />
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/23f0c34fa_cat_mascot_clean.png" alt="" style={{ display: 'block', width: 200, height: 'auto', margin: '0 auto 8px' }} />
           <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: '#F1EFE9', lineHeight: 1.25, marginBottom: 12 }}>
             Procurement,<br />made simple.
           </h1>
