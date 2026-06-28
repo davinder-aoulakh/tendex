@@ -1,560 +1,507 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Star, TrendingUp, FileText, Shield, Clock, Zap, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { base44 } from '@/api/base44Client';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Moon, Sun, Menu, X, Check, AlertTriangle } from 'lucide-react';
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
-
-const staggerContainer = {
-  animate: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-};
+const LP_THEME_KEY = 'tendex_lp_theme';
 
 export default function LandingNew() {
-  const navigate = useNavigate();
-  const [hoveredStep, setHoveredStep] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // ── THEME STATE (light default, separate from inner app) ─────────
+  const [theme, setTheme] = useState(() => {
+    try {
+      const s = localStorage.getItem(LP_THEME_KEY);
+      if (s === 'light' || s === 'dark') return s;
+    } catch {}
+    return 'light'; // marketing site defaults to light
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(LP_THEME_KEY, theme); } catch {}
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
+
+  // ── MOBILE MENU ──────────────────────────────────────────────────
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // ── STYLES ───────────────────────────────────────────────────────
+  const s = {
+    red:        'var(--lp-red)',
+    redInk:     'var(--lp-red-ink)',
+    redSoft:    'var(--lp-red-soft)',
+    redSoftBdr: 'var(--lp-red-soft-border)',
+    green:      'var(--lp-green)',
+    greenSoft:  'var(--lp-green-soft)',
+    greenBdr:   'var(--lp-green-border)',
+    orange:     'var(--lp-orange)',
+    orangeSoft: 'var(--lp-orange-soft)',
+    orangeBdr:  'var(--lp-orange-border)',
+    blue:       'var(--lp-blue)',
+    blueSoft:   'var(--lp-blue-soft)',
+    blueBdr:    'var(--lp-blue-border)',
+    bg:         'var(--bg)',
+    surface:    'var(--surface)',
+    surfaceAlt: 'var(--surface-alt)',
+    text:       'var(--lp-text)',
+    textMuted:  'var(--lp-text-muted)',
+    border:     'var(--lp-border)',
+  };
+
+  const START_URL = '/login?from_url=%2Fplan-selection';
+  const LOGIN_URL = '/login';
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: '#E8221A' }}>
-        Skip to main content
-      </a>
-      {/* Top Accent Strip */}
-      <div className="accent-strip" />
+    <div
+      data-landing-theme={theme}
+      className="lp-root font-inter min-h-screen"
+      style={{ backgroundColor: s.bg, color: s.text, fontFamily: "'Inter', sans-serif" }}
+    >
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 blur-nav">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="font-syne font-800 text-xl" style={{ color: 'var(--text-primary)' }}>
-            TendeX<span style={{ color: '#E8221A' }}>.</span>
+      {/* ── TOPBAR GRADIENT ── */}
+      <div style={{ height: 4, background: 'linear-gradient(to right, #C81E3A, #C2570A)', width: '100%' }} />
+
+      {/* ════════════════════════════════════════════════
+          NAV
+      ════════════════════════════════════════════════ */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        backgroundColor: s.bg,
+        borderBottom: `1px solid ${s.border}`,
+        padding: '16px 0',
+      }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Logo */}
+          <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 800, fontSize: '1.25rem', color: s.text }}>
+            Tende<span style={{ color: s.red }}>X</span>
           </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#how" className="font-dm-sans text-sm transition-colors hover:text-[#E8221A]" style={{ color: 'var(--text-secondary)' }}>How it works</a>
-            <a href="#documents" className="font-dm-sans text-sm transition-colors hover:text-[#E8221A]" style={{ color: 'var(--text-secondary)' }}>Documents</a>
-            <a href="#pricing" className="font-dm-sans text-sm transition-colors hover:text-[#E8221A]" style={{ color: 'var(--text-secondary)' }}>Pricing</a>
-            <a href="#about" className="font-dm-sans text-sm transition-colors hover:text-[#E8221A]" style={{ color: 'var(--text-secondary)' }}>About</a>
+
+          {/* Nav links (desktop) */}
+          <div className="hidden-mobile" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
+            {[
+              ['Why TendeX',          '#why-tendex'],
+              ['Where it goes wrong', '#problem'],
+              ['How it works',        '#how-it-works'],
+              ['Features',            '#platform-features'],
+              ['Document types',      '#document-types'],
+              ['Pricing',             '#pricing'],
+            ].map(([label, href]) => (
+              <a key={href} href={href} style={{ fontSize: '0.83rem', color: s.textMuted, textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => e.target.style.color = s.red}
+                onMouseLeave={e => e.target.style.color = s.textMuted}>
+                {label}
+              </a>
+            ))}
           </div>
-          <button
-            className="md:hidden p-2"
-            style={{ color: 'var(--text-primary)' }}
-            onClick={() => setMobileMenuOpen(m => !m)}
-            aria-label="Toggle navigation"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-          <div className="flex items-center gap-4">
-            <ThemeToggle variant="icon" className="mr-2" />
-            <button
-              onClick={() => base44.auth.redirectToLogin('/dashboard')}
-              className="font-dm-sans text-sm transition-colors hover:text-[#E8221A]"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Log in
+
+          {/* Right controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Dark mode toggle */}
+            <button onClick={toggleTheme} aria-label="Toggle theme"
+              style={{ width: 38, height: 38, borderRadius: '50%', border: `1px solid ${s.border}`, background: s.surface, color: s.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-            <Button
-              onClick={() => base44.auth.redirectToLogin('/plan-selection')}
-              className="font-syne font-700 text-sm"
-              style={{ backgroundColor: '#E8221A', color: '#FFFFFF' }}
-            >
-              Start free trial →
-            </Button>
+
+            {/* Log in */}
+            <Link to={LOGIN_URL} style={{ fontSize: '0.875rem', color: s.textMuted, textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}
+              className="hidden-mobile">
+              Log in
+            </Link>
+
+            {/* Start free trial */}
+            <Link to={START_URL}
+              style={{ backgroundColor: s.red, color: '#fff', padding: '8px 18px', borderRadius: 9, fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = s.redInk}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = s.red}>
+              Start free trial
+            </Link>
+
+            {/* Mobile burger */}
+            <button onClick={() => setMobileOpen(o => !o)} style={{ display: 'none', background: 'none', border: 'none', color: s.text, cursor: 'pointer' }} className="show-mobile" aria-label="Menu">
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div style={{ backgroundColor: s.bg, borderTop: `1px solid ${s.border}`, padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {[['Why TendeX','#why-tendex'],['Where it goes wrong','#problem'],['How it works','#how-it-works'],['Features','#platform-features'],['Document types','#document-types'],['Pricing','#pricing']].map(([label, href]) => (
+              <a key={href} href={href} onClick={() => setMobileOpen(false)}
+                style={{ color: s.text, textDecoration: 'none', fontWeight: 600, fontSize: '1.1rem', fontFamily: "'Libre Franklin', sans-serif" }}>
+                {label}
+              </a>
+            ))}
+            <div style={{ borderTop: `1px solid ${s.border}`, paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <Link to={LOGIN_URL} style={{ color: s.textMuted, textDecoration: 'none' }}>Log in</Link>
+              <Link to={START_URL} style={{ backgroundColor: s.red, color: '#fff', padding: '12px 20px', borderRadius: 9, textAlign: 'center', textDecoration: 'none', fontWeight: 600 }}>
+                Start free trial
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* Mobile drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40" style={{ backgroundColor: 'var(--surface-1)' }}>
-          <div className="flex flex-col h-full px-8 pt-24 pb-12">
-            <div className="flex flex-col gap-8 flex-1">
-              <a href="#how" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl" style={{ color: 'var(--text-primary)' }}>How it works</a>
-              <a href="#documents" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl" style={{ color: 'var(--text-primary)' }}>Documents</a>
-              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl" style={{ color: 'var(--text-primary)' }}>Pricing</a>
-              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="font-syne font-700 text-2xl" style={{ color: 'var(--text-primary)' }}>About</a>
-            </div>
-            <div>
-              <button onClick={() => base44.auth.redirectToLogin('/dashboard')} className="font-dm-sans text-base mb-4 block" style={{ color: 'var(--text-secondary)' }}>Log in</button>
-              <button onClick={() => base44.auth.redirectToLogin('/plan-selection')} className="font-syne font-700 text-base px-6 py-3 rounded w-full text-white" style={{ backgroundColor: '#E8221A' }}>Start free trial →</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ════════════════════════════════════════════════
+          HERO
+      ════════════════════════════════════════════════ */}
+      <section style={{ padding: '68px 28px', maxWidth: 1120, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 56, alignItems: 'center' }} className="hero-grid">
 
-      {/* Hero Section */}
-      <section id="main-content" className="py-20 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          {/* Left Column */}
-          <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-6">
-            {/* Eyebrow Badge */}
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border" style={{ borderColor: '#E8221A', backgroundColor: 'rgba(232,34,26,0.08)' }}>
-              <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#E8221A' }} />
-              <span className="font-syne font-600 text-xs text-[#E8221A] uppercase tracking-wide">Australia's AI Procurement Platform</span>
-            </motion.div>
+          {/* Left */}
+          <div>
+            {/* Eyebrow badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, backgroundColor: s.redSoft, border: `1px solid ${s.redSoftBdr}`, color: s.red, padding: '5px 14px', borderRadius: 100, fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 24, fontFamily: "'Inter', sans-serif" }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: s.red, display: 'inline-block' }} />
+              Built for teams without a dedicated procurement function
+            </div>
 
             {/* H1 */}
-            <motion.h1 variants={fadeInUp} className="font-syne font-800 text-6xl md:text-7xl leading-[1.04] tracking-tighter" style={{ color: 'var(--text-primary)' }}>
-              Stop wasting time on{' '}
-              <span style={{ color: '#E8221A' }}>procurement paperwork</span>
-            </motion.h1>
+            <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '2.7rem', lineHeight: 1.15, color: s.text, marginBottom: 20 }}>
+              Procurement<br />made simple.
+            </h1>
 
-            {/* Subheading */}
-            <motion.p variants={fadeInUp} className="font-dm-sans font-300 text-lg leading-relaxed max-w-lg" style={{ color: 'var(--text-secondary)' }}>
-              TendeX guides you from procurement need to a professional, market-ready document — Scope, EOI, RFQ, or RFP — in a fraction of the usual time. No expertise required.
-            </motion.p>
+            {/* Body */}
+            <p style={{ color: s.textMuted, fontSize: '1.06rem', lineHeight: 1.7, marginBottom: 24 }}>
+              The TendeX platform is designed to make procurement fast and simple. Whether you're a small to medium sized business or a procurement professional yourself, TendeX will guide you through the procurement process, help you make better decisions along the way, and turn your requirements into structured, market-ready documents:
+            </p>
 
-            {/* CTA Buttons */}
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button
-                onClick={() => base44.auth.redirectToLogin('/plan-selection')}
-                className="font-syne font-700 text-base px-6 py-2.5 rounded-lg primary-btn-hover"
-                style={{ backgroundColor: '#E8221A', color: '#FFFFFF' }}>
-                Start your first procurement free
-              </Button>
-              <button onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })} className="font-dm-sans font-400 text-base px-6 py-2.5 rounded-lg text-[#E8221A] border border-[#E8221A] hover:border-[#FF4A42] transition-all flex items-center gap-2 group">
-                See how it works <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </motion.div>
+            {/* Bullet list */}
+            <ul style={{ listStyle: 'none', padding: 0, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {['Scope of Work (SOW)', 'Expression of Interest (EOI)', 'Request for Quotation (RFQ)', 'Request for Proposal (RFP)'].map(item => (
+                <li key={item}>
+                  <a href="#document-types" style={{ color: s.textMuted, textDecoration: 'none', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: s.red, fontWeight: 700 }}>—</span>
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
 
-            {/* Trust Strip */}
-            <motion.div variants={fadeInUp} className="flex items-center gap-4 pt-6">
-              <div className="flex -space-x-2">
-                {[{ initials: 'JD' }, { initials: 'SM' }, { initials: 'AS' }, { initials: 'KL' }].map((avatar, i) => (
-                  <div key={i} className="w-9 h-9 rounded-full flex items-center justify-center border-2" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--background)' }}>
-                    <span className="font-syne font-700 text-xs text-[#E8221A]">{avatar.initials}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="font-dm-sans font-400 text-sm" style={{ color: 'var(--text-muted)' }}>Trusted by procurement managers across Australia</p>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Column - App Preview Card */}
-          <motion.div variants={fadeInUp} className="relative hidden md:block">
-            <div className="rounded-2xl p-6 border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6 pb-6 border-b" style={{ borderColor: 'var(--border)' }}>
-                <span className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-wide">Your Procurement</span>
-                <div className="px-2 py-1 rounded" style={{ backgroundColor: '#F59E0B' }}>
-                  <span className="font-syne font-600 text-xs" style={{ color: 'var(--background)' }}>AI scoring</span>
-                </div>
-              </div>
-
-              {/* Steps */}
-              <div className="space-y-3 mb-8">
-                {[
-                  { num: 1, title: 'Business profile', complete: true, ai: false },
-                  { num: 2, title: 'Scope of work', complete: true, ai: true },
-                  { num: 3, title: 'Market engagement', active: true, ai: true, sub: 'Generating your RFP…' },
-                  { num: 4, title: 'Issue to market', future: true, ai: false, sub: 'Word + PDF export ready' },
-                ].map((step) => (
-                  <div key={step.num} className="flex items-start gap-3">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 font-syne font-700 text-xs ${step.active ? 'text-white' : 'text-[#E8221A]'}`} style={{ backgroundColor: step.complete ? '#E8221A' : step.active ? '#E8221A' : 'var(--muted)' }}>
-                      {step.complete || step.active ? '✓' : step.num}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-syne font-700 text-sm" style={{ color: step.future ? 'var(--text-muted)' : 'var(--text-primary)' }}>{step.title}</span>
-                        {step.ai && <span className="font-syne font-600 text-xs text-[#E8221A]">★ AI</span>}
-                        {step.active && <ArrowRight className="w-4 h-4 text-[#E8221A]" />}
-                      </div>
-                      {step.sub && <p className="font-dm-sans font-400 text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{step.sub}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* AI Recommendation Bubble */}
-              <div className="relative mt-8 p-4 rounded-xl border-2" style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: '#E8221A' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-syne font-700 text-xs uppercase" style={{ color: 'var(--text-primary)' }}>★ AI Recommendation</span>
-                </div>
-                <p className="font-syne font-800 text-lg mb-2" style={{ color: 'var(--text-primary)' }}>Request for Proposal</p>
-                <p className="font-dm-sans font-400 text-xs" style={{ color: 'var(--text-secondary)' }}>Your scope is strong. Suppliers need to explain their approach.</p>
-              </div>
+            {/* CTA buttons */}
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 20 }}>
+              <Link to={START_URL}
+                style={{ backgroundColor: s.red, color: '#fff', padding: '13px 26px', borderRadius: 9, fontWeight: 600, fontSize: '0.96rem', textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = s.redInk}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = s.red}>
+                Start your scope
+              </Link>
+              <a href="#how-it-works"
+                style={{ border: `1.5px solid ${s.border}`, color: s.text, padding: '13px 22px', borderRadius: 9, fontWeight: 500, fontSize: '0.96rem', textDecoration: 'none', backgroundColor: 'transparent', fontFamily: "'Inter', sans-serif" }}>
+                See how it works →
+              </a>
             </div>
-          </motion.div>
+
+            {/* Trust line */}
+            <p style={{ color: s.textMuted, fontSize: '0.85rem' }}>
+              Used by Australian businesses managing procurement without a dedicated team
+            </p>
+          </div>
+
+          {/* Right — Product card mockup */}
+          <div style={{ backgroundColor: s.surface, border: `1px solid ${s.border}`, borderRadius: 18, padding: '28px 24px', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}>
+            {/* Card header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: `1px solid ${s.border}` }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: s.textMuted, fontFamily: "'Inter', sans-serif" }}>Your procurement</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, backgroundColor: s.surfaceAlt, color: s.textMuted, padding: '3px 10px', borderRadius: 100, border: `1px solid ${s.border}` }}>Auto-checked</span>
+            </div>
+
+            {/* Steps */}
+            {[
+              { dot: s.red,  label: 'Business profile',            sub: null, active: false },
+              { dot: s.red,  label: 'Scope of work',               sub: null, active: false },
+              { dot: s.red,  label: 'Reaching out to suppliers →', sub: 'Drafting your request now', active: true },
+              { dot: null,   label: 'Ready to send',               sub: 'PDF export ready', active: false },
+            ].map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16, opacity: step.dot ? 1 : 0.45 }}>
+                <div style={{ width: 11, height: 11, borderRadius: '50%', backgroundColor: step.dot || 'transparent', border: step.dot ? 'none' : `2px solid ${s.textMuted}`, flexShrink: 0, marginTop: 5 }} />
+                <div>
+                  <div style={{ fontSize: '0.92rem', fontWeight: step.active ? 600 : 400, color: s.text }}>{step.label}</div>
+                  {step.sub && <div style={{ fontSize: '0.8rem', color: s.textMuted, marginTop: 2 }}>{step.sub}</div>}
+                </div>
+              </div>
+            ))}
+
+            {/* Recommendation callout */}
+            <div style={{ marginTop: 20, backgroundColor: s.redSoft, border: `1px solid ${s.redSoftBdr}`, borderRadius: 12, padding: '14px 16px' }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: s.red, marginBottom: 6, fontFamily: "'Inter', sans-serif" }}>Recommended</div>
+              <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: s.text, marginBottom: 6 }}>Request for Proposal</div>
+              <div style={{ fontSize: '0.83rem', color: s.textMuted, lineHeight: 1.5 }}>Your scope is detailed enough that supplier methodology, not just price, should factor into the decision.</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="w-full border-y" style={{ borderColor: 'var(--border)' }}>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-x" style={{ divideColor: 'var(--border)' }}>
+      {/* ════════════════════════════════════════════════
+          STATS BAR
+      ════════════════════════════════════════════════ */}
+      <div style={{ borderTop: `1px solid ${s.border}`, borderBottom: `1px solid ${s.border}` }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }} className="stats-grid">
           {[
-            { stat: '3×', desc: 'Faster than building documents manually' },
-            { stat: '4', desc: 'Document types — Scope, EOI, RFQ, RFP' },
-            { stat: '100%', desc: 'Stored in Australia, Privacy Act compliant' },
-          ].map((item, i) => (
-            <div key={i} className="px-6 py-8 text-center">
-              <div className="font-syne font-800 text-4xl text-[#E8221A] mb-2">{item.stat}</div>
-              <p className="font-dm-sans font-400 text-sm" style={{ color: 'var(--text-secondary)' }}>{item.desc}</p>
+            ['3×',    'Faster than building documents manually'],
+            ['4',     'Document types, matched to your scope'],
+            ['100%',  'Stored in Australia, Privacy Act compliant'],
+          ].map(([num, label], i) => (
+            <div key={i} style={{ textAlign: 'center', padding: '28px 24px', borderRight: i < 2 ? `1px solid ${s.border}` : 'none' }}>
+              <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.85rem', color: s.red, marginBottom: 6 }}>{num}</div>
+              <div style={{ fontSize: '0.85rem', color: s.textMuted }}>{label}</div>
             </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* How It Works Section */}
-      <section id="how" className="py-20 px-6" style={{ backgroundColor: 'var(--surface-2)' }}>
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="mb-12">
-            <p className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-widest mb-2">How it works</p>
-            <h2 className="font-syne font-800 text-4xl md:text-5xl mb-4" style={{ color: 'var(--text-primary)' }}>From blank page to market-ready in minutes</h2>
-            <p className="font-dm-sans font-400 text-lg max-w-2xl" style={{ color: 'var(--text-secondary)' }}>
-              Our guided process combines your expertise with AI assistance to create professional procurement documents.
-            </p>
-          </motion.div>
+      {/* ════════════════════════════════════════════════
+          WHY TENDEX
+      ════════════════════════════════════════════════ */}
+      <section id="why-tendex" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Why TendeX</div>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 48, maxWidth: 560 }}>Built for the way small and mid-sized teams actually buy.</h2>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Steps Column */}
-            <div className="space-y-6">
-              {[
-                { num: 1, title: 'Set up your business profile once', tag: null },
-                { num: 2, title: 'Answer guided scope questions', tag: '★ AI assisted' },
-                { num: 3, title: 'AI scores your scope and recommends a document type', tag: '★ AI routing' },
-                { num: 4, title: 'Download your professional document', tag: '↓ Word + PDF export' },
-              ].map((step) => (
-                <motion.div
-                  key={step.num}
-                  onHoverStart={() => setHoveredStep(step.num)}
-                  onHoverEnd={() => setHoveredStep(null)}
-                  className="group flex gap-4 cursor-pointer card-hover p-4 rounded-xl"
-                  style={{ backgroundColor: 'var(--card-surface)', borderColor: hoveredStep === step.num ? 'rgba(232,34,26,0.3)' : 'transparent', border: '1px solid' }}
-                >
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 font-syne font-700 text-white transition-all" style={{ backgroundColor: hoveredStep === step.num ? '#E8221A' : 'rgba(232,34,26,0.1)' }}>
-                    {step.num}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-syne font-700 mb-1" style={{ color: 'var(--text-primary)' }}>{step.title}</h4>
-                    {step.tag && <span className="inline-block font-syne font-600 text-xs px-2 py-1 rounded text-[#E8221A]">{step.tag}</span>}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Scoring Widget */}
-            <div className="sticky top-32 h-fit rounded-xl p-6 border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-              <div className="flex gap-1 mb-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: i === 1 ? '#E8221A' : 'var(--muted-foreground)' }} />
-                ))}
-              </div>
-              <h4 className="font-syne font-700 text-sm mb-6" style={{ color: 'var(--text-primary)' }}>Scope Scoring</h4>
-
-              {[
-                { label: 'Clarity', value: 88, color: '#E8221A' },
-                { label: 'Completeness', value: 82, color: '#E8221A' },
-                { label: 'Timeline', value: 60, color: '#F59E0B' },
-                { label: 'Requirements', value: 75, color: '#E8221A' },
-                { label: 'Supplier readiness', value: 90, color: '#E8221A' },
-              ].map((item, i) => (
-                <div key={i} className="mb-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-dm-sans font-400 text-xs" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
-                    <span className="font-syne font-700 text-xs" style={{ color: item.color }}>{item.value}%</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--muted)' }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${item.value}%`, backgroundColor: item.color }} />
-                  </div>
-                </div>
-              ))}
-
-              <div className="mt-6 p-3 rounded-lg border-2" style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: '#E8221A' }}>
-                <p className="font-syne font-700 text-xs uppercase mb-1" style={{ color: 'var(--text-primary)' }}>★ AI Recommendation</p>
-                <p className="font-syne font-800 text-base" style={{ color: 'var(--text-primary)' }}>Request for Proposal</p>
-                <p className="font-dm-sans font-400 text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Detailed requirements warrant a comprehensive proposal process.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why TendeX Section */}
-      <section id="about" className="py-20 px-6" style={{ backgroundColor: 'var(--surface-1)' }}>
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="mb-12">
-            <p className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-widest mb-2">Why TendeX</p>
-            <h2 className="font-syne font-800 text-4xl md:text-5xl" style={{ color: 'var(--text-primary)' }}>Built for Australian procurement</h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="cards-grid">
             {[
-              { icon: Zap, title: 'AI-powered not template-driven', desc: 'Smart algorithms, not rigid templates' },
-              { icon: TrendingUp, title: 'Smart document routing', desc: 'Right document type, every time' },
-              { icon: FileText, title: 'Professional Word + PDF export', desc: 'Download and send immediately' },
-              { icon: Shield, title: 'Australian data sovereignty', desc: 'Data stored and processed locally' },
-              { icon: CheckCircle, title: 'ABN validation built in', desc: 'Verify Australian businesses instantly' },
-              { icon: Clock, title: 'Save and return anytime', desc: 'Never lose your progress or data' },
-            ].map((feature, i) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div key={i} whileHover={{ y: -3 }} className="rounded-xl p-6 border card-hover group" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-                  <div className="w-11 h-11 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#E8221A] transition-colors" style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: 'rgba(232,34,26,0.2)', border: '1px solid' }}>
-                    <Icon className="w-5 h-5 text-[#E8221A]" />
-                  </div>
-                  <h3 className="font-syne font-700 mb-2" style={{ color: 'var(--text-primary)' }}>{feature.title}</h3>
-                  <p className="font-dm-sans font-400 text-sm" style={{ color: 'var(--text-muted)' }}>{feature.desc}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Documents Section */}
-      <section id="documents" className="py-20 px-6" style={{ backgroundColor: 'var(--surface-2)' }}>
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="mb-12">
-            <p className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-widest mb-2">Documents</p>
-            <h2 className="font-syne font-800 text-4xl md:text-5xl" style={{ color: 'var(--text-primary)' }}>Every document you need to go to market</h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { label: 'SOW', title: 'Scope of Work', desc: 'Define project deliverables and responsibilities' },
-              { label: 'EOI', title: 'Expression of Interest', desc: 'Market sounding and supplier pre-qualification' },
-              { label: 'RFQ', title: 'Request for Quote', desc: 'Solicit prices for well-defined goods or services' },
-              { label: 'RFP', title: 'Request for Proposal', desc: 'Detailed proposals for complex solutions' },
-            ].map((doc, i) => (
-              <motion.div key={i} whileHover={{ y: -3 }} className="rounded-xl p-6 border card-hover" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-                <p className="font-syne font-800 text-xs text-[#E8221A] uppercase tracking-wide mb-2">{doc.label}</p>
-                <h3 className="font-syne font-700 text-lg mb-2" style={{ color: 'var(--text-primary)' }}>{doc.title}</h3>
-                <p className="font-dm-sans font-400 text-sm mb-4" style={{ color: 'var(--text-muted)' }}>{doc.desc}</p>
-                <div className="flex gap-2">
-                  {['Word', 'PDF', '★ AI'].map((badge, j) => (
-                    <span key={j} className="font-syne font-600 text-xs px-2 py-1 rounded" style={{ backgroundColor: 'var(--muted)', color: 'var(--text-secondary)' }}>
-                      {badge}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
+              { accent: s.red,    icon: '◎', title: 'Guided through the process',              body: 'Structured to make procurement simple: TendeX helps you understand what you need, what to create, and why, without needing to be a procurement expert.' },
+              { accent: s.blue,   icon: '⎘', title: 'One process, every document',             body: 'Your scope is defined once and used across every document you need, keeping your requirements consistent from start to finish.' },
+              { accent: s.green,  icon: '✓', title: 'Designed to prevent disputes',            body: 'Surfaces the gaps in your brief before any supplier sees it, reducing the risk of mismatched quotes, variations, and disputes.' },
+              { accent: s.orange, icon: '↗', title: 'Tailored to your requirements',           body: 'Adapts to what you actually need rather than forcing your project into a fixed template.' },
+              { accent: s.red,    icon: '⛨', title: 'Built by procurement professionals',     body: 'Every question, check and recommendation on the platform reflects real procurement practice, not a generic document builder.' },
+              { accent: s.blue,   icon: '↻', title: 'Your procurement activities, always available', body: 'Every procurement activity you start is saved and waiting. Come back mid-scope, pick up where you left off, and manage multiple processes without a separate filing system.' },
+            ].map((card, i) => (
+              <div key={i} className="lp-card-hover" style={{ backgroundColor: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, borderTop: `3px solid ${card.accent}`, padding: '22px 20px' }}>
+                <div style={{ width: 38, height: 38, borderRadius: 9, backgroundColor: `${card.accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: card.accent, fontSize: '1.1rem', marginBottom: 14 }}>{card.icon}</div>
+                <h3 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '0.96rem', color: s.text, marginBottom: 8 }}>{card.title}</h3>
+                <p style={{ fontSize: '0.83rem', color: s.textMuted, lineHeight: 1.65 }}>{card.body}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-6" style={{ backgroundColor: 'var(--surface-1)' }}>
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="mb-12 text-center">
-            <p className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-widest mb-2">Pricing</p>
-            <h2 className="font-syne font-800 text-4xl md:text-5xl" style={{ color: 'var(--text-primary)' }}>Simple, transparent pricing</h2>
-            <p className="font-dm-sans font-400 text-lg max-w-2xl mx-auto mt-4" style={{ color: 'var(--text-secondary)' }}>
-              Start free. Scale as you grow. No credit card required for the trial.
-            </p>
-          </motion.div>
+      {/* ════════════════════════════════════════════════
+          PROBLEM SECTION
+      ════════════════════════════════════════════════ */}
+      <section id="problem" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Where procurement goes wrong</div>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 16 }}>Get the scope wrong and the whole thing falls apart.</h2>
+          <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 640 }}>When requirements are underspecified, suppliers price against their own assumptions rather than yours. That gap tends to surface later: in mismatched quotes, disputed variations, and costs that shift once work is underway.</p>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {/* Free Trial Card */}
-            <motion.div whileHover={{ y: -3 }} className="rounded-xl p-8 border card-hover" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-              <div className="mb-6">
-                <h3 className="font-syne font-700 text-2xl mb-2" style={{ color: 'var(--text-primary)' }}>Free Trial</h3>
-                <p className="font-dm-sans font-400 text-lg" style={{ color: 'var(--text-secondary)' }}>14 days free</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }} className="compare-grid">
+            {/* Incomplete scope */}
+            <div className="lp-card-hover" style={{ backgroundColor: s.orangeSoft, border: `1.5px solid ${s.orangeBdr}`, borderRadius: 14, padding: '24px 22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                <AlertTriangle size={15} style={{ color: s.orange }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: s.orange, fontFamily: "'Inter', sans-serif" }}>An incomplete scope</span>
               </div>
+              {['Suppliers quote against their own assumptions', 'Gaps surface once work is already underway', 'Document type is chosen without a clear basis'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
+                  <span style={{ color: s.orange, fontWeight: 700, fontSize: '1rem', lineHeight: 1 }}>×</span>
+                  <span style={{ color: s.orange, fontSize: '0.92rem', lineHeight: 1.5 }}>{item}</span>
+                </div>
+              ))}
+            </div>
 
-              <div className="space-y-3 mb-8">
-                {[
-                  '1 active procurement document',
-                  'Scope of Work generation',
-                  '1 document type (SOW, EOI, RFQ, or RFP)',
-                  'Basic email support',
-                ].map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-[#E8221A] flex-shrink-0 mt-0.5" />
-                    <span className="font-dm-sans font-400 text-sm" style={{ color: 'var(--text-primary)' }}>{feature}</span>
-                  </div>
-                ))}
+            {/* Checked scope */}
+            <div className="lp-card-hover" style={{ backgroundColor: s.greenSoft, border: `1.5px solid ${s.greenBdr}`, borderRadius: 14, padding: '24px 22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                <Check size={15} style={{ color: s.green }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: s.green, fontFamily: "'Inter', sans-serif" }}>A checked scope</span>
               </div>
+              {["Guided questions surface what's commonly missed", 'Completeness is checked before submission', 'Document type is identified based on complexity'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
+                  <Check size={16} style={{ color: s.green, flexShrink: 0, marginTop: 2 }} />
+                  <span style={{ color: s.green, fontSize: '0.92rem', lineHeight: 1.5, fontWeight: 500 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <Button
-                onClick={() => base44.auth.redirectToLogin('/plan-selection')}
-                className="w-full font-syne font-700 text-base"
-                style={{ backgroundColor: '#E8221A', color: '#FFFFFF' }}>
-                Start free trial →
-              </Button>
-            </motion.div>
+      {/* ════════════════════════════════════════════════
+          HOW IT WORKS
+      ════════════════════════════════════════════════ */}
+      <section id="how-it-works" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>How it works</div>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>A guided process for making better procurement decisions.</h2>
+          <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 680 }}>Running the full process means you're never guessing. A solid scope forms the foundation for everything that follows. You are guided through the decisions at each step, from scope creation, through document selection and risk assessment, instead of figuring it out alone.</p>
 
-            {/* Professional Plan Card */}
-            <motion.div whileHover={{ y: -3 }} className="rounded-xl p-8 border-2 card-hover relative" style={{ backgroundColor: 'rgba(232,34,26,0.08)', borderColor: '#E8221A' }}>
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <span className="font-syne font-700 text-xs px-3 py-1 rounded-full text-white" style={{ backgroundColor: '#E8221A' }}>
-                  MOST POPULAR
-                </span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="steps-grid">
+            {[
+              ['1', 'Define your requirements',       "Structured questions covering what's typically missed"],
+              ['2', 'Completeness is checked',        'Identifies gaps before a supplier sees the brief'],
+              ['3', 'Document type is identified',    'EOI, RFQ or RFP, selected based on complexity'],
+              ['4', 'Issue with confidence',          'Professional PDF, ready to send'],
+            ].map(([num, title, body]) => (
+              <div key={num} className="lp-card-hover" style={{ backgroundColor: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: '20px 20px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: s.redSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, color: s.red, fontSize: '0.95rem' }}>{num}</span>
+                </div>
+                <div>
+                  <h3 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '0.96rem', color: s.text, marginBottom: 6 }}>{title}</h3>
+                  <p style={{ fontSize: '0.83rem', color: s.textMuted, lineHeight: 1.6 }}>{body}</p>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              <div className="mb-6">
-                <h3 className="font-syne font-700 text-2xl mb-2" style={{ color: 'var(--text-primary)' }}>Professional Plan</h3>
-                <p className="font-dm-sans font-400 text-lg" style={{ color: 'var(--text-secondary)' }}>Pricing [TBC]</p>
+      {/* ════════════════════════════════════════════════
+          PLATFORM FEATURES
+      ════════════════════════════════════════════════ */}
+      <section id="platform-features" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Platform features</div>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>Everything you need, built into one platform.</h2>
+          <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 640 }}>TendeX is designed to remove the overhead that normally comes with running a procurement process, so you can focus on the outcome, not the admin.</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }} className="feat-grid">
+            {[
+              { accent: s.green,  icon: '✓', title: 'Privacy Act compliant',            body: 'All data is stored and processed in Australia, in full compliance with the Privacy Act 1988.' },
+              { accent: s.blue,   icon: '⛨', title: 'Australian data sovereignty',      body: 'Your procurement data never leaves Australian shores. Stored locally, end to end.' },
+              { accent: s.red,    icon: '◎', title: 'Scope completeness checking',      body: 'Before any document is issued, TendeX checks your scope for gaps that typically lead to disputes or mismatched quotes.' },
+              { accent: s.orange, icon: '↗', title: 'Intelligent document selection',   body: "TendeX analyses your scope and recommends the most appropriate document type, so you don't have to know the difference upfront." },
+              { accent: s.green,  icon: '▤', title: 'Professional PDF export',          body: 'Every document is formatted and ready to issue as a professional PDF, downloadable immediately.' },
+              { accent: s.blue,   icon: '✓', title: 'ABN validation',                   body: "Verify that a supplier's ABN is active and registered before you engage, directly within the platform." },
+              { accent: s.red,    icon: '↻', title: 'Auto-save across sessions',        body: 'Progress is saved automatically. Return to any procurement activity at any stage without losing your work.' },
+              { accent: s.orange, icon: '⎘', title: 'Multiple concurrent procurements', body: 'Run several procurement activities at once, each tracked separately with its own documents and status.' },
+            ].map((feat, i) => (
+              <div key={i} className="lp-card-hover" style={{ backgroundColor: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: '18px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: `${feat.accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: feat.accent, fontSize: '1rem' }}>{feat.icon}</div>
+                <div>
+                  <h3 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '0.92rem', color: s.text, marginBottom: 5 }}>{feat.title}</h3>
+                  <p style={{ fontSize: '0.82rem', color: s.textMuted, lineHeight: 1.6 }}>{feat.body}</p>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              <div className="space-y-3 mb-8">
-                {[
-                  'Unlimited active procurements',
-                  'All document types (SOW, EOI, RFQ, RFP)',
-                  'Word & PDF export',
-                  'Priority email support',
-                  '[Additional features TBC]',
-                ].map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#E8221A] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="font-dm-sans font-400 text-sm" style={{ color: 'var(--text-primary)' }}>{feature}</span>
-                  </div>
-                ))}
+      {/* ════════════════════════════════════════════════
+          DOCUMENT TYPES
+      ════════════════════════════════════════════════ */}
+      <section id="document-types" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Document types</div>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>What these mean, even when we choose for you.</h2>
+          <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 660 }}>Start with a checked scope, and the rest is easy. We guide you through each decision, what type of document to use, what to watch for and what's next, so nothing is missed. Already have a scope, or only need one document? Enjoy the flexibility of using any step in isolation or as part of a larger procurement process.</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }} className="term-grid">
+            {[
+              { code: 'SOW', title: 'Scope of Work (SOW)',          body: 'The requirements written clearly enough for a supplier to price accurately.', bg: s.blueSoft, bdr: s.blueBdr, col: s.blue },
+              { code: 'EOI', title: 'Expression of Interest (EOI)', body: 'An initial approach used to identify interested and capable suppliers before a formal request is issued.', bg: s.orangeSoft, bdr: s.orangeBdr, col: s.orange },
+              { code: 'RFQ', title: 'Request for Quote (RFQ)',      body: 'A request for pricing against a clearly defined scope.', bg: s.greenSoft, bdr: s.greenBdr, col: s.green },
+              { code: 'RFP', title: 'Request for Proposal (RFP)',   body: 'A request for a proposed approach, used when supplier methodology affects the outcome.', bg: s.redSoft, bdr: s.redSoftBdr, col: s.red },
+            ].map(card => (
+              <div key={card.code} className="lp-card-hover" style={{ backgroundColor: card.bg, border: `1.5px solid ${card.bdr}`, borderRadius: 14, padding: '22px 20px' }}>
+                <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 800, fontSize: '1.15rem', color: card.col, marginBottom: 10 }}>{card.title}</div>
+                <p style={{ fontSize: '0.92rem', color: s.text, lineHeight: 1.65 }}>{card.body}</p>
               </div>
-
-              <button className="w-full py-2.5 rounded-lg font-syne font-700 text-base border transition-all" style={{ borderColor: '#E8221A', color: '#E8221A' }}>
-                Contact us
-              </button>
-            </motion.div>
+            ))}
           </div>
 
-          <p className="text-center font-dm-sans font-400 text-xs mt-12" style={{ color: 'var(--text-muted)' }}>
-            Pricing and features are placeholder values [TBC] pending final confirmation.
+          <p style={{ textAlign: 'center', fontSize: '0.86rem', color: s.textMuted }}>
+            Not sure which one fits? Run the full process and we'll identify it from your scope.
           </p>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 px-6" style={{ backgroundColor: 'var(--surface-2)' }}>
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="mb-12 text-center">
-            <p className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-widest mb-2">What people are saying</p>
-            <h2 className="font-syne font-800 text-4xl md:text-5xl" style={{ color: 'var(--text-primary)' }}>Trusted by procurement professionals across Australia</h2>
-          </motion.div>
+      {/* ════════════════════════════════════════════════
+          PRICING
+      ════════════════════════════════════════════════ */}
+      <section id="pricing" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Pricing</div>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>Simple, transparent pricing.</h2>
+          <p style={{ color: s.textMuted, fontSize: '1rem', marginBottom: 48 }}>Start free. Scale as you grow. No credit card required for the trial.</p>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                quote: 'TendeX cut our procurement document creation time from weeks to hours. The AI suggestions are surprisingly accurate.',
-                author: 'Sarah Mitchell',
-                role: 'Procurement Manager, Acme Corp',
-                initials: 'SM',
-              },
-              {
-                quote: 'Finally, a tool built for Australian procurement. The ABN validation and data sovereignty features were exactly what we needed.',
-                author: 'James Chen',
-                role: 'Head of Supply Chain, Tech Solutions',
-                initials: 'JC',
-              },
-              {
-                quote: 'Our team went from struggling with templates to issuing professional RFPs in minutes. Highly recommend.',
-                author: 'Alexandra Turner',
-                role: 'Operations Director, Infrastructure Group',
-                initials: 'AT',
-              },
-            ].map((testimonial, i) => (
-              <motion.div key={i} whileHover={{ y: -3 }} className="rounded-xl p-6 border card-hover" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-                <div className="flex gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
-                  ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 760, margin: '0 auto 20px' }} className="pricing-grid">
+            {/* Free trial */}
+            <div className="lp-card-hover" style={{ backgroundColor: s.surface, border: `1.5px solid ${s.border}`, borderRadius: 16, padding: '28px 24px', textAlign: 'left' }}>
+              <h3 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.15rem', color: s.text, marginBottom: 8 }}>Free Trial</h3>
+              <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: s.red, marginBottom: 24 }}>14 days free</div>
+              {['1 active procurement document', 'Scope of Work generation', '1 document type (SOW, EOI, RFQ or RFP)', 'Platform support via email'].map(item => (
+                <div key={item} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12 }}>
+                  <Check size={16} style={{ color: s.green, flexShrink: 0, marginTop: 2 }} />
+                  <span style={{ fontSize: '0.88rem', color: s.textMuted }}>{item}</span>
                 </div>
-                <p className="font-dm-sans font-400 italic mb-6" style={{ color: 'var(--text-secondary)' }}>{testimonial.quote}</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-syne font-700 text-sm text-[#E8221A]" style={{ backgroundColor: 'var(--muted)' }}>
-                    {testimonial.initials}
-                  </div>
-                  <div>
-                    <p className="font-syne font-700 text-sm" style={{ color: 'var(--text-primary)' }}>{testimonial.author}</p>
-                    <p className="font-dm-sans font-400 text-xs" style={{ color: 'var(--text-muted)' }}>{testimonial.role}</p>
-                  </div>
+              ))}
+              <Link to={START_URL} style={{ display: 'block', width: '100%', marginTop: 24, padding: '12px', borderRadius: 9, border: `1.5px solid ${s.border}`, backgroundColor: 'transparent', color: s.text, fontWeight: 600, fontSize: '0.92rem', textAlign: 'center', textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}>
+                Start free trial
+              </Link>
+            </div>
+
+            {/* Professional */}
+            <div className="lp-card-hover" style={{ backgroundColor: s.surface, border: `1.5px solid ${s.red}`, borderRadius: 16, padding: '28px 24px', textAlign: 'left', position: 'relative', boxShadow: '0 4px 20px rgba(200,30,58,0.12)' }}>
+              <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', backgroundColor: s.red, color: '#fff', padding: '4px 16px', borderRadius: 100, fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>Most popular</div>
+              <h3 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.15rem', color: s.text, marginBottom: 8 }}>Professional Plan</h3>
+              <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: s.red, marginBottom: 24 }}>Pricing (TBC)</div>
+              {['Unlimited active procurements', 'All document types (SOW, EOI, RFQ, RFP)', 'PDF export', 'Priority platform support via email'].map(item => (
+                <div key={item} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12 }}>
+                  <Check size={16} style={{ color: s.green, flexShrink: 0, marginTop: 2 }} />
+                  <span style={{ fontSize: '0.88rem', color: s.textMuted }}>{item}</span>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-6 relative overflow-hidden" style={{ backgroundColor: 'var(--surface-1)' }}>
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-96 h-96 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #E8221A 0%, transparent 70%)' }} />
-        </div>
-
-        <div className="max-w-3xl mx-auto text-center relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-            <p className="font-syne font-700 text-xs text-[#E8221A] uppercase tracking-widest mb-4">Get started today</p>
-            <h2 className="font-syne font-800 text-5xl md:text-6xl mb-4 leading-tight" style={{ color: 'var(--text-primary)' }}>
-              Your next procurement starts <span style={{ color: '#E8221A' }}>here</span>
-            </h2>
-            <p className="font-dm-sans font-400 text-lg mb-8" style={{ color: 'var(--text-secondary)' }}>
-              Join hundreds of Australian procurement teams who've switched to TendeX.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => base44.auth.redirectToLogin('/plan-selection')}
-                className="font-syne font-700 text-base px-8 py-3 rounded-lg primary-btn-hover"
-                style={{ backgroundColor: '#E8221A', color: '#FFFFFF' }}>
-                Start free trial →
-              </Button>
-              <a href="mailto:hello@tendex.com.au" className="font-syne font-700 text-base px-8 py-3 rounded-lg border transition-all inline-block hover:border-[#E8221A] hover:text-[#E8221A]" style={{ borderColor: 'var(--border-strong)', color: 'var(--text-primary)' }}>
-                Book a demo
+              ))}
+              <a href="mailto:hello@tendex.com.au" style={{ display: 'block', width: '100%', marginTop: 24, padding: '12px', borderRadius: 9, backgroundColor: s.red, color: '#fff', fontWeight: 600, fontSize: '0.92rem', textAlign: 'center', textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}>
+                Contact us
               </a>
             </div>
-          </motion.div>
+          </div>
+
+          <p style={{ fontSize: '0.8rem', color: s.textMuted }}>Pricing and features are placeholder values, pending final confirmation.</p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t px-6 py-12" style={{ borderColor: 'var(--border)' }}>
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="col-span-2 md:col-span-1">
-            <div className="font-syne font-800 text-lg mb-2" style={{ color: 'var(--text-primary)' }}>
-              TendeX<span style={{ color: '#E8221A' }}>.</span>
-            </div>
-            <p className="font-dm-sans font-300 text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
-              Professional procurement documents, powered by AI
-            </p>
-            <p className="font-dm-sans font-400 text-xs" style={{ color: 'var(--text-muted)' }}>
-              © 2024 TendeX Australia. All rights reserved.
-            </p>
-          </div>
+      {/* ════════════════════════════════════════════════
+          CLOSING CTA
+      ════════════════════════════════════════════════ */}
+      <section style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt, textAlign: 'center' }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '2rem', color: s.text, marginBottom: 14 }}>A scope suppliers can quote against with confidence.</h2>
+          <p style={{ color: s.textMuted, fontSize: '1rem', marginBottom: 32 }}>Most procurement disputes are avoidable with a complete brief.</p>
+          <Link to={START_URL}
+            style={{ display: 'inline-block', backgroundColor: s.red, color: '#fff', padding: '14px 28px', borderRadius: 9, fontWeight: 600, fontSize: '1rem', textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = s.redInk}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = s.red}>
+            Start your first document free →
+          </Link>
+        </div>
+      </section>
 
-          {/* Product */}
-          <div>
-            <h4 className="font-syne font-700 text-xs uppercase tracking-wide mb-4" style={{ color: 'var(--text-primary)' }}>Product</h4>
-            <div className="space-y-2 font-dm-sans font-400 text-sm" style={{ color: 'var(--text-muted)' }}>
-              <a href="#how" className="block hover:text-[#E8221A] transition-colors">How it works</a>
-              <a href="#pricing" className="block hover:text-[#E8221A] transition-colors">Pricing</a>
-              <a href="#documents" className="block hover:text-[#E8221A] transition-colors">Documents</a>
-            </div>
+      {/* ════════════════════════════════════════════════
+          FOOTER
+      ════════════════════════════════════════════════ */}
+      <footer style={{ borderTop: `1px solid ${s.border}`, padding: '36px 28px', backgroundColor: s.bg }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: s.text }}>
+            Tende<span style={{ color: s.red }}>X</span>
           </div>
-
-          {/* Company */}
-          <div>
-            <h4 className="font-syne font-700 text-xs uppercase tracking-wide mb-4" style={{ color: 'var(--text-primary)' }}>Company</h4>
-            <div className="space-y-2 font-dm-sans font-400 text-sm" style={{ color: 'var(--text-muted)' }}>
-              <a href="#about" className="block hover:text-[#E8221A] transition-colors">About</a>
-              <a href="#" className="block hover:text-[#E8221A] transition-colors">Blog</a>
-              <a href="mailto:hello@tendex.com.au" className="block hover:text-[#E8221A] transition-colors">Contact</a>
-            </div>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="font-syne font-700 text-xs uppercase tracking-wide mb-4" style={{ color: 'var(--text-primary)' }}>Legal</h4>
-            <div className="space-y-2 font-dm-sans font-400 text-sm" style={{ color: 'var(--text-muted)' }}>
-              <Link to="/privacy" className="block hover:text-[#E8221A] transition-colors">Privacy Policy</Link>
-              <Link to="/terms" className="block hover:text-[#E8221A] transition-colors">Terms of Service</Link>
-              <a href="#" className="block hover:text-[#E8221A] transition-colors">Cookie Policy</a>
-            </div>
-          </div>
+          <p style={{ fontSize: '0.85rem', color: s.textMuted }}>Structured procurement documentation for Australian business.</p>
         </div>
       </footer>
 
-      {/* Bottom Accent Strip */}
-      <div className="accent-strip" />
+      {/* ════════════════════════════════════════════════
+          RESPONSIVE CSS
+      ════════════════════════════════════════════════ */}
+      <style>{`
+        @media (max-width: 860px) {
+          .hero-grid       { grid-template-columns: 1fr !important; }
+          .cards-grid      { grid-template-columns: 1fr !important; }
+          .compare-grid    { grid-template-columns: 1fr !important; }
+          .steps-grid      { grid-template-columns: 1fr !important; }
+          .feat-grid       { grid-template-columns: 1fr !important; }
+          .term-grid       { grid-template-columns: 1fr !important; }
+          .pricing-grid    { grid-template-columns: 1fr !important; }
+          .stats-grid      { grid-template-columns: 1fr !important; }
+          .hidden-mobile   { display: none !important; }
+          .show-mobile     { display: flex !important; }
+          h1               { font-size: 2.05rem !important; }
+        }
+        @media (min-width: 861px) {
+          .show-mobile { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
