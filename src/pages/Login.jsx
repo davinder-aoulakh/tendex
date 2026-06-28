@@ -85,12 +85,12 @@ export default function Login() {
 
         {/* Logo */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png" alt="TendeX" height={46} style={{ zIndex: 1, position: 'relative', filter: 'brightness(10)' }} />
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png" alt="TendeX" style={{ zIndex: 1, position: 'relative', height: 28, width: 'auto', filter: 'brightness(10)' }} />
         </div>
 
         {/* Mascot and headline */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center', padding: '16px 0' }}>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/338bcfb75_1000044834.png" alt="" width={160} style={{ display: 'block', margin: '0 auto 8px', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))' }} />
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/338bcfb75_1000044834.png" alt="" style={{ display: 'block', margin: '0 auto 8px', width: 140, height: 'auto', mixBlendMode: 'screen', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))' }} />
           <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: '#F1EFE9', lineHeight: 1.25, marginBottom: 12 }}>
             Procurement,<br />made simple.
           </h1>
