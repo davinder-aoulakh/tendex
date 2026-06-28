@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=Inter:wght@400;500;600&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -128,6 +128,52 @@
 
     --text-disabled:   #94A3B8;
   }
+
+  /* ── LANDING PAGE LIGHT THEME ────────────────────────────────── */
+  [data-landing-theme="light"] {
+    --bg:                #FAF9F6;
+    --surface:           #FFFFFF;
+    --surface-alt:       #F3F1EB;
+    --lp-text:           #15171F;
+    --lp-text-muted:     #5B6270;
+    --lp-border:         #E6E3DA;
+    --lp-red:            #C81E3A;
+    --lp-red-ink:        #A8172F;
+    --lp-red-soft:       #FBE9EA;
+    --lp-red-soft-border:#F2CBCF;
+    --lp-green:          #1F7A4D;
+    --lp-green-soft:     #E9F5EE;
+    --lp-green-border:   #BFE3CE;
+    --lp-orange:         #C2570A;
+    --lp-orange-soft:    #FDEFDE;
+    --lp-orange-border:  #F3CFA0;
+    --lp-blue:           #2E5FA3;
+    --lp-blue-soft:      #E9F0FA;
+    --lp-blue-border:    #C3D7F0;
+  }
+
+  /* ── LANDING PAGE DARK THEME ─────────────────────────────────── */
+  [data-landing-theme="dark"] {
+    --bg:                #111318;
+    --surface:           #1A1D28;
+    --surface-alt:       #20243A;
+    --lp-text:           #EDEAE2;
+    --lp-text-muted:     #B0BAC8;
+    --lp-border:         #2F3448;
+    --lp-red:            #E8213B;
+    --lp-red-ink:        #C81E3A;
+    --lp-red-soft:       rgba(200,30,58,0.14);
+    --lp-red-soft-border:rgba(200,30,58,0.35);
+    --lp-green:          #3DB87A;
+    --lp-green-soft:     rgba(61,184,122,0.16);
+    --lp-green-border:   rgba(61,184,122,0.40);
+    --lp-orange:         #E8913A;
+    --lp-orange-soft:    rgba(232,145,58,0.16);
+    --lp-orange-border:  rgba(232,145,58,0.42);
+    --lp-blue:           #5A9FE8;
+    --lp-blue-soft:      rgba(90,159,232,0.16);
+    --lp-blue-border:    rgba(90,159,232,0.40);
+  }
 }
 
 @layer base {
@@ -213,6 +259,40 @@
   .row-hover:hover { background: var(--muted); }
 
   ::selection { background: var(--primary); color: var(--primary-foreground); }
+
+  .font-libre-franklin {
+    font-family: 'Libre Franklin', sans-serif;
+  }
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Landing page print support */
+  .lp-root * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Landing page smooth scroll */
+  .lp-root {
+    scroll-behavior: smooth;
+  }
+
+  /* Landing card hover lift */
+  .lp-card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .lp-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  }
+
+  /* Landing input focus — red ring */
+  .lp-input:focus {
+    border-color: var(--lp-red) !important;
+    box-shadow: 0 0 0 3px rgba(200, 30, 58, 0.10);
+    outline: none;
+  }
 }
 
 @layer base {
