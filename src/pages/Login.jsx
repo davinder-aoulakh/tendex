@@ -85,7 +85,7 @@ export default function Login() {
 
         {/* Logo */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <img src="/logo_dark.png" alt="TendeX" height={46} style={{ zIndex: 1, position: 'relative' }} />
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png" alt="TendeX" height={46} style={{ zIndex: 1, position: 'relative', filter: 'brightness(10)' }} />
         </div>
 
         {/* Mascot and headline */}

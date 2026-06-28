@@ -85,12 +85,10 @@ export default function AppLayout({ children }) {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
             <img
-              src="/logo.png"
+              src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png"
               alt="TendeX"
-              className="h-8 w-auto"
-              onError={e => { e.currentTarget.style.display = 'none'; }}
+              style={{ height: 32, filter: 'brightness(10)', display: 'block' }}
             />
-            <span className="font-syne font-800 text-lg text-white">TendeX<span style={{ color: '#E8221A' }}>.</span></span>
           </Link>
           <div className="flex items-center gap-1">
             {isAuthenticated ? (

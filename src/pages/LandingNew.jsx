@@ -70,7 +70,11 @@ export default function LandingNew() {
       }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo */}
-          <img src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} alt="TendeX" height={44} style={{ display: 'block' }} />
+          <img
+            src={theme === 'dark'
+              ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png'
+              : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/619512359_Gemini_Generated_Image_nymk92nymk92nymk.png'}
+            alt="TendeX" height={44} style={{ display: 'block', filter: theme === 'dark' ? 'brightness(10)' : 'none' }} />
 
           {/* Nav links (desktop) */}
           <div className="hidden-mobile" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
@@ -472,7 +476,11 @@ export default function LandingNew() {
       ════════════════════════════════════════════════ */}
       <footer style={{ borderTop: `1px solid ${s.border}`, padding: '36px 28px', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <img src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} alt="TendeX" height={28} style={{ display: 'block' }} />
+          <img
+            src={theme === 'dark'
+              ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png'
+              : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/619512359_Gemini_Generated_Image_nymk92nymk92nymk.png'}
+            alt="TendeX" height={28} style={{ display: 'block', filter: theme === 'dark' ? 'brightness(10)' : 'none' }} />
           <p style={{ fontSize: '0.85rem', color: s.textMuted }}>Structured procurement documentation for Australian business.</p>
         </div>
       </footer>
