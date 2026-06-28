@@ -63,7 +63,7 @@ export default function Login() {
 
       {/* ── LEFT PANEL ─────────────────────────────────────────── */}
       <div style={{
-        position: 'relative', overflow: 'hidden',
+        position: 'relative',
         background: 'linear-gradient(160deg, #15171F 0%, #1E1020 60%, #2A0D15 100%)',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         padding: '48px 52px', minHeight: '100vh',
@@ -90,7 +90,7 @@ export default function Login() {
 
         {/* Mascot and headline */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center', padding: '16px 0' }}>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/338bcfb75_1000044834.png" alt="" style={{ display: 'block', margin: '0 auto 8px', width: 160, height: 'auto', mixBlendMode: 'screen' }} />
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/338bcfb75_1000044834.png" alt="" style={{ display: 'block', width: 140, height: 'auto', margin: '0 auto 8px', mixBlendMode: 'screen' }} />
           <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: '#F1EFE9', lineHeight: 1.25, marginBottom: 12 }}>
             Procurement,<br />made simple.
           </h1>
