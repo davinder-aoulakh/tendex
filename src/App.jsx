@@ -18,6 +18,7 @@ import Profile from './pages/Profile';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import StartProcurement from './pages/StartProcurement';
+import Login from './pages/Login';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
       <Route path="/questionnaire/:type" element={<Questionnaire />} />
       <Route path="/document/:id" element={<DocumentEditor />} />
       <Route path="/billing" element={<Billing />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="*" element={<PageNotFound />} />
