@@ -85,16 +85,12 @@ export default function Login() {
 
         {/* Logo */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 800, fontSize: '1.4rem', color: '#F1EFE9' }}>
-            Tende<span style={{ color: '#C81E3A' }}>X</span>
-          </div>
+          <img src="/logo_dark.png" alt="TendeX" height={46} style={{ zIndex: 1, position: 'relative' }} />
         </div>
 
         {/* Mascot and headline */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center', padding: '16px 0' }}>
-          <div style={{ width: 240, height: 200, margin: '0 auto 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(241,239,233,0.3)', fontSize: '0.8rem' }}>
-            cat_mascot.png
-          </div>
+          <img src="/cat_mascot.png" alt="" width={240} style={{ display: 'block', margin: '0 auto', marginBottom: 8 }} />
           <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: '#F1EFE9', lineHeight: 1.25, marginBottom: 12 }}>
             Procurement,<br />made simple.
           </h1>

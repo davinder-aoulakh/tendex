@@ -70,9 +70,7 @@ export default function LandingNew() {
       }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo */}
-          <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 800, fontSize: '1.25rem', color: s.text }}>
-            Tende<span style={{ color: s.red }}>X</span>
-          </div>
+          <img src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} alt="TendeX" height={44} style={{ display: 'block' }} />
 
           {/* Nav links (desktop) */}
           <div className="hidden-mobile" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
@@ -474,9 +472,7 @@ export default function LandingNew() {
       ════════════════════════════════════════════════ */}
       <footer style={{ borderTop: `1px solid ${s.border}`, padding: '36px 28px', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <div style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: s.text }}>
-            Tende<span style={{ color: s.red }}>X</span>
-          </div>
+          <img src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} alt="TendeX" height={28} style={{ display: 'block' }} />
           <p style={{ fontSize: '0.85rem', color: s.textMuted }}>Structured procurement documentation for Australian business.</p>
         </div>
       </footer>
