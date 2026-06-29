@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function Login() {
-  const navigate = useNavigate();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd]   = useState(false);
-  const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
 
   const getReturnUrl = () => {
@@ -21,23 +18,11 @@ export default function Login() {
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-    try {
-      await base44.auth.loginWithEmailPassword(email, password);
-      navigate(getReturnUrl());
-    } catch (err) {
-      setError(err?.message || 'Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    base44.auth.redirectToLogin(getReturnUrl());
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      await base44.auth.loginWithGoogle();
-    } catch (err) {
-      setError(err?.message || 'Google sign-in failed. Please try again.');
-    }
+  const handleGoogleLogin = () => {
+    base44.auth.redirectToLogin(getReturnUrl());
   };
 
   const inputStyle = (focused) => ({
@@ -178,17 +163,17 @@ export default function Login() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '13px', borderRadius: 9, backgroundColor: loading ? '#E8A0A8' : '#C81E3A', color: '#fff', fontWeight: 600, fontSize: '0.95rem', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'Inter', sans-serif", transition: 'background-color 0.15s' }}
-              onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = '#A8172F'; }}
-              onMouseLeave={e => { if (!loading) e.currentTarget.style.backgroundColor = '#C81E3A'; }}>
-              {loading ? 'Signing in…' : 'Sign in'}
+            <button type="submit"
+              style={{ width: '100%', padding: '13px', borderRadius: 9, backgroundColor: '#C81E3A', color: '#fff', fontWeight: 600, fontSize: '0.95rem', border: 'none', cursor: 'pointer', fontFamily: "'Inter', sans-serif", transition: 'background-color 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#A8172F'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#C81E3A'; }}>
+              Sign in
             </button>
           </form>
 
           {/* Footer links */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, fontSize: '0.85rem', color: '#5B6270' }}>
-            <button onClick={() => base44.auth.requestPasswordReset?.(email)}
+            <button onClick={() => base44.auth.redirectToLogin(getReturnUrl())}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C81E3A', fontWeight: 600, fontFamily: "'Inter', sans-serif", fontSize: '0.85rem', padding: 0 }}>
               Forgot password?
             </button>
