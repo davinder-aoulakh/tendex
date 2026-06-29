@@ -1,11 +1,12 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import ProtectedRoute from '@/components/ProtectedRoute';
 // Add page imports here
 import LandingNew from './pages/LandingNew';
 import PlanSelection from './pages/PlanSelection';
@@ -19,9 +20,12 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import StartProcurement from './pages/StartProcurement';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -31,29 +35,29 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
-  }
-
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<LandingNew />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/plan-selection" element={<PlanSelection />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/tool-select" element={<ToolSelect />} />
-      <Route path="/start-procurement" element={<StartProcurement />} />
-      <Route path="/questionnaire/:type" element={<Questionnaire />} />
-      <Route path="/document/:id" element={<DocumentEditor />} />
-      <Route path="/billing" element={<Billing />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
+
+      {/* Protected app routes */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/plan-selection" element={<PlanSelection />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/tool-select" element={<ToolSelect />} />
+        <Route path="/start-procurement" element={<StartProcurement />} />
+        <Route path="/questionnaire/:type" element={<Questionnaire />} />
+        <Route path="/document/:id" element={<DocumentEditor />} />
+        <Route path="/billing" element={<Billing />} />
+      </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
