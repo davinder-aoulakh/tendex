@@ -128,7 +128,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin(window.location.pathname);
+    // Route to custom login page, preserving the current URL as return destination
+    window.location.href = `/login?from_url=${encodeURIComponent(window.location.pathname)}`;
   };
 
   return (
