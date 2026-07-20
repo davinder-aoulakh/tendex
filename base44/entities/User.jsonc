@@ -10,6 +10,14 @@
         "user"
       ]
     },
+    "first_name": {
+      "type": "string",
+      "description": "User's first name (mandatory at the app level)"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "User's last name (optional)"
+    },
     "logo_url": {
       "type": "string",
       "description": "URL to the organisation logo uploaded by this user"

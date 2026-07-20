@@ -484,6 +484,13 @@ export default function Dashboard() {
     enabled: !!user?.email,
   });
 
+  // Fetch the custom User entity to read the saved first_name
+  const { data: userRecord } = useQuery({
+    queryKey: ['user-record', user?.email],
+    queryFn: () => base44.entities.User.filter({ email: user?.email }),
+    enabled: !!user?.email,
+  });
+
   const currentSub = subscriptions[0];
   const currentPlan = currentSub?.plan || 'free';
   const planLimits = { free: 25, starter: 50, professional: 999 };
@@ -514,7 +521,7 @@ export default function Dashboard() {
     docComplete: standaloneDocs.filter(d => d.status === 'complete' || d.status === 'issued').length,
   };
 
-  const firstName = user?.full_name?.split(' ')[0] || 'there';
+  const firstName = userRecord?.[0]?.first_name || user?.full_name?.split(' ')[0] || 'there';
 
   return (
     <AppLayout>

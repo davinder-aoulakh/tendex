@@ -344,7 +344,7 @@ export default function AppLayout({ children }) {
         )}
 
         {/* Profile incomplete banner */}
-        {isAuthenticated && profileIncomplete && location.pathname !== '/profile' && (
+        {isAuthenticated && profileIncomplete && location.pathname !== '/profile' && location.pathname !== '/settings' && (
           <div style={{ padding: '16px 38px 0' }}>
             <div
               className="flex items-center justify-between gap-3 rounded-xl px-5 py-3 text-sm"

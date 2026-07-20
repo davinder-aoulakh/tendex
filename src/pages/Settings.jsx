@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, User, Shield, Lock, Bell,
-  Laptop, Phone, Check, AlertTriangle, Loader2, Save
+  Laptop, Phone, Check, AlertTriangle, Loader2, Mail
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import AppLayout from '@/components/layout/AppLayout';
@@ -13,12 +13,19 @@ export default function Settings() {
   const { toast } = useToast();
 
   const [user, setUser]       = useState(null);
+  const [userRecord, setUserRecord] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Account section state
-  const [fullName, setFullName] = useState('');
-  const [phone,    setPhone]    = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName,  setLastName]  = useState('');
+  const [phone,     setPhone]    = useState('');
   const [savingAccount, setSavingAccount] = useState(false);
+  const [nameError, setNameError] = useState('');
+
+  // Email change state
+  const [newEmail,    setNewEmail]    = useState('');
+  const [sendingEmailChange, setSendingEmailChange] = useState(false);
 
   // Password section state
   const [currentPwd,  setCurrentPwd]  = useState('');
@@ -37,9 +44,28 @@ export default function Settings() {
         const u = await base44.auth.me();
         if (!u) { navigate('/'); return; }
         setUser(u);
-        setFullName(u.full_name || '');
-        setPhone(u.phone || '');
+        setNewEmail(u.email || '');
         setWeeklySummary(u.notification_weekly_summary ?? false);
+
+        // Fetch the custom User entity to read first_name / last_name / phone
+        try {
+          const users = await base44.entities.User.filter({ email: u.email });
+          if (users.length > 0) {
+            const rec = users[0];
+            setUserRecord(rec);
+            setFirstName(rec.first_name || '');
+            setLastName(rec.last_name || '');
+            setPhone(rec.phone || u.phone || '');
+          } else {
+            setFirstName(u.full_name ? u.full_name.split(' ')[0] : '');
+            setLastName(u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '');
+            setPhone(u.phone || '');
+          }
+        } catch {
+          setFirstName(u.full_name ? u.full_name.split(' ')[0] : '');
+          setLastName(u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '');
+          setPhone(u.phone || '');
+        }
       } catch {
         toast({ title: 'Error', description: 'Failed to load settings.', variant: 'destructive' });
       } finally {
@@ -52,14 +78,70 @@ export default function Settings() {
   // ── HANDLERS ────────────────────────────────────────────────────
 
   const handleSaveAccount = async () => {
+    setNameError('');
+    if (!firstName.trim()) {
+      setNameError('First name is required.');
+      return;
+    }
     setSavingAccount(true);
     try {
-      await base44.auth.updateMe({ full_name: fullName, phone: phone });
+      // Persist first_name / last_name / phone on the custom User entity.
+      // (base44.auth.updateMe cannot override the built-in full_name, so we
+      // store the split names here — the dashboard reads first_name from this record.)
+      const payload = {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        phone: phone,
+      };
+      if (userRecord) {
+        const updated = await base44.entities.User.update(userRecord.id, payload);
+        setUserRecord(updated);
+      } else if (user?.email) {
+        // User entity not found yet — try to find and update, else create is not allowed for User.
+        const users = await base44.entities.User.filter({ email: user.email });
+        if (users.length > 0) {
+          const updated = await base44.entities.User.update(users[0].id, payload);
+          setUserRecord(updated);
+        }
+      }
+      // Also keep phone in sync on the auth record (phone is not a built-in)
+      try { await base44.auth.updateMe({ phone: phone }); } catch {}
+
       toast({ title: 'Account updated', description: 'Your details have been saved.' });
     } catch {
       toast({ title: 'Error', description: 'Failed to save account details.', variant: 'destructive' });
     } finally {
       setSavingAccount(false);
+    }
+  };
+
+  const handleRequestEmailChange = async () => {
+    if (!newEmail.trim()) {
+      toast({ title: 'Enter a new email', description: 'Please type the email address you want to change to.', variant: 'destructive' });
+      return;
+    }
+    if (newEmail.trim() === user?.email) {
+      toast({ title: 'Same email', description: 'This is already your current login email.', variant: 'destructive' });
+      return;
+    }
+    setSendingEmailChange(true);
+    try {
+      const subject = encodeURIComponent('Email Address Change Request');
+      const body = encodeURIComponent(
+        'I would like to change my TendeX login email address.\n\n' +
+        'Current email: ' + (user?.email || '') + '\n' +
+        'New email: ' + newEmail.trim() + '\n\n' +
+        'Please process this change on my behalf.'
+      );
+      window.location.href = 'mailto:support@tendex.com.au?subject=' + subject + '&body=' + body;
+      toast({
+        title: 'Email change request started',
+        description: 'For security, login email changes are processed by our support team. Your email client will open with the details — send it and we\'ll be in touch.',
+      });
+    } catch {
+      toast({ title: 'Error', description: 'Could not open your email client.', variant: 'destructive' });
+    } finally {
+      setSendingEmailChange(false);
     }
   };
 
@@ -248,25 +330,65 @@ export default function Settings() {
           </p>
 
           <div style={fieldGrid}>
-            {/* Full Name */}
+            {/* First Name (mandatory) */}
             <div>
-              <label style={labelStyle}>Full Name</label>
+              <label style={labelStyle}>
+                First Name <span style={{ color: 'var(--primary)' }}>*</span>
+              </label>
               <input
                 type="text"
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                placeholder="Your full name"
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                placeholder="Your first name"
+                style={{ ...inputStyle, borderColor: nameError ? 'var(--destructive)' : 'var(--border)' }}
+                onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderColor = nameError ? 'var(--destructive)' : 'var(--border)'}
+              />
+              {nameError && <p style={{ fontSize: 11.5, color: 'var(--destructive)', marginTop: 5 }}>{nameError}</p>}
+            </div>
+
+            {/* Last Name */}
+            <div>
+              <label style={labelStyle}>Last Name</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                placeholder="Your last name (optional)"
                 style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--primary)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
             </div>
 
-            {/* Login Email (read-only) */}
+            {/* Login Email (editable + request change) */}
             <div>
               <label style={labelStyle}>Login Email</label>
-              <input type="email" value={user?.email || ''} disabled style={inputDisabledStyle} />
-              <p style={hintStyle}>This is your authentication email and cannot be changed here.</p>
+              <input
+                type="email"
+                value={newEmail}
+                onChange={e => setNewEmail(e.target.value)}
+                placeholder="your@email.com"
+                style={inputStyle}
+                onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border)'}
+              />
+              <p style={hintStyle}>
+                To change your login email, edit the address above and request a change — our team will process it for security.
+              </p>
+              <div style={{ marginTop: 8 }}>
+                <button
+                  onClick={handleRequestEmailChange}
+                  disabled={sendingEmailChange}
+                  style={{
+                    ...secondaryBtnStyle(sendingEmailChange),
+                    padding: '7px 14px', fontSize: 12,
+                  }}
+                >
+                  <Mail style={{ width: 13, height: 13 }} />
+                  Request Email Change
+                </button>
+              </div>
             </div>
 
             {/* Phone Number */}
