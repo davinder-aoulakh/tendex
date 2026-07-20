@@ -28,6 +28,7 @@ import PerItemDelivery from '@/components/questionnaire/PerItemDelivery';
 import WarrantyTable from '@/components/questionnaire/WarrantyTable';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useToast } from '@/components/ui/use-toast';
+import { useQuestionnaireGuard } from '@/lib/QuestionnaireGuard';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
 const LOCAL_KEY = (type) => `tendex_answers_${type}`;
@@ -163,6 +164,20 @@ export default function Questionnaire() {
   const [scoring, setScoring] = useState(false);
   const [scoreData, setScoreData] = useState(null);
   const { toast } = useToast();
+  const { isDirty, setDirty, clearDirty } = useQuestionnaireGuard();
+
+  // Expose saveNow for the AppLayout guard modal's "Save Draft & Leave" button
+  useEffect(() => {
+    window.__tendex_saveNow = saveNow;
+    return () => { window.__tendex_saveNow = null; };
+  }, [saveNow]);
+
+  // Warn on tab close / refresh when there are unsaved answers
+  useEffect(() => {
+    const handler = (e) => { if (isDirty) { e.preventDefault(); e.returnValue = ''; } };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   // AI Assist steps (SOW only)
   // 'purpose'      → Assist 1: scope purpose statement (shown after S2)
@@ -323,6 +338,7 @@ export default function Questionnaire() {
   const updateAnswer = (key, value) => {
     setAnswers(prev => ({ ...prev, [key]: value }));
     setErrors(prev => prev.filter(e => e !== key));
+    setDirty();
   };
 
   const handleABNConfirmed = async (abnData) => {
@@ -464,6 +480,7 @@ export default function Questionnaire() {
     setErrors([]);
     saveNow(); // auto-save on navigation
     if (currentStep === 0) {
+      if (Object.keys(answers).length === 0) clearDirty();
       navigate('/tool-select');
     } else {
       setCurrentStep(s => s - 1);
@@ -473,6 +490,7 @@ export default function Questionnaire() {
 
   const handleSaveDraftAndExit = async () => {
     saveNow();
+    clearDirty();
     await new Promise(resolve => setTimeout(resolve, 500));
     toast({
       title: 'Draft saved',
@@ -483,6 +501,7 @@ export default function Questionnaire() {
   };
 
   const handleGenerate = async (finalDocType, overrideDocType) => {
+    clearDirty();
     setGenerating(true);
     const resolvedType = overrideDocType || finalDocType || type;
     const title = answers.project_name || answers.rfq_title || answers.rfp_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}`;

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useQuestionnaireGuard } from '@/lib/QuestionnaireGuard';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { LayoutDashboard, CreditCard, Plus, LogOut, Zap, AlertCircle } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { base44 } from '@/api/base44Client';
@@ -30,6 +32,15 @@ export default function AppLayout({ children }) {
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [profileIncomplete, setProfileIncomplete] = useState(false);
+  const navigate = useNavigate();
+  const { isDirty, clearDirty } = useQuestionnaireGuard();
+  const [pendingNav, setPendingNav] = useState(null);
+  const [showGuard, setShowGuard] = useState(false);
+
+  const handleSidebarNav = (path) => {
+    if (isDirty) { setPendingNav(path); setShowGuard(true); }
+    else { navigate(path); }
+  };
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsAuthenticated);
@@ -83,54 +94,48 @@ export default function AppLayout({ children }) {
       {/* Top nav */}
       <nav className="fixed top-0 w-full z-50 blur-nav">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <button onClick={() => handleSidebarNav('/dashboard')} className="flex items-center gap-2">
             <img
               src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png"
               alt="TendeX"
               style={{ height: 32, filter: 'brightness(10)', display: 'block' }}
             />
-          </Link>
+          </button>
           <div className="flex items-center gap-1">
             {isAuthenticated ? (
               <>
                 {/* Upgrade button for trial users */}
                 {subscription?.plan === 'free' && (
-                  <Link to="/billing">
-                    <Button size="sm" className="gap-2 ml-1" style={{ background: 'var(--warning-subtle)', color: 'var(--warning)', border: '1px solid var(--warning-border)' }}>
+                    <Button size="sm" className="gap-2 ml-1" style={{ background: 'var(--warning-subtle)', color: 'var(--warning)', border: '1px solid var(--warning-border)' }} onClick={() => handleSidebarNav('/billing')}>
                       <Zap className="w-4 h-4" />Upgrade
                     </Button>
-                  </Link>
                 )}
 
                 {navItems.map(item => {
                   const active = location.pathname === item.path;
                   return (
-                    <Link key={item.path + item.label} to={item.path}>
                       <Button
+                        key={item.path + item.label}
                         variant="ghost"
                         size="sm"
                         className="gap-2 text-sm hidden sm:flex transition-colors hover-muted"
                         style={active
                           ? { background: 'var(--border)', color: 'var(--text-primary)' }
                           : { color: 'var(--text-secondary)' }}
+                        onClick={() => handleSidebarNav(item.path)}
                       >
                         <item.icon className="w-4 h-4" />{item.label}
                       </Button>
-                    </Link>
                   );
                 })}
                 <ThemeToggle variant="icon" />
-                <Link to="/start-procurement">
-                  <Button size="sm" className="gap-2 ml-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }}>
+                  <Button size="sm" className="gap-2 ml-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }} onClick={() => handleSidebarNav('/start-procurement')}>
                     <Plus className="w-4 h-4" />New
                   </Button>
-                </Link>
                 {user && (
-                 <Link to="/profile">
-                   <button className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
+                   <button onClick={() => handleSidebarNav('/profile')} className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
                      {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'}
                    </button>
-                 </Link>
                 )}
                 <Button variant="ghost" size="icon" className="ml-1 hover-muted" style={{ color: 'var(--text-muted)' }} onClick={() => base44.auth.logout('/')}>
                  <LogOut className="w-4 h-4" />
@@ -163,16 +168,69 @@ export default function AppLayout({ children }) {
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 Your business profile is incomplete. Add your organisation name and ABN to get started.
               </div>
-              <Link to="/profile">
-                <Button size="sm" variant="ghost" className="flex-shrink-0 h-7 text-xs whitespace-nowrap" style={{ color: 'var(--warning)', border: '1px solid var(--warning-border)' }}>
+                <Button size="sm" variant="ghost" className="flex-shrink-0 h-7 text-xs whitespace-nowrap" style={{ color: 'var(--warning)', border: '1px solid var(--warning-border)' }} onClick={() => handleSidebarNav('/profile')}>
                   Complete Profile →
                 </Button>
-              </Link>
             </div>
           </div>
         )}
         {children}
       </main>
+
+      <Dialog open={showGuard} onOpenChange={setShowGuard}>
+        <DialogContent style={{ background: 'var(--card)', border: '1px solid var(--border)',
+                                borderRadius: 16, maxWidth: 440 }}>
+          <DialogHeader>
+            <DialogTitle style={{ color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif',
+                                  fontWeight: 700 }}>
+              You have unsaved answers
+            </DialogTitle>
+            <DialogDescription style={{ color: 'var(--text-secondary)' }}>
+              Your answers haven't been saved yet.
+              {pendingNav && ` Save your progress before going to ${
+                pendingNav === '/dashboard'           ? 'Dashboard'
+                : pendingNav === '/billing'           ? 'Billing'
+                : pendingNav === '/profile'           ? 'Company Profile'
+                : pendingNav === '/start-procurement' ? 'New Procurement'
+                : 'the selected page'
+              }.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-3 mt-4">
+            <button onClick={async () => {
+                if (window.__tendex_saveNow) await window.__tendex_saveNow();
+                clearDirty(); setShowGuard(false);
+                if (pendingNav) navigate(pendingNav);
+              }}
+              className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-all"
+              style={{ backgroundColor: 'var(--primary)',
+                       boxShadow: '0 0 12px rgba(200,30,58,0.2)' }}>
+              Save Draft & Leave
+            </button>
+
+            <button onClick={() => {
+                clearDirty(); setShowGuard(false);
+                if (pendingNav) navigate(pendingNav);
+              }}
+              className="w-full py-3 rounded-lg text-sm font-semibold border transition-all"
+              style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)',
+                       background: 'transparent' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)';
+                                   e.currentTarget.style.color = 'var(--primary)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)';
+                                   e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+              Discard & Leave
+            </button>
+
+            <button onClick={() => { setShowGuard(false); setPendingNav(null); }}
+              className="w-full py-3 text-sm transition-colors"
+              style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none' }}>
+              Cancel — stay here
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
