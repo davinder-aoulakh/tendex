@@ -20,6 +20,11 @@
     "last_seen": {
       "type": "string",
       "format": "date-time"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description of the document presence record"
     }
   },
   "required": [

@@ -112,6 +112,11 @@
     "current_stage": {
       "type": "string",
       "description": "Human-readable current stage label for display on the dashboard, e.g. Scope of Work, Expression of Interest issued, Request for Quote issued."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description of the document record"
     }
   },
   "required": [

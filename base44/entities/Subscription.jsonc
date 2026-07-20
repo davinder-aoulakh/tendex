@@ -48,6 +48,11 @@
     },
     "stripe_subscription_id": {
       "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description of the subscription record"
     }
   },
   "required": [
