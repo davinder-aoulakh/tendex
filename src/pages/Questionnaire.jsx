@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Check, Save } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Check, Save, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -811,9 +811,26 @@ export default function Questionnaire() {
                   boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
                 }}
               >
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{page?.title}</h2>
-                    {page?.description && <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{page.description}</p>}
+                <div className="flex items-start gap-4 mb-6">
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                    backgroundColor: 'rgba(200,30,58,0.10)',
+                    border: '1px solid rgba(200,30,58,0.20)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <FileText style={{ width: 18, height: 18, color: 'var(--primary)' }} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold mb-1"
+                      style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                      {page?.title}
+                    </h2>
+                    {page?.description && (
+                      <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                        {page.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {errors.length > 0 && (
@@ -1027,14 +1044,25 @@ export default function Questionnaire() {
               </motion.div>
             </AnimatePresence>
 
-            <div className="mt-10 flex justify-between items-center">
+            <div className="mt-10 flex items-center gap-4">
               <Button variant="ghost" onClick={handleBack}
-                className="hover-muted" style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                className="hover-muted flex-shrink-0"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
 
+              <div className="flex-1 flex justify-center">
+                {savedAt && (
+                  <div className="flex items-center gap-1.5 text-xs font-medium"
+                    style={{ color: 'var(--success)' }}>
+                    <Check className="w-3.5 h-3.5" /> Saved
+                  </div>
+                )}
+              </div>
+
               <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
-                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 16px rgba(200,30,58,0.25)' }}>
+                className="gap-2 px-8 text-white border-0 flex-shrink-0"
+                style={{ backgroundColor: 'var(--primary)', boxShadow: '0 0 16px rgba(200,30,58,0.25)' }}>
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (
@@ -1048,22 +1076,7 @@ export default function Questionnaire() {
         )}
       </div>
 
-      {/* Auto-save indicator */}
-      <AnimatePresence>
-        {savedAt && (
-          <motion.div
-            key={savedAt.getTime()}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-4 right-4 flex items-center gap-1.5 text-xs backdrop-blur-sm rounded-full px-3 py-1.5 pointer-events-none"
-            style={{ color: 'var(--success)', border: '1px solid var(--success-border)', background: 'var(--success-subtle)' }}
-          >
-            <Check className="w-3 h-3" /> Saved
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </AppLayout>
   );
 }
