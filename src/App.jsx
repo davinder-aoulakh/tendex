@@ -15,6 +15,7 @@ import ToolSelect from './pages/ToolSelect';
 import Questionnaire from './pages/Questionnaire';
 import DocumentEditor from './pages/DocumentEditor';
 import Billing from './pages/Billing';
+import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/plan-selection" element={<PlanSelection />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/tool-select" element={<ToolSelect />} />
         <Route path="/start-procurement" element={<StartProcurement />} />
