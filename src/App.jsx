@@ -52,13 +52,13 @@ const AuthenticatedApp = () => {
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/plan-selection" element={<PlanSelection />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/tool-select" element={<ToolSelect />} />
         <Route path="/start-procurement" element={<StartProcurement />} />
         <Route path="/questionnaire/:type" element={<Questionnaire />} />
         <Route path="/document/:id" element={<DocumentEditor />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
