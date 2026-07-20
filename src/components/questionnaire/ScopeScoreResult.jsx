@@ -57,12 +57,17 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
     scoreLevel = 'medium',
     weakDimensions = [],
     recommendation,
+    runnerUp,
     recommendationReason,
     dimensions = {},
   } = scoreData;
 
   const level = levelConfig[scoreLevel] || levelConfig.medium;
   const LevelIcon = level.icon;
+
+  const scorePercent = scoreLevel === 'high' ? 85 : scoreLevel === 'medium' ? 55 : 25;
+  const CIRCUMFERENCE = 2 * Math.PI * 40;
+  const arcLength = (scorePercent / 100) * CIRCUMFERENCE;
 
   const handleProceedWithOverride = () => {
     if (overrideChoice) onOverride(overrideChoice);
@@ -75,18 +80,49 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
 
-      {/* Score statement */}
-      <div className="rounded-2xl border p-5" style={{ background: level.bg, borderColor: level.border }}>
-        <div className="flex items-start gap-3">
-          <LevelIcon className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: level.iconColor }} />
-          <div>
-            <p className="font-semibold text-base leading-snug" style={{ color: 'var(--text-primary)' }}>{statement}</p>
-            {weakDimensions.length > 0 && (
-              <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                Areas to strengthen: {weakDimensions.map(d => DIMENSION_LABELS[d] || d).join(', ')}.
-              </p>
-            )}
+      {/* Circular score indicator */}
+      <div className="flex items-center gap-5">
+        <div style={{ flexShrink: 0, position: 'relative', width: 100, height: 100 }}>
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            {/* Track */}
+            <circle
+              cx="50" cy="50" r="40"
+              fill="none"
+              stroke="var(--border)"
+              strokeWidth="8"
+            />
+            {/* Arc */}
+            <circle
+              cx="50" cy="50" r="40"
+              fill="none"
+              stroke="var(--success)"
+              strokeWidth="8"
+              strokeDasharray={`${arcLength} ${CIRCUMFERENCE}`}
+              strokeLinecap="round"
+              transform="rotate(-90 50 50)"
+              style={{ transition: 'stroke-dasharray 0.8s ease' }}
+            />
+          </svg>
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: '1.3rem', fontWeight: 700,
+                           color: 'var(--text-primary)' }}>
+              {scorePercent}%
+            </span>
           </div>
+        </div>
+        <div style={{ flex: 1 }}>
+          <p className="font-semibold text-base leading-snug"
+            style={{ color: 'var(--text-primary)' }}>
+            {statement}
+          </p>
+          {weakDimensions.length > 0 && (
+            <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+              Areas to strengthen: {weakDimensions.map(d => DIMENSION_LABELS[d] || d).join(', ')}.
+            </p>
+          )}
         </div>
       </div>
 
@@ -119,6 +155,17 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
           Create {recommendation} <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
+
+      {runnerUp && (
+        <p className="text-xs text-center"
+          style={{ color: 'var(--text-muted)', marginTop: -8, marginBottom: 4 }}>
+          We also considered{' '}
+          <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
+            {runnerUp}
+          </span>
+          {' '}— select it below if it better fits your situation.
+        </p>
+      )}
 
       {/* Override */}
       <div>
