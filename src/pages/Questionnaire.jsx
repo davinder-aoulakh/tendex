@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Check, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -27,6 +27,7 @@ import GoodsItemsTable from '@/components/questionnaire/GoodsItemsTable';
 import PerItemDelivery from '@/components/questionnaire/PerItemDelivery';
 import WarrantyTable from '@/components/questionnaire/WarrantyTable';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { useToast } from '@/components/ui/use-toast';
 
 const SESSION_KEY = (type) => `tendex_questionnaire_${type}`;
 const LOCAL_KEY = (type) => `tendex_answers_${type}`;
@@ -161,6 +162,7 @@ export default function Questionnaire() {
   const [showScoring, setShowScoring] = useState(false);
   const [scoring, setScoring] = useState(false);
   const [scoreData, setScoreData] = useState(null);
+  const { toast } = useToast();
 
   // AI Assist steps (SOW only)
   // 'purpose'      → Assist 1: scope purpose statement (shown after S2)
@@ -469,6 +471,17 @@ export default function Questionnaire() {
     }
   };
 
+  const handleSaveDraftAndExit = async () => {
+    saveNow();
+    await new Promise(resolve => setTimeout(resolve, 500));
+    toast({
+      title: 'Draft saved',
+      description: 'Your progress has been saved. Resume at any time from the Dashboard.',
+      duration: 3000,
+    });
+    navigate('/dashboard');
+  };
+
   const handleGenerate = async (finalDocType, overrideDocType) => {
     setGenerating(true);
     const resolvedType = overrideDocType || finalDocType || type;
@@ -538,10 +551,32 @@ export default function Questionnaire() {
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-8">
-          <button onClick={handleBack}
-            className="flex items-center gap-1.5 text-sm transition-colors mb-6" style={{ color: 'var(--text-muted)' }}>
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
+          <div className="flex items-center justify-between mb-6">
+            <button onClick={handleBack}
+              className="flex items-center gap-1.5 text-sm transition-colors"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+              <ArrowLeft className="w-4 h-4" /> Back
+            </button>
+
+            <button
+              onClick={handleSaveDraftAndExit}
+              className="flex items-center gap-2 text-sm font-medium transition-all px-4 py-2 rounded-lg"
+              style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)',
+                       background: 'transparent' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--primary)';
+                e.currentTarget.style.color = 'var(--primary)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }}>
+              <Save className="w-4 h-4" />
+              Save Draft & Exit
+            </button>
+          </div>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
             <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid rgba(200,30,58,0.25)', color: 'var(--primary)', background: 'rgba(200,30,58,0.08)' }}>
               {type}
