@@ -1,41 +1,50 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuestionnaireGuard } from '@/lib/QuestionnaireGuard';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { LayoutDashboard, CreditCard, Plus, LogOut, Zap, AlertCircle } from 'lucide-react';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import {
+  Dialog, DialogContent, DialogHeader,
+  DialogTitle, DialogDescription
+} from '@/components/ui/dialog';
+import {
+  LayoutDashboard, CreditCard, Settings,
+  Building2, HelpCircle, LogOut, Plus
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
 import TrialBanner from '@/components/pricing/TrialBanner';
 
-const COLORS = [
-  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
-  '#10b981', '#ef4444', '#06b6d4', '#f97316',
+const HASH_COLORS = [
+  '#3b82f6','#8b5cf6','#ec4899','#f59e0b',
+  '#10b981','#ef4444','#06b6d4','#f97316',
 ];
-
 function hashColor(email) {
   let h = 0;
   for (let i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) | 0;
-  return COLORS[Math.abs(h) % COLORS.length];
+  return HASH_COLORS[Math.abs(h) % HASH_COLORS.length];
 }
-
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: CreditCard, label: 'Billing', path: '/billing' },
-];
 
 export default function AppLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isDirty, clearDirty } = useQuestionnaireGuard();
+  const [pendingNav, setPendingNav] = useState(null);
+  const [showGuard, setShowGuard] = useState(false);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [profileIncomplete, setProfileIncomplete] = useState(false);
-  const navigate = useNavigate();
-  const { isDirty, clearDirty } = useQuestionnaireGuard();
-  const [pendingNav, setPendingNav] = useState(null);
-  const [showGuard, setShowGuard] = useState(false);
+  const [theme, setThemeState] = useState(() => {
+    try { return localStorage.getItem('tendex_theme') || 'dark'; } catch { return 'dark'; }
+  });
+
+  const applyTheme = (t) => {
+    setThemeState(t);
+    try { localStorage.setItem('tendex_theme', t); } catch {}
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(t);
+  };
 
   const handleSidebarNav = (path) => {
     if (isDirty) { setPendingNav(path); setShowGuard(true); }
@@ -47,185 +56,373 @@ export default function AppLayout({ children }) {
   }, []);
 
   useEffect(() => {
-    const loadUserData = async () => {
+    if (!isAuthenticated) return;
+    const load = async () => {
       try {
-        const currentUser = await base44.auth.me();
-        if (currentUser) {
-          setUser(currentUser);
-          // Check if business profile is incomplete
-          if (!currentUser.organisation_name) {
-            setProfileIncomplete(true);
-          }
-          const subs = await base44.entities.Subscription.filter({
-            user_email: currentUser.email,
-          });
-          if (subs.length > 0) {
-            setSubscription(subs[0]);
-            
-            // Calculate trial days remaining if free plan
-            if (subs[0].plan === 'free' && subs[0].renewal_date) {
-              const renewalDate = new Date(subs[0].renewal_date);
-              const today = new Date();
-              const daysLeft = Math.ceil((renewalDate - today) / (1000 * 60 * 60 * 24));
-              
-              if (daysLeft <= 0) {
-                setIsTrialExpired(true);
-              } else {
-                setTrialDaysRemaining(daysLeft);
-              }
-            }
+        const u = await base44.auth.me();
+        if (!u) return;
+        setUser(u);
+        if (!u.organisation_name) setProfileIncomplete(true);
+        const subs = await base44.entities.Subscription.filter({ user_email: u.email });
+        if (subs.length > 0) {
+          setSubscription(subs[0]);
+          if (subs[0].plan === 'free' && subs[0].renewal_date) {
+            const days = Math.ceil((new Date(subs[0].renewal_date) - new Date()) / 86400000);
+            if (days <= 0) setIsTrialExpired(true);
+            else setTrialDaysRemaining(days);
           }
         }
-      } catch (err) {
-        console.error('Error loading user data:', err);
-      }
+      } catch {}
     };
-
-    if (isAuthenticated) {
-      loadUserData();
-    }
+    load();
   }, [isAuthenticated]);
 
+  const currentPlan = subscription?.plan || 'free';
+  const planLimits = { free: 25, starter: 50, professional: 999 };
+  const docsLimit = subscription?.documents_limit || planLimits[currentPlan] || 25;
+  const docsUsed = subscription?.documents_used || 0;
+
+  // Nav item component
+  const NavItem = ({ icon: Icon, label, path, incomplete }) => {
+    const active = location.pathname === path;
+    return (
+      <button
+        onClick={() => handleSidebarNav(path)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+          textAlign: 'left', borderRadius: 8, padding: '8px 11px',
+          fontSize: '13.5px', fontWeight: active ? 600 : 500, cursor: 'pointer',
+          marginBottom: 1, border: 'none', background: 'transparent',
+          borderLeft: active ? '2px solid var(--primary)' : '2px solid transparent',
+          backgroundColor: active ? 'rgba(200,30,58,0.08)' : 'transparent',
+          color: active ? 'var(--primary)' : 'var(--text-secondary)',
+          transition: 'background 0.1s ease',
+        }}
+        onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = 'var(--muted)'; }}
+        onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; }}
+      >
+        <Icon style={{ width: 16, height: 16, flexShrink: 0,
+          color: active ? 'var(--primary)' : 'var(--text-muted)' }} />
+        <span style={{ flex: 1 }}>{label}</span>
+        {incomplete && (
+          <span style={{
+            fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.03em', padding: '1px 6px', borderRadius: 20,
+            background: 'var(--warning-subtle)', color: 'var(--warning)',
+            border: '1px solid var(--warning-border)', whiteSpace: 'nowrap',
+          }}>
+            Incomplete
+          </span>
+        )}
+      </button>
+    );
+  };
+
+  const SectionLabel = ({ text }) => (
+    <div style={{
+      fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase',
+      letterSpacing: '0.07em', color: 'var(--text-muted)',
+      padding: '0 11px', margin: '20px 0 8px',
+    }}>
+      {text}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: 'var(--primary)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
+
+      {/* Skip to content */}
+      <a href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white"
+        style={{ backgroundColor: 'var(--primary)' }}>
         Skip to main content
       </a>
-      {/* Top nav */}
-      <nav className="fixed top-0 w-full z-50 blur-nav">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <button onClick={() => handleSidebarNav('/dashboard')} className="flex items-center gap-2">
-            <img
-              src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png"
-              alt="TendeX"
-              style={{ height: 32, filter: 'brightness(10)', display: 'block' }}
-            />
-          </button>
-          <div className="flex items-center gap-1">
-            {isAuthenticated ? (
-              <>
-                {/* Upgrade button for trial users */}
-                {subscription?.plan === 'free' && (
-                    <Button size="sm" className="gap-2 ml-1" style={{ background: 'var(--warning-subtle)', color: 'var(--warning)', border: '1px solid var(--warning-border)' }} onClick={() => handleSidebarNav('/billing')}>
-                      <Zap className="w-4 h-4" />Upgrade
-                    </Button>
-                )}
 
-                {navItems.map(item => {
-                  const active = location.pathname === item.path;
-                  return (
-                      <Button
-                        key={item.path + item.label}
-                        variant="ghost"
-                        size="sm"
-                        className="gap-2 text-sm hidden sm:flex transition-colors hover-muted"
-                        style={active
-                          ? { background: 'var(--border)', color: 'var(--text-primary)' }
-                          : { color: 'var(--text-secondary)' }}
-                        onClick={() => handleSidebarNav(item.path)}
-                      >
-                        <item.icon className="w-4 h-4" />{item.label}
-                      </Button>
-                  );
-                })}
-                <ThemeToggle variant="icon" />
-                  <Button size="sm" className="gap-2 ml-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }} onClick={() => handleSidebarNav('/start-procurement')}>
-                    <Plus className="w-4 h-4" />New
-                  </Button>
-                {user && (
-                   <button onClick={() => handleSidebarNav('/profile')} className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white transition-opacity hover:opacity-80" style={{ backgroundColor: hashColor(user.email) }}>
-                     {user.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'}
-                   </button>
-                )}
-                <Button variant="ghost" size="icon" className="ml-1 hover-muted" style={{ color: 'var(--text-muted)' }} onClick={() => base44.auth.logout('/')}>
-                 <LogOut className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <Button size="sm" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
-                onClick={() => base44.auth.redirectToLogin('/dashboard')}>
-                Sign In
-              </Button>
+      {/* SIDEBAR */}
+      {isAuthenticated && (
+        <aside style={{
+          width: 236, flexShrink: 0, background: 'var(--card)',
+          borderRight: '1px solid var(--border)', position: 'fixed',
+          top: 0, left: 0, height: '100vh',
+          display: 'flex', flexDirection: 'column',
+          padding: '22px 14px', overflowY: 'auto', zIndex: 40,
+        }}>
+
+          {/* Logo */}
+          <button
+            onClick={() => handleSidebarNav('/dashboard')}
+            style={{
+              display: 'flex', alignItems: 'center', fontWeight: 800,
+              fontSize: '1.25rem', letterSpacing: '-0.02em',
+              padding: '4px 10px 18px', background: 'none',
+              border: 'none', cursor: 'pointer', color: 'var(--text-primary)',
+            }}
+          >
+            Tende<span style={{ color: 'var(--primary)' }}>X</span>
+          </button>
+
+          {/* Appearance toggle */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '9px 11px', marginBottom: 18,
+            background: 'var(--muted)', borderRadius: 9,
+          }}>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+              Appearance
+            </span>
+            <div style={{
+              display: 'flex', background: 'var(--card)', borderRadius: 7,
+              padding: 2, border: '1px solid var(--border)',
+            }}>
+              {['light', 'dark'].map(t => (
+                <button
+                  key={t}
+                  onClick={() => applyTheme(t)}
+                  title={t === 'light' ? 'Light mode' : 'Dark mode'}
+                  style={{
+                    border: 'none', padding: '5px 8px', borderRadius: 5,
+                    cursor: 'pointer', display: 'flex', alignItems: 'center',
+                    background: theme === t ? 'var(--primary)' : 'transparent',
+                    color: theme === t ? '#fff' : 'var(--text-muted)',
+                  }}
+                >
+                  {t === 'light' ? (
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="4.2"/>
+                      <path d="M12 2.5v2.3M12 19.2v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/>
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
+                      <path d="M20 14.2A8.5 8.5 0 1 1 9.8 4a7 7 0 0 0 10.2 10.2z"/>
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Main nav */}
+          <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" />
+
+          <SectionLabel text="Account" />
+          <NavItem icon={Building2} label="Company Profile" path="/profile" incomplete={profileIncomplete} />
+          <NavItem icon={CreditCard} label="Billing" path="/billing" />
+          <NavItem icon={Settings} label="Settings" path="/settings" />
+
+          <SectionLabel text="Support" />
+          <a
+            href="mailto:support@tendex.com.au"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '8px 11px',
+              borderRadius: 8, fontSize: '13.5px', fontWeight: 500,
+              color: 'var(--text-secondary)', textDecoration: 'none',
+              borderLeft: '2px solid transparent', marginBottom: 1,
+            }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--muted)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <HelpCircle style={{ width: 16, height: 16, color: 'var(--text-muted)', flexShrink: 0 }} />
+            Contact Support
+          </a>
+
+          {/* New Procurement CTA */}
+          <div style={{ padding: '16px 4px 0' }}>
+            <button
+              onClick={() => handleSidebarNav('/start-procurement')}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: 8, width: '100%', padding: '10px', borderRadius: 9,
+                fontSize: '13.5px', fontWeight: 600, color: '#fff', border: 'none',
+                cursor: 'pointer', background: 'var(--primary)',
+                boxShadow: '0 0 16px rgba(200,30,58,0.25)',
+              }}
+            >
+              <Plus style={{ width: 16, height: 16 }} />
+              New Procurement
+            </button>
+          </div>
+
+          {/* Bottom: plan mini + user row */}
+          <div style={{
+            marginTop: 'auto', paddingTop: 16,
+            borderTop: '1px solid var(--border)', flexShrink: 0,
+          }}>
+            {/* Plan mini card */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '10px 12px', background: 'var(--muted)',
+              borderRadius: 10, marginBottom: 10,
+            }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                  {currentPlan} Plan
+                </div>
+                <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 500 }}>
+                  {docsLimit === 999 ? 'Unlimited docs' : docsUsed + ' / ' + docsLimit + ' docs used'}
+                </div>
+              </div>
+              {currentPlan === 'free' && (
+                <button
+                  onClick={() => handleSidebarNav('/billing')}
+                  style={{
+                    fontSize: 11, fontWeight: 700, color: 'var(--primary)',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                  }}
+                >
+                  Upgrade
+                </button>
+              )}
+            </div>
+
+            {/* User row */}
+            {user && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 8px' }}>
+                <div style={{
+                  width: 29, height: 29, borderRadius: '50%', flexShrink: 0,
+                  background: hashColor(user.email), color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 700,
+                }}>
+                  {user.full_name
+                    ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                    : '?'}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: '12.5px', fontWeight: 700, color: 'var(--text-primary)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {user.full_name || user.email}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+                    {currentPlan} Plan
+                  </div>
+                </div>
+                <button
+                  onClick={() => base44.auth.logout('/')}
+                  title="Log out"
+                  style={{
+                    width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                    border: '1px solid var(--border)', background: 'var(--card)',
+                    color: 'var(--text-muted)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = 'var(--primary)';
+                    e.currentTarget.style.borderColor = 'rgba(200,30,58,0.3)';
+                    e.currentTarget.style.background = 'rgba(200,30,58,0.08)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = 'var(--text-muted)';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.background = 'var(--card)';
+                  }}
+                >
+                  <LogOut style={{ width: 14, height: 14 }} />
+                </button>
+              </div>
             )}
           </div>
-        </div>
-      </nav>
-      <main id="main-content" className="pt-16">
-        {/* Trial banner for free users */}
+        </aside>
+      )}
+
+      {/* MAIN CONTENT */}
+      <main
+        id="main-content"
+        style={{
+          flex: 1,
+          marginLeft: isAuthenticated ? 236 : 0,
+          minHeight: '100vh',
+          background: 'var(--background)',
+        }}
+      >
+        {/* Trial banner */}
         {isAuthenticated && (subscription?.plan === 'free' || isTrialExpired) && (
-          <div className="max-w-7xl mx-auto px-6 pt-6">
-            <TrialBanner 
-              daysRemaining={trialDaysRemaining}
-              isExpired={isTrialExpired}
-            />
+          <div style={{ padding: '24px 38px 0' }}>
+            <TrialBanner daysRemaining={trialDaysRemaining} isExpired={isTrialExpired} />
           </div>
         )}
-        {/* Business profile incomplete banner */}
+
+        {/* Profile incomplete banner */}
         {isAuthenticated && profileIncomplete && location.pathname !== '/profile' && (
-          <div className="max-w-7xl mx-auto px-6 pt-4">
-            <div className="flex items-center justify-between gap-3 rounded-xl px-5 py-3 text-sm" style={{ background: 'var(--warning-subtle)', border: '1px solid var(--warning-border)' }}>
-              <div className="flex items-center gap-2" style={{ color: 'var(--warning)' }}>
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                Your business profile is incomplete. Add your organisation name and ABN to get started.
+          <div style={{ padding: '16px 38px 0' }}>
+            <div
+              className="flex items-center justify-between gap-3 rounded-xl px-5 py-3 text-sm"
+              style={{ background: 'var(--warning-subtle)', border: '1px solid var(--warning-border)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--warning)' }}>
+                <Building2 style={{ width: 16, height: 16, flexShrink: 0 }} />
+                <span>
+                  <strong>Your company profile is incomplete.</strong>{' '}
+                  Add your organisation and contact details so you do not have to re-enter them on every document.
+                </span>
               </div>
-                <Button size="sm" variant="ghost" className="flex-shrink-0 h-7 text-xs whitespace-nowrap" style={{ color: 'var(--warning)', border: '1px solid var(--warning-border)' }} onClick={() => handleSidebarNav('/profile')}>
-                  Complete Profile →
-                </Button>
+              <button
+                onClick={() => handleSidebarNav('/profile')}
+                style={{
+                  flexShrink: 0, fontSize: '12px', fontWeight: 600, padding: '6px 12px',
+                  borderRadius: 8, whiteSpace: 'nowrap', cursor: 'pointer',
+                  color: 'var(--warning)', border: '1px solid var(--warning-border)',
+                  background: 'transparent',
+                }}
+              >
+                Complete profile
+              </button>
             </div>
           </div>
         )}
+
         {children}
       </main>
 
+      {/* UNSAVED CHANGES DIALOG — logic unchanged */}
       <Dialog open={showGuard} onOpenChange={setShowGuard}>
-        <DialogContent style={{ background: 'var(--card)', border: '1px solid var(--border)',
-                                borderRadius: 16, maxWidth: 440 }}>
+        <DialogContent
+          style={{
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 16, maxWidth: 440,
+          }}
+        >
           <DialogHeader>
-            <DialogTitle style={{ color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif',
-                                  fontWeight: 700 }}>
+            <DialogTitle style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
               You have unsaved answers
             </DialogTitle>
             <DialogDescription style={{ color: 'var(--text-secondary)' }}>
-              Your answers haven't been saved yet.
-              {pendingNav && ` Save your progress before going to ${
-                pendingNav === '/dashboard'           ? 'Dashboard'
-                : pendingNav === '/billing'           ? 'Billing'
-                : pendingNav === '/profile'           ? 'Company Profile'
+              {'Your answers have not been saved yet.'}
+              {pendingNav && (' Save your progress before going to ' + (
+                pendingNav === '/dashboard' ? 'Dashboard'
+                : pendingNav === '/billing' ? 'Billing'
+                : pendingNav === '/profile' ? 'Company Profile'
+                : pendingNav === '/settings' ? 'Settings'
                 : pendingNav === '/start-procurement' ? 'New Procurement'
                 : 'the selected page'
-              }.`}
+              ) + '.')}
             </DialogDescription>
           </DialogHeader>
-
           <div className="flex flex-col gap-3 mt-4">
-            <button onClick={async () => {
+            <button
+              onClick={async () => {
                 if (window.__tendex_saveNow) await window.__tendex_saveNow();
                 clearDirty(); setShowGuard(false);
                 if (pendingNav) navigate(pendingNav);
               }}
-              className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-all"
-              style={{ backgroundColor: 'var(--primary)',
-                       boxShadow: '0 0 12px rgba(200,30,58,0.2)' }}>
-              Save Draft & Leave
+              className="w-full py-3 rounded-lg text-sm font-semibold text-white"
+              style={{ backgroundColor: 'var(--primary)', boxShadow: '0 0 12px rgba(200,30,58,0.2)' }}
+            >
+              Save Draft and Leave
             </button>
-
-            <button onClick={() => {
-                clearDirty(); setShowGuard(false);
-                if (pendingNav) navigate(pendingNav);
-              }}
-              className="w-full py-3 rounded-lg text-sm font-semibold border transition-all"
-              style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)',
-                       background: 'transparent' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)';
-                                   e.currentTarget.style.color = 'var(--primary)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)';
-                                   e.currentTarget.style.color = 'var(--text-secondary)'; }}>
-              Discard & Leave
+            <button
+              onClick={() => { clearDirty(); setShowGuard(false); if (pendingNav) navigate(pendingNav); }}
+              className="w-full py-3 rounded-lg text-sm font-semibold border"
+              style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
+            >
+              Discard and Leave
             </button>
-
-            <button onClick={() => { setShowGuard(false); setPendingNav(null); }}
-              className="w-full py-3 text-sm transition-colors"
-              style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none' }}>
+            <button
+              onClick={() => { setShowGuard(false); setPendingNav(null); }}
+              className="w-full py-3 text-sm"
+              style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+            >
               Cancel — stay here
             </button>
           </div>
