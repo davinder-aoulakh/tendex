@@ -74,6 +74,7 @@ export default function StartProcurement() {
       estimated_budget: form.estimated_budget ? parseFloat(form.estimated_budget) : undefined,
       delivery_timeline: form.delivery_timeline.trim() || undefined,
       project_name: form.title.trim(),
+      is_procurement_process: true,
       ...(anonId ? { anonymous_user_id: anonId } : {}),
     };
 

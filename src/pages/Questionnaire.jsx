@@ -518,6 +518,18 @@ export default function Questionnaire() {
       organisation_name: orgName,
       industry: answers.industry || answers.service_type || answers.procurement_type || '',
       questionnaire_step: currentStep,
+      contract_type:
+        answers.procurement_type === 'goods' ? 'Goods' :
+        answers.procurement_type === 'services' ? 'Services' :
+        answers.procurement_type === 'both' ? 'Goods and Services' :
+        undefined,
+
+      current_stage:
+        resolvedType === 'SOW' ? 'Scope of Work' :
+        resolvedType === 'EOI' ? 'Expression of Interest — issued' :
+        resolvedType === 'RFQ' ? 'Request for Quote — issued' :
+        resolvedType === 'RFP' ? 'Request for Proposal — issued' :
+        undefined,
     };
 
     let docId = draftDocId;
@@ -532,6 +544,7 @@ export default function Questionnaire() {
       updateData.status = 'draft';
       updateData.document_type = resolvedType;
       updateData.title = title;
+      updateData.is_procurement_process = false;
       const doc = await base44.entities.Document.create(updateData);
       docId = doc.id;
     }

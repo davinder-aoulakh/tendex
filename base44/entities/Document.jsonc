@@ -94,6 +94,24 @@
         "type": "string"
       },
       "description": "List of known or preferred supplier names"
+    },
+    "is_procurement_process": {
+      "type": "boolean",
+      "description": "True if this document was started via the guided procurement journey (Start Procurement flow). False or absent if it was created directly as a standalone document.",
+      "default": false
+    },
+    "contract_type": {
+      "type": "string",
+      "enum": [
+        "Goods",
+        "Services",
+        "Goods and Services"
+      ],
+      "description": "Whether the procurement covers goods, services, or both. Derived from questionnaire_data.procurement_type."
+    },
+    "current_stage": {
+      "type": "string",
+      "description": "Human-readable current stage label for display on the dashboard, e.g. Scope of Work, Expression of Interest issued, Request for Quote issued."
     }
   },
   "required": [
