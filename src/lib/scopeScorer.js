@@ -103,5 +103,10 @@ Return JSON matching the schema exactly.`;
     model: 'gpt_5_mini',
   });
 
-  return result;
+  const runnerUp =
+    result.recommendation === 'RFP' ? 'RFQ' :
+    result.recommendation === 'RFQ' ? 'EOI' :
+    'RFQ'; // EOI runner-up is RFQ
+
+  return { ...result, runnerUp };
 }
