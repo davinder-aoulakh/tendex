@@ -5,6 +5,20 @@ import { base44 } from '@/api/base44Client';
 
 const UNITS = ['each', 'kg', 'litres', 'metres', 'sets', 'boxes', 'pallets', 'other'];
 
+const inputStyle = {
+  background: 'var(--input)',
+  border: '1px solid var(--border)',
+  color: 'var(--text-primary)',
+  borderRadius: 6,
+  padding: '6px 10px',
+  fontSize: '0.875rem',
+  width: '100%',
+  outline: 'none',
+};
+
+const handleInputFocus = (e) => { e.target.style.borderColor = 'var(--primary)'; };
+const handleInputBlur = (e) => { e.target.style.borderColor = 'var(--border)'; };
+
 export default function GoodsItemsTable({ value = [], onChange }) {
   const items = Array.isArray(value) ? value : [];
   const [loadingSuggestions, setLoadingSuggestions] = useState({});
@@ -25,7 +39,7 @@ export default function GoodsItemsTable({ value = [], onChange }) {
 
   const suggestSpec = useCallback(async (idx, itemName) => {
     if (!itemName || itemName.trim().length < 3) return;
-    
+
     setLoadingSuggestions(prev => ({ ...prev, [idx]: true }));
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -45,21 +59,28 @@ export default function GoodsItemsTable({ value = [], onChange }) {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto rounded-lg border" style={{ borderColor: 'var(--border)' }}>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--muted)' }}>
-            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Item Name *</th>
-            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Qty *</th>
-            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Unit *</th>
-            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Size / Spec</th>
-            <th className="px-4 py-3 text-left font-medium" style={{ color: 'var(--text-primary)' }}>Brand / Model</th>
-            <th className="px-4 py-3 text-center font-medium" style={{ color: 'var(--text-primary)' }}>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, idx) => (
-            <tr key={idx} className="border-b row-hover transition-colors" style={{ borderColor: 'var(--border)' }}>
+      <div className="overflow-x-auto" style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+        <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'var(--muted)' }}>
+              {['Item Name *', 'Qty *', 'Unit *', 'Size / Spec', 'Brand / Model', 'Action'].map((label, i) => (
+                <th key={label}
+                  className={i === 5 ? 'text-center' : 'text-left'}
+                  style={{ color: 'var(--text-muted)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, idx) => (
+              <tr
+                key={idx}
+                className="transition-colors"
+                style={{ borderBottom: '1px solid var(--border)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--card-surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
                 <td className="px-4 py-3">
                   <input
                     type="text"
@@ -69,27 +90,30 @@ export default function GoodsItemsTable({ value = [], onChange }) {
                       updateItem(idx, 'name', e.target.value);
                       suggestSpec(idx, e.target.value);
                     }}
-                    className="w-full rounded px-2 py-1 focus:outline-none"
-                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                    />
-                    </td>
-                    <td className="px-4 py-3">
-                    <input
-                     type="number"
-                     min="1"
-                     placeholder="100"
-                     value={item.quantity || ''}
-                     onChange={(e) => updateItem(idx, 'quantity', e.target.value)}
-                     className="w-20 rounded px-2 py-1 focus:outline-none"
-                     style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                    />
-                    </td>
-                    <td className="px-4 py-3">
-                    <select
-                     value={item.unit || 'each'}
-                     onChange={(e) => updateItem(idx, 'unit', e.target.value)}
-                     className="w-24 rounded px-2 py-1 focus:outline-none"
-                     style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                    style={inputStyle}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                  />
+                </td>
+                <td className="px-4 py-3">
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="100"
+                    value={item.quantity || ''}
+                    onChange={(e) => updateItem(idx, 'quantity', e.target.value)}
+                    style={inputStyle}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                  />
+                </td>
+                <td className="px-4 py-3">
+                  <select
+                    value={item.unit || 'each'}
+                    onChange={(e) => updateItem(idx, 'unit', e.target.value)}
+                    style={inputStyle}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
                   >
                     {UNITS.map(u => (
                       <option key={u} value={u}>{u}</option>
@@ -102,29 +126,31 @@ export default function GoodsItemsTable({ value = [], onChange }) {
                     placeholder="e.g. Black leather"
                     value={item.spec || ''}
                     onChange={(e) => updateItem(idx, 'spec', e.target.value)}
-                    className="w-full rounded px-2 py-1 focus:outline-none"
-                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                    />
-                    </td>
-                    <td className="px-4 py-3">
-                    <input
+                    style={inputStyle}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                  />
+                </td>
+                <td className="px-4 py-3">
+                  <input
                     type="text"
                     placeholder="e.g. Herman Miller"
                     value={item.brand || ''}
                     onChange={(e) => updateItem(idx, 'brand', e.target.value)}
-                    className="w-full rounded px-2 py-1 focus:outline-none"
-                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                    style={inputStyle}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
                   />
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  <button
                     onClick={() => removeItem(idx)}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                    style={{ color: 'var(--destructive)', background: 'transparent', border: 'none', opacity: 0.7, cursor: 'pointer', padding: 4 }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '0.7'}
                   >
                     <Trash2 className="w-4 h-4" />
-                  </Button>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -135,11 +161,11 @@ export default function GoodsItemsTable({ value = [], onChange }) {
       {/* AI Suggestion display */}
       {items.map((item, idx) => (
         item._spec_suggestion && (
-          <div key={`sugg-${idx}`} className="rounded-lg border border-blue-400/30 p-3 bg-blue-400/10 space-y-2">
-            <p className="text-sm text-blue-100">
+          <div key={`sugg-${idx}`} className="rounded-lg p-3 space-y-2" style={{ border: '1px solid var(--action-border)', background: 'var(--action-subtle)' }}>
+            <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
               <strong>AI Suggestion for "{item.name}":</strong>
             </p>
-            <p className="text-sm text-blue-200/80 italic">{item._spec_suggestion}</p>
+            <p className="text-sm italic" style={{ color: 'var(--text-secondary)' }}>{item._spec_suggestion}</p>
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -148,7 +174,7 @@ export default function GoodsItemsTable({ value = [], onChange }) {
                   updateItem(idx, 'spec', item._spec_suggestion);
                   updateItem(idx, '_spec_suggestion', null);
                 }}
-                className="text-blue-300 hover:bg-blue-400/20"
+                style={{ color: 'var(--action)' }}
               >
                 Accept suggestion
               </Button>
@@ -156,7 +182,7 @@ export default function GoodsItemsTable({ value = [], onChange }) {
                 size="sm"
                 variant="ghost"
                 onClick={() => updateItem(idx, '_spec_suggestion', null)}
-                className="text-blue-200/50 hover:bg-white/10"
+                style={{ color: 'var(--text-muted)' }}
               >
                 Dismiss
               </Button>
@@ -166,19 +192,20 @@ export default function GoodsItemsTable({ value = [], onChange }) {
       ))}
 
       {loadingSuggestions[Object.keys(loadingSuggestions)[0]] && (
-        <div className="flex items-center gap-2 text-sm text-blue-200/50">
+        <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--action)' }}>
           <Loader2 className="w-4 h-4 animate-spin" />
           Generating AI suggestion...
         </div>
       )}
 
-      <Button
+      <button
         onClick={addItem}
-        variant="outline"
-        className="gap-2 hover-muted" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+        style={{ border: '1px solid var(--border)', color: 'var(--primary)', background: 'transparent', borderRadius: 8, padding: '8px 16px', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(200,30,58,0.06)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'transparent'; }}
       >
         <Plus className="w-4 h-4" /> Add Another Item
-      </Button>
+      </button>
 
       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>All items will be procured together from a single supplier.</p>
     </div>

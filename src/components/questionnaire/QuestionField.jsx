@@ -9,21 +9,21 @@ import SuppliersList from './SuppliersList';
 export default function QuestionField({ field, value, onChange, error, docType, sameAsValue, onSameAs }) {
   const inputStyle = {
     background: 'var(--input)',
-    borderColor: error ? 'rgba(248,113,113,0.6)' : 'var(--border)',
+    borderColor: error ? 'var(--destructive)' : 'var(--border)',
     color: 'var(--text-primary)',
   };
   const inputClass = cn(
     'focus-visible:ring-1',
-    error && 'focus-visible:ring-red-400/40'
+    error && 'focus-visible:ring-[var(--destructive)]'
   );
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={field.key} className={cn('text-sm font-medium', error ? 'text-red-400' : '')} style={error ? {} : { color: 'var(--text-primary)' }}>
+        <Label htmlFor={field.key} className="text-sm font-medium" style={{ color: error ? 'var(--destructive)' : 'var(--text-primary)' }}>
           {field.label}
           {!field.required && <span className="font-normal ml-1" style={{ color: 'var(--text-muted)' }}>(optional)</span>}
-          {field.required && <span className="text-red-400 ml-1">*</span>}
+          {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
         </Label>
         {onSameAs && sameAsValue && (
           <button type="button" onClick={onSameAs}
@@ -101,11 +101,13 @@ export default function QuestionField({ field, value, onChange, error, docType, 
               onClick={() => onChange(opt.value)}
               className="text-left p-4 rounded-xl border-2 transition-all"
               style={{
-                 borderColor: value === opt.value ? 'var(--primary)' : 'var(--border)',
-                 background: value === opt.value ? 'rgba(200,30,58,0.08)' : 'var(--card)',
-               }}
-            >
-              <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{opt.label}</div>
+                borderColor: value === opt.value ? 'var(--primary)' : 'var(--border)',
+                background: value === opt.value ? 'rgba(200,30,58,0.06)' : 'var(--card)',
+              }}
+              onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.borderColor = 'var(--border-strong)'; }}
+              onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.borderColor = 'var(--border)'; }}
+              >
+              <div className="font-medium text-sm" style={{ color: value === opt.value ? 'var(--primary)' : 'var(--text-primary)' }}>{opt.label}</div>
               {opt.description && <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{opt.description}</div>}
             </button>
           ))}
@@ -126,15 +128,17 @@ export default function QuestionField({ field, value, onChange, error, docType, 
                 }}
                 className="w-full text-left flex items-center gap-3 p-3 rounded-lg border transition-all"
                 style={{
-                   borderColor: checked ? 'var(--primary)' : 'var(--border)',
-                   background: checked ? 'rgba(200,30,58,0.08)' : 'var(--card)',
-                 }}
-              >
+                  borderColor: checked ? 'var(--primary)' : 'var(--border)',
+                  background: checked ? 'rgba(200,30,58,0.06)' : 'var(--card)',
+                }}
+                onMouseEnter={e => { if (!checked) e.currentTarget.style.borderColor = 'var(--border-strong)'; }}
+                onMouseLeave={e => { if (!checked) e.currentTarget.style.borderColor = 'var(--border)'; }}
+                >
                 <div className="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors"
                   style={{ background: checked ? 'var(--primary)' : 'transparent', borderColor: checked ? 'var(--primary)' : 'var(--border-strong)' }}>
                   {checked && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                 </div>
-                <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                <span className="text-sm" style={{ color: checked ? 'var(--primary)' : 'var(--text-primary)' }}>{opt.label}</span>
               </button>
             );
           })}
@@ -145,7 +149,7 @@ export default function QuestionField({ field, value, onChange, error, docType, 
         <SuppliersList value={value} onChange={onChange} />
       )}
 
-      {error && <p className="text-xs text-red-400 mt-1">This field is required.</p>}
+      {error && <p className="text-xs mt-1" style={{ color: 'var(--destructive)' }}>This field is required.</p>}
     </div>
   );
 }

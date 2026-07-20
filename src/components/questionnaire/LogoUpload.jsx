@@ -61,7 +61,7 @@ export default function LogoUpload({ value, onChange }) {
       {value ? (
         <div className="flex items-center gap-4">
           {/* Preview */}
-          <div className="rounded-xl border border-white/10 p-3 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)', minWidth: 120, minHeight: 64 }}>
+          <div className="rounded-xl p-3 flex items-center justify-center" style={{ border: '1px solid var(--border)', background: 'var(--card)', minWidth: 120, minHeight: 64 }}>
             <img
               src={value}
               alt="Organisation logo"
@@ -70,18 +70,20 @@ export default function LogoUpload({ value, onChange }) {
           </div>
           <div className="flex flex-col gap-2">
             {saved && (
-              <div className="flex items-center gap-1.5 text-xs text-green-400">
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--success)' }}>
                 <CheckCircle2 className="w-3.5 h-3.5" /> Logo saved to your profile
               </div>
             )}
             <div className="flex gap-2">
               <Button size="sm" variant="ghost"
                 onClick={() => inputRef.current?.click()}
-                className="text-white/60 hover:text-white hover:bg-white/10 border border-white/10 text-xs h-8">
+                className="text-xs h-8"
+                style={{ color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                 Replace
               </Button>
               <Button size="sm" variant="ghost" onClick={handleRemove}
-                className="text-red-400/70 hover:text-red-400 hover:bg-red-400/10 border border-red-400/20 text-xs h-8">
+                className="text-xs h-8"
+                style={{ color: 'var(--destructive)', border: '1px solid var(--border)' }}>
                 <X className="w-3 h-3 mr-1" /> Remove
               </Button>
             </div>
@@ -92,23 +94,31 @@ export default function LogoUpload({ value, onChange }) {
           onDrop={handleDrop}
           onDragOver={e => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
-          className="rounded-xl border-2 border-dashed border-white/15 hover:border-blue-400/40 transition-colors cursor-pointer p-6 flex flex-col items-center justify-center gap-2 text-center"
-          style={{ background: 'rgba(255,255,255,0.03)' }}
+          className="flex flex-col items-center justify-center gap-2 text-center cursor-pointer"
+          style={{
+            border: '2px dashed var(--border)',
+            borderRadius: 12,
+            background: 'var(--card)',
+            padding: '32px 20px',
+            transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(200,30,58,0.04)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--card)'; }}
         >
           {uploading ? (
-            <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--text-muted)' }} />
           ) : (
-            <Upload className="w-6 h-6 text-blue-300/50" />
+            <Upload className="w-6 h-6" style={{ color: 'var(--text-muted)' }} />
           )}
-          <p className="text-sm text-blue-200/50">
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {uploading ? 'Uploading...' : 'Click or drag to upload your logo'}
           </p>
-          <p className="text-xs text-blue-200/30">PNG or JPEG, max 2MB</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>PNG or JPEG, max 2MB</p>
         </div>
       )}
 
       {error && (
-        <p className="text-xs text-red-400 px-1">{error}</p>
+        <p className="text-xs px-1" style={{ color: 'var(--destructive)' }}>{error}</p>
       )}
 
       <input

@@ -543,7 +543,7 @@ export default function Questionnaire() {
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid var(--border-strong)', color: 'var(--primary)', background: 'rgba(200,30,58,0.08)' }}>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid rgba(200,30,58,0.25)', color: 'var(--primary)', background: 'rgba(200,30,58,0.08)' }}>
               {type}
             </span>
             <h1 className="font-syne text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{docTypeLabels[type] || type}</h1>
@@ -567,7 +567,7 @@ export default function Questionnaire() {
             <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Document limit reached</h3>
             <p className="text-sm text-red-300/80 mb-4">You've used all {docsLimit} documents on your {currentPlan} plan. Upgrade to create more.</p>
             <Link to="/billing">
-              <Button className="text-white border-0" style={{ backgroundColor: 'var(--action)' }}>Upgrade Plan</Button>
+              <Button className="text-white border-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>Upgrade Plan</Button>
             </Link>
           </div>
         )}
@@ -632,7 +632,7 @@ export default function Questionnaire() {
                   setCurrentStep(s => s + 1);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--action)', boxShadow: '0 0 20px rgba(91,155,224,0.3)' }}
+                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 16px rgba(200,30,58,0.25)' }}
               >
                 Continue <ArrowRight className="w-4 h-4" />
               </Button>
@@ -717,7 +717,7 @@ export default function Questionnaire() {
 
             {scoring ? (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--action)' }} />
+                <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Evaluating your scope...</p>
               </div>
             ) : (
@@ -749,6 +749,13 @@ export default function Questionnaire() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.25 }}
+                style={{
+                  background: 'var(--card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 16,
+                  padding: '28px 24px',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+                }}
               >
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{page?.title}</h2>
@@ -769,9 +776,9 @@ export default function Questionnaire() {
                     if (field.type === 'abn-lookup') {
                         return (
                           <div key={field.key} className="space-y-2">
-                            <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
+                            <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {field.label}
-                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                            {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
                           </div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <ABNLookup
@@ -792,7 +799,7 @@ export default function Questionnaire() {
                             } : null}
                           />
                           {errors.includes(field.key) && (
-                            <p className="text-xs text-red-400">Please verify your ABN before continuing.</p>
+                            <p className="text-xs" style={{ color: 'var(--destructive)' }}>Please verify your ABN before continuing.</p>
                           )}
                         </div>
                       );
@@ -802,7 +809,7 @@ export default function Questionnaire() {
                     if (field.type === 'logo-upload') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <LogoUpload
                             value={answers.logo_url || null}
@@ -816,9 +823,9 @@ export default function Questionnaire() {
                     if (field.type === 'scope-upload') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {field.label}
-                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                            {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
                           </div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <ScopeUpload
@@ -827,7 +834,7 @@ export default function Questionnaire() {
                             error={errors.includes(field.key)}
                           />
                           {errors.includes(field.key) && (
-                            <p className="text-xs text-red-400">Please upload your scope document before continuing.</p>
+                            <p className="text-xs" style={{ color: 'var(--destructive)' }}>Please upload your scope document before continuing.</p>
                           )}
                         </div>
                       );
@@ -837,9 +844,9 @@ export default function Questionnaire() {
                     if (field.type === 'criteria-ranking') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {field.label}
-                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                            {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
                           </div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <RFPEvaluationCriteria
@@ -850,7 +857,7 @@ export default function Questionnaire() {
                               updateAnswer('rfp_criteria_weightings', weightings);
                             }}
                           />
-                          {errors.includes(field.key) && <p className="text-xs text-red-400">This field is required.</p>}
+                          {errors.includes(field.key) && <p className="text-xs" style={{ color: 'var(--destructive)' }}>This field is required.</p>}
                         </div>
                       );
                     }
@@ -859,7 +866,7 @@ export default function Questionnaire() {
                     if (field.type === 'methodology-draft') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <RFPMethodologyDraft
                             answers={answers}
@@ -874,9 +881,9 @@ export default function Questionnaire() {
                     if (field.type === 'milestone-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {field.label}
-                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                            {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
                           </div>
                           <MilestoneTable
                             value={answers[field.key]}
@@ -891,9 +898,9 @@ export default function Questionnaire() {
                     if (field.type === 'goods-items-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {field.label}
-                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                            {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
                           </div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <GoodsItemsTable
@@ -901,7 +908,7 @@ export default function Questionnaire() {
                             onChange={val => updateAnswer(field.key, val)}
                           />
                           {errors.includes(field.key) && (
-                            <p className="text-xs text-red-400">Please add at least one item before continuing.</p>
+                            <p className="text-xs" style={{ color: 'var(--destructive)' }}>Please add at least one item before continuing.</p>
                           )}
                         </div>
                       );
@@ -911,7 +918,7 @@ export default function Questionnaire() {
                     if (field.type === 'per-item-delivery') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <PerItemDelivery
                             goodsItems={answers.goods_items || []}
@@ -926,7 +933,7 @@ export default function Questionnaire() {
                     if (field.type === 'warranty-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <WarrantyTable
                             goodsItems={answers.goods_items || []}
@@ -973,7 +980,7 @@ export default function Questionnaire() {
               </Button>
 
               <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
-                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--action)', boxShadow: '0 0 20px rgba(91,155,224,0.3)' }}>
+                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 16px rgba(200,30,58,0.25)' }}>
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (
@@ -996,7 +1003,8 @@ export default function Questionnaire() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-4 right-4 flex items-center gap-1.5 text-xs text-green-400/70 bg-black/40 backdrop-blur-sm border border-green-400/15 rounded-full px-3 py-1.5 pointer-events-none"
+            className="fixed bottom-4 right-4 flex items-center gap-1.5 text-xs backdrop-blur-sm rounded-full px-3 py-1.5 pointer-events-none"
+            style={{ color: 'var(--success)', border: '1px solid var(--success-border)', background: 'var(--success-subtle)' }}
           >
             <Check className="w-3 h-3" /> Saved
           </motion.div>

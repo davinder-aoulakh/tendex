@@ -109,8 +109,8 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
   };
 
   const inputStyle = () => {
-    if (isConfirmed || status === 'valid') return { background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.4)', color: 'var(--text-primary)' };
-    if (status === 'invalid' || status === 'cancelled' || status === 'error') return { background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.4)', color: 'var(--text-primary)' };
+    if (isConfirmed || status === 'valid') return { background: 'var(--success-subtle)', borderColor: 'var(--success-border)', color: 'var(--text-primary)' };
+    if (status === 'invalid' || status === 'cancelled' || status === 'error') return { background: 'rgba(200,30,58,0.08)', borderColor: 'rgba(200,30,58,0.25)', color: 'var(--text-primary)' };
     return { background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' };
   };
 
@@ -139,8 +139,8 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
         {/* Status icon */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2" aria-hidden="true">
           {status === 'loading' && <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--text-muted)' }} />}
-          {(status === 'valid' || isConfirmed) && <CheckCircle2 className="w-4 h-4 text-green-400" />}
-          {(status === 'invalid' || status === 'cancelled' || status === 'error') && <XCircle className="w-4 h-4 text-red-400" />}
+          {(status === 'valid' || isConfirmed) && <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--success)' }} />}
+          {(status === 'invalid' || status === 'cancelled' || status === 'error') && <XCircle className="w-4 h-4" style={{ color: 'var(--destructive)' }} />}
         </div>
       </div>
 
@@ -156,36 +156,36 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
       {status === 'valid' && !isConfirmed && entityData && (
         <div
           id="abn-status"
-          className="rounded-xl border px-4 py-4 space-y-3"
-          style={{ background: 'rgba(34,197,94,0.07)', borderColor: 'rgba(34,197,94,0.3)' }}
+          className="px-4 py-4 space-y-3"
+          style={{ background: 'var(--success-subtle)', border: '1px solid var(--success-border)', borderRadius: 12 }}
           role="region"
           aria-label="ABN verification result"
         >
           {/* Entity name */}
           <div className="flex items-start gap-2.5">
-            <Building2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+            <Building2 className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} />
             <div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{entityData.entityName}</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{entityData.entityTypeName || describeEntityType(entityData.entityTypeCode)}</p>
+              <p className="text-sm" style={{ color: 'var(--success)', fontWeight: 600 }}>{entityData.entityName}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{entityData.entityTypeName || describeEntityType(entityData.entityTypeCode)}</p>
             </div>
           </div>
 
           {/* State and GST */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 pl-6">
             {entityData.addressState && (
-              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
                 <MapPin className="w-3 h-3" />
                 <span>{entityData.addressState}{entityData.addressPostcode ? ` ${entityData.addressPostcode}` : ''}</span>
               </div>
             )}
             {entityData.gstRegistered && (
-              <div className="flex items-center gap-1.5 text-xs text-green-400/70">
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
                 <Receipt className="w-3 h-3" />
                 <span>GST registered</span>
               </div>
             )}
             {entityData.abnActiveSince && (
-              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                 Active since {entityData.abnActiveSince}
               </div>
             )}
@@ -195,22 +195,20 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
           <div className="border-t pt-3" style={{ borderColor: 'var(--border)' }}>
             <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Is this your organisation?</p>
             <div className="flex gap-2">
-              <Button
-                size="sm"
+              <button
                 onClick={handleConfirmYes}
-                className="h-8 px-4 text-xs text-white border-0 bg-green-500 hover:bg-green-400"
+                style={{ backgroundColor: 'var(--success)', color: 'var(--success-fg)', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}
               >
                 Yes, that's us
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
+              </button>
+              <button
                 onClick={handleConfirmNo}
-                className="h-8 px-4 text-xs hover-muted"
-                style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+                style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-strong)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
               >
                 No, re-enter ABN
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -224,11 +222,11 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
           role="status"
           aria-live="polite"
         >
-          <div className="flex items-center gap-2 text-green-400">
+          <div className="flex items-center gap-2" style={{ color: 'var(--success)' }}>
             <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
             <span>
               Verified: <strong style={{ color: 'var(--text-primary)' }}>{entityData.entityName}</strong>
-              {entityData.addressState && <span className="text-green-400/60 font-normal"> · {entityData.addressState}</span>}
+              {entityData.addressState && <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}> · {entityData.addressState}</span>}
             </span>
           </div>
           <button
@@ -246,7 +244,8 @@ export default function ABNLookup({ value = '', onChange, onConfirmed, confirmed
       {(status === 'invalid' || status === 'cancelled' || status === 'error') && (
         <div
           id="abn-status"
-          className="flex items-start gap-2 text-sm text-red-400 px-1"
+          className="flex items-start gap-2 text-sm px-1"
+          style={{ color: 'var(--destructive)' }}
           role="alert"
         >
           <XCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />

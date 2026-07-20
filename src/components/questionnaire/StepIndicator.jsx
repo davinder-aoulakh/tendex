@@ -6,34 +6,40 @@
 export default function StepIndicator({ currentStep, totalSteps, visiblePages = [] }) {
   return (
     <div className="space-y-3">
-      {/* Progress bar segments */}
-      <div className="flex items-center gap-1">
-        {Array.from({ length: totalSteps }).map((_, i) => (
-        <div key={i} className="h-1.5 rounded-full transition-all duration-300 flex-1"
-          style={{ background: i < currentStep ? 'var(--primary)' : i === currentStep ? 'var(--primary)' : 'var(--border)' }} />
-        ))}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {visiblePages.map((page, i) => {
+          const isDone    = i < currentStep;
+          const isCurrent = i === currentStep;
+          return (
+            <div
+              key={page.id}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all"
+              style={{
+                background:   isDone    ? 'var(--success-subtle)'
+                            : isCurrent ? 'var(--primary)'
+                            : 'transparent',
+                borderColor:  isDone    ? 'var(--success-border)'
+                            : isCurrent ? 'var(--primary)'
+                            : 'var(--border)',
+                color:        isDone    ? 'var(--success)'
+                            : isCurrent ? 'var(--primary-foreground)'
+                            : 'var(--text-muted)',
+              }}
+            >
+              {isDone && (
+                <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+              {page.sectionLabel || `Step ${i + 1}`}
+            </div>
+          );
+        })}
       </div>
-
-      {/* Section labels — only shown if pages have sectionLabel */}
-      {visiblePages.length > 0 && visiblePages.some(p => p.sectionLabel) && (
-        <div className="flex items-start gap-1 overflow-hidden">
-          {visiblePages.map((page, i) => {
-            if (!page.sectionLabel) return null;
-            const isDone    = i < currentStep;
-            const isCurrent = i === currentStep;
-            return (
-              <div key={page.id} className="flex-1 min-w-0 text-center">
-                <p className="text-[10px] font-medium truncate transition-colors"
-                  style={{ color: isCurrent ? 'var(--primary)' : isDone ? 'var(--text-secondary)' : 'var(--text-muted)' }}>
-                  {page.sectionLabel}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Step {currentStep + 1} of {totalSteps}</p>
+      <p className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+        Step {currentStep + 1} of {totalSteps}
+      </p>
     </div>
   );
 }

@@ -17,39 +17,33 @@ const DOC_OPTIONS = [
     icon: Lightbulb,
     label: 'Expression of Interest',
     desc: 'Best when you want to gauge market capability before committing to a formal process.',
-    color: 'text-purple-300',
-    border: 'border-purple-400/40',
-    bg: 'rgba(168,85,247,0.08)',
+    color: 'var(--purple)',
   },
   {
     type: 'RFQ',
     icon: ClipboardList,
     label: 'Request for Quotation',
     desc: 'Best for well-defined goods or services where price is the main differentiator.',
-    color: 'text-green-300',
-    border: 'border-green-400/40',
-    bg: 'rgba(34,197,94,0.08)',
+    color: 'var(--success)',
   },
   {
     type: 'RFP',
     icon: Search,
     label: 'Request for Proposal',
     desc: 'Best for complex or services-heavy procurements where supplier methodology matters.',
-    color: 'text-orange-300',
-    border: 'border-orange-400/40',
-    bg: 'rgba(249,115,22,0.08)',
+    color: 'var(--warning)',
   },
 ];
 
 const ScoreIcon = ({ ok }) =>
   ok
-    ? <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
-    : <XCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />;
+    ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--success)' }} />
+    : <XCircle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--destructive)' }} />;
 
 const levelConfig = {
-  high:   { icon: CheckCircle2, iconClass: 'text-green-400', bg: 'rgba(34,197,94,0.08)',   border: 'border-green-400/30' },
-  medium: { icon: AlertCircle,  iconClass: 'text-amber-400', bg: 'rgba(245,158,11,0.08)',  border: 'border-amber-400/30' },
-  low:    { icon: XCircle,      iconClass: 'text-red-400',   bg: 'rgba(239,68,68,0.08)',   border: 'border-red-400/30'   },
+  high:   { icon: CheckCircle2, iconColor: 'var(--success)',    bg: 'var(--success-subtle)',   border: 'var(--success-border)' },
+  medium: { icon: AlertCircle,  iconColor: 'var(--warning)',    bg: 'var(--warning-subtle)',   border: 'var(--warning-border)' },
+  low:    { icon: XCircle,      iconColor: 'var(--destructive)', bg: 'rgba(200,30,58,0.08)',    border: 'rgba(200,30,58,0.25)' },
 };
 
 export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
@@ -82,9 +76,9 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
 
       {/* Score statement */}
-      <div className={`rounded-2xl border p-5 ${level.border}`} style={{ background: level.bg }}>
+      <div className="rounded-2xl border p-5" style={{ background: level.bg, borderColor: level.border }}>
         <div className="flex items-start gap-3">
-          <LevelIcon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${level.iconClass}`} />
+          <LevelIcon className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: level.iconColor }} />
           <div>
             <p className="font-semibold text-base leading-snug" style={{ color: 'var(--text-primary)' }}>{statement}</p>
             {weakDimensions.length > 0 && (
@@ -111,15 +105,16 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
       </div>
 
       {/* Recommendation */}
-      <div className="rounded-2xl border border-blue-400/30 p-5" style={{ background: 'rgba(59,130,246,0.08)' }}>
-        <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Our Recommendation</p>
-        <p className="font-semibold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>
+      <div className="rounded-2xl border p-5" style={{ border: '1px solid var(--primary)', background: 'rgba(200,30,58,0.06)', borderRadius: 14, padding: '20px' }}>
+        <p style={{ color: 'var(--primary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Our Recommendation</p>
+        <h2 className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>
           We recommend <span style={{ color: 'var(--primary)' }}>{recommendation}</span>
-        </p>
+        </h2>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{recommendationReason}</p>
         <Button
           onClick={handleProceedRecommended}
-          className="mt-4 gap-2 bg-blue-500 hover:bg-blue-400 text-white border-0 shadow-lg shadow-blue-500/20"
+          className="mt-4 gap-2 text-white border-0"
+          style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 16px rgba(200,30,58,0.25)' }}
         >
           Create {recommendation} <ArrowRight className="w-4 h-4" />
         </Button>
@@ -150,12 +145,12 @@ export default function ScopeScoreResult({ scoreData, onProceed, onOverride }) {
                     onClick={() => setOverrideChoice(opt.type)}
                     className="text-left rounded-xl border p-4 transition-all"
                     style={{
-                      borderColor: overrideChoice === opt.type ? opt.border.replace('border-', '').replace('/40', '') : 'var(--border)',
-                      background: overrideChoice === opt.type ? opt.bg : 'var(--card)',
+                      borderColor: overrideChoice === opt.type ? 'var(--primary)' : 'var(--border)',
+                      background: overrideChoice === opt.type ? 'rgba(200,30,58,0.06)' : 'var(--card)',
                     }}
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <opt.icon className={`w-4 h-4 ${opt.color}`} />
+                      <opt.icon className="w-4 h-4" style={{ color: opt.color }} />
                       <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{opt.type} — {opt.label}</span>
                     </div>
                     <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{opt.desc}</p>

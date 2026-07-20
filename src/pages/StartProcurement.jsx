@@ -77,15 +77,12 @@ export default function StartProcurement() {
       ...(anonId ? { anonymous_user_id: anonId } : {}),
     };
 
-    // Remove undefined fields
     Object.keys(docData).forEach(k => docData[k] === undefined && delete docData[k]);
 
     const doc = await base44.entities.Document.create(docData);
 
-    // Store the doc ID for the questionnaire to pick up
     try {
       localStorage.setItem(`tendex_draft_doc_SOW`, doc.id);
-      // Pre-seed questionnaire answers with the initial data
       const initialAnswers = {
         project_name: form.title.trim(),
         ...(form.high_level_description ? { summary_of_services: form.high_level_description.trim() } : {}),
@@ -100,24 +97,26 @@ export default function StartProcurement() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-2xl mx-auto px-6 py-12" style={{ background: 'var(--background)' }}>
         {/* Header */}
         <div className="mb-10">
           <button
             onClick={() => navigate('/tool-select')}
             className="flex items-center gap-1.5 text-sm mb-6 transition-colors"
-            style={{ color: 'var(--primary)' }}
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
           >
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
 
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(200,30,58,0.1)', border: '1px solid rgba(200,30,58,0.2)' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(200,30,58,0.10)', border: '1px solid rgba(200,30,58,0.20)' }}>
               <FileText className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <h1 className="font-syne font-700 text-2xl" style={{ color: 'var(--text-primary)' }}>Start a new procurement</h1>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Give your procurement a name and a brief description to get started.</p>
+              <h1 className="font-syne font-bold text-2xl" style={{ color: 'var(--text-primary)' }}>Start a new procurement</h1>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Give your procurement a name and a brief description to get started.</p>
             </div>
           </div>
         </div>
@@ -131,18 +130,19 @@ export default function StartProcurement() {
           {/* Procurement Title */}
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
-              Procurement Title <span className="text-red-400">*</span>
+              Procurement Title <span style={{ color: 'var(--primary)' }}>*</span>
             </label>
             <input
               type="text"
               value={form.title}
               onChange={e => update('title', e.target.value)}
               placeholder="e.g. Office Fit-Out 2025, IT Infrastructure Upgrade"
-              className="w-full rounded-lg px-4 py-3 text-sm border outline-none transition-all"
+              className="w-full px-4 py-3 text-sm border outline-none transition-all"
               style={{
-                backgroundColor: 'var(--input)',
+                background: 'var(--input)',
                 color: 'var(--text-primary)',
                 borderColor: errors.title ? 'var(--destructive)' : 'var(--border)',
+                borderRadius: 10,
               }}
               onFocus={e => { if (!errors.title) e.target.style.borderColor = 'var(--primary)'; }}
               onBlur={e => { if (!errors.title) e.target.style.borderColor = 'var(--border)'; }}
@@ -153,15 +153,20 @@ export default function StartProcurement() {
           {/* Reference Number */}
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
-              <span className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Reference Number <span style={{ color: 'var(--text-muted)' }} className="font-normal">(optional)</span></span>
+              <span className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Reference Number <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></span>
             </label>
             <input
               type="text"
               value={form.reference_number}
               onChange={e => update('reference_number', e.target.value)}
               placeholder="e.g. PROC-2025-001"
-              className="w-full rounded-lg px-4 py-3 text-sm border outline-none transition-all"
-              style={{ backgroundColor: 'var(--input)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
+              className="w-full px-4 py-3 text-sm border outline-none transition-all"
+              style={{
+                background: 'var(--input)',
+                color: 'var(--text-primary)',
+                borderColor: 'var(--border)',
+                borderRadius: 10,
+              }}
               onFocus={e => e.target.style.borderColor = 'var(--primary)'}
               onBlur={e => e.target.style.borderColor = 'var(--border)'}
             />
@@ -170,18 +175,19 @@ export default function StartProcurement() {
           {/* High-Level Description */}
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
-              <span className="flex items-center gap-1.5"><AlignLeft className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Description of Need <span className="text-red-400">*</span></span>
+              <span className="flex items-center gap-1.5"><AlignLeft className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Description of Need <span style={{ color: 'var(--primary)' }}>*</span></span>
             </label>
             <textarea
               value={form.high_level_description}
               onChange={e => update('high_level_description', e.target.value)}
               placeholder="Briefly describe what you need to procure and why. This helps AI understand your requirements..."
               rows={4}
-              className="w-full rounded-lg px-4 py-3 text-sm border outline-none transition-all resize-none"
+              className="w-full px-4 py-3 text-sm border outline-none transition-all resize-none"
               style={{
-                backgroundColor: 'var(--input)',
+                background: 'var(--input)',
                 color: 'var(--text-primary)',
                 borderColor: errors.high_level_description ? 'var(--destructive)' : 'var(--border)',
+                borderRadius: 10,
               }}
               onFocus={e => { if (!errors.high_level_description) e.target.style.borderColor = 'var(--primary)'; }}
               onBlur={e => { if (!errors.high_level_description) e.target.style.borderColor = 'var(--border)'; }}
@@ -193,7 +199,7 @@ export default function StartProcurement() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
-                <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Estimated Budget (AUD) <span style={{ color: 'var(--text-muted)' }} className="font-normal">(optional)</span></span>
+                <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Estimated Budget (AUD) <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></span>
               </label>
               <input
                 type="number"
@@ -201,8 +207,13 @@ export default function StartProcurement() {
                 value={form.estimated_budget}
                 onChange={e => update('estimated_budget', e.target.value)}
                 placeholder="e.g. 250000"
-                className="w-full rounded-lg px-4 py-3 text-sm border outline-none transition-all"
-                style={{ backgroundColor: 'var(--input)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
+                className="w-full px-4 py-3 text-sm border outline-none transition-all"
+                style={{
+                  background: 'var(--input)',
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 10,
+                }}
                 onFocus={e => e.target.style.borderColor = 'var(--primary)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
@@ -210,15 +221,20 @@ export default function StartProcurement() {
 
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
-                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Required Timeline <span style={{ color: 'var(--text-muted)' }} className="font-normal">(optional)</span></span>
+                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />Required Timeline <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></span>
               </label>
               <input
                 type="text"
                 value={form.delivery_timeline}
                 onChange={e => update('delivery_timeline', e.target.value)}
                 placeholder="e.g. Complete by June 2026"
-                className="w-full rounded-lg px-4 py-3 text-sm border outline-none transition-all"
-                style={{ backgroundColor: 'var(--input)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
+                className="w-full px-4 py-3 text-sm border outline-none transition-all"
+                style={{
+                  background: 'var(--input)',
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 10,
+                }}
                 onFocus={e => e.target.style.borderColor = 'var(--primary)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
@@ -226,8 +242,8 @@ export default function StartProcurement() {
           </div>
 
           {/* Info note */}
-          <div className="rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: 'rgba(200,30,58,0.06)', border: '1px solid rgba(200,30,58,0.15)', color: 'var(--text-secondary)' }}>
-            <span style={{ color: 'var(--primary)' }}>★ </span>
+          <div className="px-4 py-3 text-sm" style={{ background: 'var(--action-subtle)', border: '1px solid var(--action-border)', color: 'var(--text-secondary)', borderRadius: 10 }}>
+            <span style={{ color: 'var(--action)' }}>★ </span>
             After this step, AI will guide you through developing your Scope of Work and recommend the right market engagement document (EOI, RFQ, or RFP).
           </div>
 
@@ -237,7 +253,7 @@ export default function StartProcurement() {
               variant="ghost"
               onClick={() => navigate('/tool-select')}
               className="hover-muted"
-              style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+              style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" /> Back
             </Button>
@@ -246,8 +262,8 @@ export default function StartProcurement() {
               size="lg"
               onClick={handleStart}
               disabled={saving}
-              className="gap-2 px-8 text-white border-0"
-              style={{ backgroundColor: 'var(--primary)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }}
+              className="gap-2 px-8 border-0"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 16px rgba(200,30,58,0.25)' }}
             >
               {saving ? (
                 <><Loader2 className="w-4 h-4 animate-spin" />Creating...</>
