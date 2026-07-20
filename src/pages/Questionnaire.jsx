@@ -543,13 +543,13 @@ export default function Questionnaire() {
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid var(--border-strong)', color: 'var(--primary)', background: 'rgba(232,34,26,0.08)' }}>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide" style={{ border: '1px solid var(--border-strong)', color: 'var(--primary)', background: 'rgba(200,30,58,0.08)' }}>
               {type}
             </span>
             <h1 className="font-syne text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{docTypeLabels[type] || type}</h1>
           </div>
           {type === 'SOW' && (
-            <p className="text-xs mt-2" style={{ color: '#5C7A99' }}>
+            <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
               {isStandaloneMode
                 ? 'Creating a standalone Scope of Work document.'
                 : 'Full procurement journey — your scope will be scored and a market document recommended.'}
@@ -567,7 +567,7 @@ export default function Questionnaire() {
             <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Document limit reached</h3>
             <p className="text-sm text-red-300/80 mb-4">You've used all {docsLimit} documents on your {currentPlan} plan. Upgrade to create more.</p>
             <Link to="/billing">
-              <Button className="text-white border-0" style={{ backgroundColor: '#00C9A7' }}>Upgrade Plan</Button>
+              <Button className="text-white border-0" style={{ backgroundColor: 'var(--action)' }}>Upgrade Plan</Button>
             </Link>
           </div>
         )}
@@ -632,7 +632,7 @@ export default function Questionnaire() {
                   setCurrentStep(s => s + 1);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}
+                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--action)', boxShadow: '0 0 20px rgba(91,155,224,0.3)' }}
               >
                 Continue <ArrowRight className="w-4 h-4" />
               </Button>
@@ -717,7 +717,7 @@ export default function Questionnaire() {
 
             {scoring ? (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00C9A7' }} />
+                <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--action)' }} />
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Evaluating your scope...</p>
               </div>
             ) : (
@@ -769,7 +769,7 @@ export default function Questionnaire() {
                     if (field.type === 'abn-lookup') {
                         return (
                           <div key={field.key} className="space-y-2">
-                            <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
+                            <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
@@ -802,7 +802,7 @@ export default function Questionnaire() {
                     if (field.type === 'logo-upload') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <LogoUpload
                             value={answers.logo_url || null}
@@ -816,7 +816,7 @@ export default function Questionnaire() {
                     if (field.type === 'scope-upload') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
@@ -837,7 +837,7 @@ export default function Questionnaire() {
                     if (field.type === 'criteria-ranking') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
@@ -859,7 +859,7 @@ export default function Questionnaire() {
                     if (field.type === 'methodology-draft') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <RFPMethodologyDraft
                             answers={answers}
@@ -874,7 +874,7 @@ export default function Questionnaire() {
                     if (field.type === 'milestone-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
@@ -891,7 +891,7 @@ export default function Questionnaire() {
                     if (field.type === 'goods-items-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                           </div>
@@ -911,7 +911,7 @@ export default function Questionnaire() {
                     if (field.type === 'per-item-delivery') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <PerItemDelivery
                             goodsItems={answers.goods_items || []}
@@ -926,7 +926,7 @@ export default function Questionnaire() {
                     if (field.type === 'warranty-table') {
                       return (
                         <div key={field.key} className="space-y-2">
-                          <div className="text-sm font-medium" style={{ color: 'rgba(0,201,167,0.9)' }}>{field.label}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--action)' }}>{field.label}</div>
                           {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
                           <WarrantyTable
                             goodsItems={answers.goods_items || []}
@@ -973,7 +973,7 @@ export default function Questionnaire() {
               </Button>
 
               <Button size="lg" onClick={handleNext} disabled={generating || atLimit}
-                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
+                className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--action)', boxShadow: '0 0 20px rgba(91,155,224,0.3)' }}>
                 {generating ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Creating document...</>
                 ) : isLastStep ? (

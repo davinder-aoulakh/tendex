@@ -134,7 +134,7 @@ export default function DocumentEditor() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#00C9A7' }} />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--action)' }} />
         </div>
       </AppLayout>
     );
@@ -155,7 +155,7 @@ export default function DocumentEditor() {
             </button>
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="font-syne text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{doc?.title || 'Document'}</h1>
-              <Badge style={{ background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', borderColor: 'var(--border-strong)', border: '1px solid' }}>{doc?.document_type}</Badge>
+              <Badge style={{ background: 'rgba(200,30,58,0.12)', color: 'var(--primary)', borderColor: 'var(--border-strong)', border: '1px solid' }}>{doc?.document_type}</Badge>
               <Badge className={`capitalize border ${doc?.status === 'complete' ? 'bg-green-500/20 text-green-300 border-green-500/30' : ''}`} style={doc?.status !== 'complete' ? { background: 'var(--muted)', color: 'var(--text-muted)', borderColor: 'var(--border)' } : {}}>
                 {doc?.status}
               </Badge>
@@ -185,7 +185,7 @@ export default function DocumentEditor() {
               <History className="w-4 h-4" />History
             </Button>
             <Button size="sm" onClick={() => setShowPDF(true)} disabled={!hasContent}
-              className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
+              className="gap-2 text-white border-0" style={{ backgroundColor: 'var(--action)', boxShadow: '0 0 20px rgba(91,155,224,0.3)' }}>
               <Download className="w-4 h-4" />Export
             </Button>
           </div>
@@ -218,7 +218,7 @@ export default function DocumentEditor() {
                   ))}
                   <div className="flex justify-end pt-4">
                     <Button onClick={handleSave} disabled={saving} size="lg"
-                      className="gap-2 px-8 text-white border-0" style={{ backgroundColor: '#00C9A7', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
+                      className="gap-2 px-8 text-white border-0" style={{ backgroundColor: 'var(--action)', boxShadow: '0 0 20px rgba(91,155,224,0.3)' }}>
                       {saved ? <><Check className="w-4 h-4" />Saved!</> : saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><Save className="w-4 h-4" />Save Changes</>}
                     </Button>
                   </div>
@@ -228,7 +228,7 @@ export default function DocumentEditor() {
                   <Sparkles className="w-10 h-10 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
                   <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No content yet</h3>
                   <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>Generate AI content based on your questionnaire answers.</p>
-                  <Button onClick={() => handleGenerate()} className="gap-2 text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
+                  <Button onClick={() => handleGenerate()} className="gap-2 text-white border-0" style={{ backgroundColor: 'var(--action)' }}>
                     <Sparkles className="w-4 h-4" />Generate Document
                   </Button>
                 </div>

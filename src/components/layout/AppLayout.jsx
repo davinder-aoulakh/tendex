@@ -77,7 +77,7 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: '#E8221A' }}>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded focus:text-white focus:text-sm focus:font-medium" style={{ backgroundColor: 'var(--primary)' }}>
         Skip to main content
       </a>
       {/* Top nav */}
@@ -121,7 +121,7 @@ export default function AppLayout({ children }) {
                 })}
                 <ThemeToggle variant="icon" />
                 <Link to="/start-procurement">
-                  <Button size="sm" className="gap-2 ml-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+                  <Button size="sm" className="gap-2 ml-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }}>
                     <Plus className="w-4 h-4" />New
                   </Button>
                 </Link>

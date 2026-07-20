@@ -46,15 +46,15 @@ export default function PrivacyPolicy() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#080E1A' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: 'rgba(8,14,26,0.95)', backdropFilter: 'blur(16px)' }}>
+      <nav className="sticky top-0 z-50 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--nav-bg)', backdropFilter: 'blur(16px)' }}>
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center">
           <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <div className="w-8 h-8 bg-[#E53935]/20 rounded-lg flex items-center justify-center border border-[#E53935]/30">
-              <FileText className="w-4 h-4 text-[#E53935]" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center border" style={{ backgroundColor: 'rgba(200,30,58,0.12)', borderColor: 'rgba(200,30,58,0.25)' }}>
+              <FileText className="w-4 h-4" style={{ color: 'var(--primary)' }} />
             </div>
-            <span className="font-syne font-800 text-lg text-white">TendeX</span>
+            <span className="font-syne font-800 text-lg" style={{ color: 'var(--text-primary)' }}>TendeX</span>
           </Link>
         </div>
       </nav>
@@ -62,22 +62,22 @@ export default function PrivacyPolicy() {
       {/* Content */}
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="font-syne font-800 text-4xl md:text-5xl text-white mb-3">Privacy Policy</h1>
-          <p className="font-dm-sans text-[#8FA5C0]">Effective from 14 May 2026</p>
+          <h1 className="font-syne font-800 text-4xl md:text-5xl mb-3" style={{ color: 'var(--text-primary)' }}>Privacy Policy</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>Effective from 14 May 2026</p>
         </div>
 
         <div className="space-y-8">
           {sections.map((section, idx) => (
-            <section key={idx} className="rounded-xl border border-white/10 p-8" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
-              <h2 className="font-syne font-700 text-xl text-white mb-4">{section.title}</h2>
-              <p className="font-dm-sans text-[#8FA5C0] leading-relaxed whitespace-pre-line">{section.content}</p>
+            <section key={idx} className="rounded-xl border p-8" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+              <h2 className="font-syne font-700 text-xl mb-4" style={{ color: 'var(--text-primary)' }}>{section.title}</h2>
+              <p className="leading-relaxed whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>{section.content}</p>
             </section>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="mt-12 pt-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <p className="font-dm-sans text-sm text-[#5C7A99] text-center">
+        <div className="mt-12 pt-8 border-t" style={{ borderColor: 'var(--border)' }}>
+          <p className="text-sm text-center" style={{ color: 'var(--text-muted)' }}>
             For questions about this Privacy Policy, contact hello@tendex.com.au
           </p>
         </div>

@@ -233,7 +233,7 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
           <MessageSquare className="w-4 h-4" style={{ color: 'var(--primary)' }} />
           <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Comments</h3>
           {unresolvedCount > 0 && (
-            <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }}>
+            <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(200,30,58,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }}>
               {unresolvedCount}
             </span>
           )}
@@ -258,7 +258,7 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
             onClick={() => setActiveSection('all')}
             className="text-xs px-2.5 py-1 rounded-full flex-shrink-0 transition-colors"
             style={activeSection === 'all'
-              ? { background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }
+              ? { background: 'rgba(200,30,58,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }
               : { color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
             All
           </button>
@@ -267,7 +267,7 @@ export default function CommentsSidebar({ documentId, sections, me, onClose }) {
               onClick={() => setActiveSection(sk)}
               className="text-xs px-2.5 py-1 rounded-full flex-shrink-0 transition-colors truncate max-w-[120px]"
               style={activeSection === sk
-                ? { background: 'rgba(232,34,26,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }
+                ? { background: 'rgba(200,30,58,0.12)', color: 'var(--primary)', border: '1px solid var(--border-strong)' }
                 : { color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
               {SECTION_LABELS[sk] || sk}
             </button>

@@ -101,9 +101,9 @@ export default function QuestionField({ field, value, onChange, error, docType, 
               onClick={() => onChange(opt.value)}
               className="text-left p-4 rounded-xl border-2 transition-all"
               style={{
-                borderColor: value === opt.value ? 'var(--primary)' : 'var(--border)',
-                background: value === opt.value ? 'rgba(232,34,26,0.08)' : 'var(--card)',
-              }}
+                 borderColor: value === opt.value ? 'var(--primary)' : 'var(--border)',
+                 background: value === opt.value ? 'rgba(200,30,58,0.08)' : 'var(--card)',
+               }}
             >
               <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{opt.label}</div>
               {opt.description && <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{opt.description}</div>}
@@ -126,9 +126,9 @@ export default function QuestionField({ field, value, onChange, error, docType, 
                 }}
                 className="w-full text-left flex items-center gap-3 p-3 rounded-lg border transition-all"
                 style={{
-                  borderColor: checked ? 'var(--primary)' : 'var(--border)',
-                  background: checked ? 'rgba(232,34,26,0.08)' : 'var(--card)',
-                }}
+                   borderColor: checked ? 'var(--primary)' : 'var(--border)',
+                   background: checked ? 'rgba(200,30,58,0.08)' : 'var(--card)',
+                 }}
               >
                 <div className="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors"
                   style={{ background: checked ? 'var(--primary)' : 'transparent', borderColor: checked ? 'var(--primary)' : 'var(--border-strong)' }}>

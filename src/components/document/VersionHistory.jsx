@@ -84,7 +84,7 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
                 <div className="flex items-center gap-2">
                   {v.source === 'ai_generated'
                     ? <Sparkles className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--primary)' }} />
-                    : <Pencil className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#A78BFA' }} />}
+                    : <Pencil className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--purple)' }} />}
                   <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                     {v.label || (v.source === 'ai_generated' ? 'AI Generated' : 'Manual Save')}
                   </span>
@@ -102,7 +102,7 @@ export default function VersionHistory({ documentId, onRestore, onClose, onCompa
                 <div className="flex gap-2">
                   <Button size="sm" onClick={() => restoreMutation.mutate(v)}
                       disabled={restoreMutation.isPending}
-                      className="flex-1 h-7 text-xs text-white border-0" style={{ backgroundColor: '#00C9A7' }}>
+                      className="flex-1 h-7 text-xs text-white border-0" style={{ backgroundColor: 'var(--action)' }}>
                       Confirm Restore
                     </Button>
                   <Button size="sm" variant="ghost" onClick={() => setConfirmId(null)}

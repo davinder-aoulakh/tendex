@@ -77,8 +77,8 @@ export default function FallbackScopeQuestions({ answers, onSubmit }) {
               onClick={() => handleSelect(opt.value)}
               className="w-full text-left p-4 rounded-lg border transition-all hover-muted"
               style={isSelected
-                ? { borderColor: 'var(--primary)', background: 'rgba(232,34,26,0.08)' }
-                : { borderColor: 'var(--border)', background: 'var(--card)' }}
+                 ? { borderColor: 'var(--primary)', background: 'rgba(200,30,58,0.08)' }
+                 : { borderColor: 'var(--border)', background: 'var(--card)' }}
             >
               <div className="flex items-start gap-3">
                 <div

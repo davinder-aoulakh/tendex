@@ -99,11 +99,11 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 blur-nav">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center border" style={{ backgroundColor: 'rgba(232,34,26,0.12)', borderColor: 'rgba(232,34,26,0.25)' }}>
-              <FileText className="w-4 h-4 text-[#E8221A]" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center border" style={{ backgroundColor: 'rgba(200,30,58,0.12)', borderColor: 'rgba(200,30,58,0.25)' }}>
+              <FileText className="w-4 h-4" style={{ color: 'var(--primary)' }} />
             </div>
             <span className="font-syne font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
-              TendeX<span style={{ color: '#E8221A' }}>.</span>
+              TendeX<span style={{ color: 'var(--primary)' }}>.</span>
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ export default function Landing() {
               onClick={() => base44.auth.redirectToLogin('/dashboard')}>
               Login
             </Button>
-            <Button size="sm" className="border-0 shadow-lg text-white" style={{ backgroundColor: '#E8221A' }}
+            <Button size="sm" className="border-0 shadow-lg text-white" style={{ backgroundColor: 'var(--primary)' }}
               onClick={() => base44.auth.redirectToLogin('/plan-selection')}>
               Get Started
             </Button>
@@ -124,13 +124,13 @@ export default function Landing() {
       <section className="relative pt-32 pb-24 px-6 overflow-hidden" style={{ backgroundColor: 'var(--surface-1)' }}>
         {/* Ambient glow — hidden in light mode via .light .hero-glow */}
         <div className="hero-glow absolute top-0 left-1/4 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(232,34,26,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(200,30,58,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
 
         <div className="max-w-5xl mx-auto">
           {/* Badge */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-2 border text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-8 text-[#E8221A]"
-              style={{ borderColor: 'rgba(232,34,26,0.35)', backgroundColor: 'rgba(232,34,26,0.08)' }}>
+            <span className="inline-flex items-center gap-2 border text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-8"
+              style={{ borderColor: 'rgba(200,30,58,0.35)', backgroundColor: 'rgba(200,30,58,0.08)', color: 'var(--primary)' }}>
               <Zap className="w-3 h-3" />AI-Powered Procurement
             </span>
           </motion.div>
@@ -140,7 +140,7 @@ export default function Landing() {
             <h1 className="font-syne font-bold leading-[1.05] mb-3" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'var(--text-primary)' }}>
               Professional<br />Procurement
             </h1>
-            <h1 className="font-syne font-bold leading-[1.05] mb-6 text-[#E8221A]" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)' }}>
+            <h1 className="font-syne font-bold leading-[1.05] mb-6" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'var(--primary)' }}>
               Documents.<br />In Minutes.
             </h1>
             <p className="text-lg max-w-xl mb-10 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -151,7 +151,7 @@ export default function Landing() {
           {/* Inline recommender widget */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}>
             <div className="rounded-2xl border p-5 max-w-2xl" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-              <p className="text-xs uppercase tracking-widest font-semibold mb-3 flex items-center gap-2 text-[#E8221A]">
+              <p className="text-xs uppercase tracking-widest font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--primary)' }}>
                 <Sparkles className="w-3.5 h-3.5" />
                 Describe what you need — we'll recommend the right document
               </p>
@@ -166,7 +166,7 @@ export default function Landing() {
               />
               <div className="flex items-center gap-3">
                 <Button onClick={handleRecommend}
-                  className="gap-2 border-0 shadow-lg text-white" style={{ backgroundColor: '#E8221A' }}>
+                  className="gap-2 border-0 shadow-lg text-white" style={{ backgroundColor: 'var(--primary)' }}>
                   Recommend a Document <ArrowRight className="w-4 h-4" />
                 </Button>
                 <span className="text-xs" style={{ color: 'var(--text-muted)' }}>or pick one below</span>
@@ -180,7 +180,7 @@ export default function Landing() {
       <section className="py-20 px-6" style={{ backgroundColor: 'var(--surface-2)' }}>
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
-            <p className="text-xs text-[#E8221A] uppercase tracking-widest font-semibold mb-2">Pick a Tool</p>
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: 'var(--primary)' }}>Pick a Tool</p>
             <h2 className="font-syne text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Start with clarity</h2>
           </motion.div>
 
@@ -193,15 +193,15 @@ export default function Landing() {
                     style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center border transition-colors"
-                        style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: 'rgba(232,34,26,0.2)' }}>
-                        <tool.icon className="w-5 h-5 text-[#E8221A]" />
+                        style={{ backgroundColor: 'rgba(200,30,58,0.1)', borderColor: 'rgba(200,30,58,0.2)' }}>
+                        <tool.icon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
                       </div>
                       <span className="text-xs font-mono font-bold" style={{ color: 'var(--text-muted)' }}>{tool.step}</span>
                     </div>
-                    <p className="text-xs font-semibold uppercase tracking-wider mb-1 text-[#E8221A]">{tool.tagline}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--primary)' }}>{tool.tagline}</p>
                     <h3 className="font-semibold mb-2 text-base" style={{ color: 'var(--text-primary)' }}>{tool.label}</h3>
                     <p className="text-sm leading-relaxed flex-1" style={{ color: 'var(--text-secondary)' }}>{tool.desc}</p>
-                    <div className="mt-4 flex items-center gap-1.5 text-[#E8221A] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="mt-4 flex items-center gap-1.5 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--primary)' }}>
                       Start Now <ArrowRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
@@ -216,10 +216,10 @@ export default function Landing() {
       <section className="py-20 px-6" style={{ backgroundColor: 'var(--surface-1)' }}>
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14 text-center">
-            <p className="text-xs text-[#E8221A] uppercase tracking-widest font-semibold mb-2">How It Works</p>
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: 'var(--primary)' }}>How It Works</p>
             <h2 className="font-syne text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>
               Three steps.<br />
-              <span style={{ color: '#E8221A' }}>One polished document.</span>
+              <span style={{ color: 'var(--primary)' }}>One polished document.</span>
             </h2>
           </motion.div>
 
@@ -233,8 +233,8 @@ export default function Landing() {
                 )}
                 <div className="relative z-10">
                   <div className="w-14 h-14 rounded-2xl border flex items-center justify-center mb-5"
-                    style={{ backgroundColor: 'rgba(232,34,26,0.1)', borderColor: 'rgba(232,34,26,0.25)' }}>
-                    <span className="font-mono font-bold text-[#E8221A] text-lg">{step.num}</span>
+                    style={{ backgroundColor: 'rgba(200,30,58,0.1)', borderColor: 'rgba(200,30,58,0.25)' }}>
+                    <span className="font-mono font-bold text-lg" style={{ color: 'var(--primary)' }}>{step.num}</span>
                   </div>
                   <h3 className="font-syne font-semibold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
@@ -246,7 +246,7 @@ export default function Landing() {
           <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
             className="mt-12 text-center">
             <Button size="lg" className="gap-2 px-8 border-0 shadow-xl text-white primary-btn-hover"
-              style={{ backgroundColor: '#E8221A' }}
+              style={{ backgroundColor: 'var(--primary)' }}
               onClick={() => base44.auth.redirectToLogin('/plan-selection')}>
               Create Your First Document <ArrowRight className="w-4 h-4" />
             </Button>
@@ -258,7 +258,7 @@ export default function Landing() {
       <section className="py-20 px-6" style={{ backgroundColor: 'var(--surface-2)' }}>
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14 text-center">
-            <p className="text-xs text-[#E8221A] uppercase tracking-widest font-semibold mb-2">Pricing</p>
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: 'var(--primary)' }}>Pricing</p>
             <h2 className="font-syne text-4xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>Simple, transparent pricing</h2>
             <p style={{ color: 'var(--text-secondary)' }}>Start free. Scale as you grow.</p>
           </motion.div>
@@ -267,12 +267,12 @@ export default function Landing() {
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="rounded-2xl p-7 border relative card-hover"
                 style={{
-                  backgroundColor: plan.highlight ? 'rgba(232,34,26,0.08)' : 'var(--card)',
-                  borderColor: plan.highlight ? '#E8221A' : 'var(--border)',
+                  backgroundColor: plan.highlight ? 'rgba(200,30,58,0.08)' : 'var(--card)',
+                  borderColor: plan.highlight ? 'var(--primary)' : 'var(--border)',
                 }}>
                 {plan.highlight && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-white text-xs font-semibold px-3 py-1 rounded-full"
-                    style={{ backgroundColor: '#E8221A' }}>
+                    style={{ backgroundColor: 'var(--primary)' }}>
                     Most Popular
                   </span>
                 )}
@@ -284,14 +284,14 @@ export default function Landing() {
                 <ul className="space-y-3 mb-7">
                   {plan.features.map((feat, j) => (
                     <li key={j} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0 text-[#E8221A]" />
+                      <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--primary)' }} />
                       <span style={{ color: 'var(--text-secondary)' }}>{feat}</span>
                     </li>
                   ))}
                 </ul>
                 <Button onClick={() => base44.auth.redirectToLogin('/dashboard')}
                   className="w-full border-0 text-white"
-                  style={{ backgroundColor: plan.highlight ? '#E8221A' : 'var(--muted)', color: plan.highlight ? '#FFFFFF' : 'var(--text-primary)' }}>
+                  style={{ backgroundColor: plan.highlight ? 'var(--primary)' : 'var(--muted)', color: plan.highlight ? '#FFFFFF' : 'var(--text-primary)' }}>
                   {plan.cta}
                 </Button>
               </motion.div>
@@ -305,11 +305,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md flex items-center justify-center border"
-              style={{ backgroundColor: 'rgba(232,34,26,0.12)', borderColor: 'rgba(232,34,26,0.25)' }}>
-              <FileText className="w-3 h-3 text-[#E8221A]" />
+              style={{ backgroundColor: 'rgba(200,30,58,0.12)', borderColor: 'rgba(200,30,58,0.25)' }}>
+              <FileText className="w-3 h-3" style={{ color: 'var(--primary)' }} />
             </div>
             <span className="font-syne font-semibold" style={{ color: 'var(--text-primary)' }}>
-              TendeX<span style={{ color: '#E8221A' }}>.</span>
+              TendeX<span style={{ color: 'var(--primary)' }}>.</span>
             </span>
           </div>
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>© 2026 TendeX. All rights reserved.</p>

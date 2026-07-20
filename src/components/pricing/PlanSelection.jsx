@@ -124,8 +124,8 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
               key={key}
               className="relative rounded-2xl border transition-all duration-300 p-8 flex flex-col"
               style={plan.highlighted
-                ? { borderColor: 'var(--primary)', background: 'rgba(232,34,26,0.08)', boxShadow: '0 0 0 2px rgba(232,34,26,0.15)' }
-                : { borderColor: 'var(--border)', background: 'var(--card)' }}
+                 ? { borderColor: 'var(--primary)', background: 'rgba(200,30,58,0.08)', boxShadow: '0 0 0 2px rgba(200,30,58,0.15)' }
+                 : { borderColor: 'var(--border)', background: 'var(--card)' }}
             >
               {/* Badge */}
               {plan.highlighted && (
@@ -188,8 +188,8 @@ export default function PlanSelection({ onSelectPlan, loading = false }) {
 
           <p className="text-xs max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
             By starting a trial or purchasing a plan, you agree to our{' '}
-            <a href="/terms" className="text-[#E53935] hover:underline transition-colors">Terms of Service</a> and{' '}
-            <a href="/privacy" className="text-[#E53935] hover:underline transition-colors">Privacy Policy</a>.
+            <a href="/terms" className="hover:underline transition-colors" style={{ color: 'var(--primary)' }}>Terms of Service</a> and{' '}
+            <a href="/privacy" className="hover:underline transition-colors" style={{ color: 'var(--primary)' }}>Privacy Policy</a>.
           </p>
         </div>
       </div>

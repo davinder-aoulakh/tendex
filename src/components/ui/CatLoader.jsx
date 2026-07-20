@@ -26,7 +26,7 @@ export default function CatLoader({ message = 'Loading...', subMessage = null, s
 
           {/* Pen / cursor blinking on paper */}
           <motion.rect
-            x="72" y="74" width="1.5" height="10" rx="0.5" fill="#E8221A"
+            x="72" y="74" width="1.5" height="10" rx="0.5" fill="#C81E3A"
             animate={{ opacity: [1, 0, 1] }}
             transition={{ duration: 0.8, repeat: Infinity, ease: 'steps(1)' }}
           />

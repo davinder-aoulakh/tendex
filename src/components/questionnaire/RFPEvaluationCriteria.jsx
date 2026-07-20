@@ -97,7 +97,7 @@ Return JSON with criterion IDs as keys: price, experience, methodology, team, ti
                         className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
                         style={{
                           borderColor: snapshot.isDragging ? 'var(--primary)' : 'var(--border)',
-                          background: snapshot.isDragging ? 'rgba(232,34,26,0.1)' : 'var(--card)',
+                          background: snapshot.isDragging ? 'rgba(200,30,58,0.1)' : 'var(--card)',
                           ...provided.draggableProps.style,
                         }}
                       >

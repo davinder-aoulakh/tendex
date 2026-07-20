@@ -172,8 +172,8 @@ export default function Billing() {
                 key={key}
                 className="rounded-xl border p-6 transition-all"
               style={subscription?.plan === key
-                ? { borderColor: 'var(--primary)', background: 'rgba(232,34,26,0.08)', boxShadow: '0 0 0 2px rgba(232,34,26,0.2)' }
-                : { borderColor: 'var(--border)', background: 'var(--card)' }}
+                 ? { borderColor: 'var(--primary)', background: 'rgba(200,30,58,0.08)', boxShadow: '0 0 0 2px rgba(200,30,58,0.2)' }
+                 : { borderColor: 'var(--border)', background: 'var(--card)' }}
               >
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>

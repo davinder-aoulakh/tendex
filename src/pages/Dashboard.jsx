@@ -15,7 +15,7 @@ import VersionHistory from '@/components/document/VersionHistory';
 import { useToast } from '@/components/ui/use-toast';
 
 const docTypeStyles = {
-  SOW: { background: 'rgba(232,34,26,0.12)', color: '#E8221A', borderColor: 'rgba(232,34,26,0.35)' },
+  SOW: { background: 'rgba(200,30,58,0.12)', color: 'var(--primary)', borderColor: 'rgba(200,30,58,0.35)' },
   EOI: { background: 'var(--warning-subtle)', color: 'var(--warning)', borderColor: 'var(--warning-border)' },
   RFQ: { background: 'var(--success-subtle)', color: 'var(--success)', borderColor: 'var(--success-border)' },
   RFP: { background: 'var(--action-subtle)', color: 'var(--action)', borderColor: 'var(--action-border)' },
@@ -121,7 +121,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1 text-xs text-white/60 hover:text-white border border-white/10 hover:bg-white/10">
+                <Button variant="ghost" size="sm" className="gap-1 text-xs hover-muted" style={{ color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                   Quick create <ChevronDown className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
@@ -134,7 +134,7 @@ export default function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link to="/start-procurement">
-              <Button className="gap-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+              <Button className="gap-2 border-0 shadow-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }}>
                 <Plus className="w-4 h-4" /> Start Procurement
               </Button>
             </Link>
@@ -166,23 +166,22 @@ export default function Dashboard() {
 
         {/* Plan usage bar */}
         {docsLimit !== 999 && (
-           <div className="rounded-xl border border-white/10 px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
+           <div className="rounded-xl border px-5 py-4 mb-8 flex items-center gap-4" style={{ background: 'var(--card-surface)', borderColor: 'var(--border)' }}>
              <div className="flex-1">
                <div className="flex justify-between text-xs mb-1.5">
                  <span className="flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
                    {currentPlan === 'free' ? <Zap className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
                    <span className="capitalize">{currentPlan} plan</span>
                  </span>
-                 <span className="text-white/60">{documents.length} / {docsLimit} docs</span>
-               </div>
-               <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                 <div className="rounded-full h-1.5 transition-all" style={{ backgroundColor: atLimit ? 'var(--destructive)' : nearLimit ? 'var(--warning)' : 'var(--primary)' }}
-                   style={{ width: `${usagePct}%` }} />
+                 <span style={{ color: 'var(--text-secondary)' }}>{documents.length} / {docsLimit} docs</span>
+                 </div>
+                 <div className="w-full rounded-full h-1.5" style={{ background: 'var(--muted)' }}>
+                 <div className="rounded-full h-1.5 transition-all" style={{ backgroundColor: atLimit ? 'var(--destructive)' : nearLimit ? 'var(--warning)' : 'var(--primary)', width: `${usagePct}%` }} />
                </div>
              </div>
              {currentPlan === 'free' && (
                <Link to="/billing">
-                   <Button size="sm" className="text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)', backgroundColor: 'rgba(232,34,26,0.1)' }}>Upgrade</Button>
+                   <Button size="sm" className="text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(200,30,58,0.3)', backgroundColor: 'rgba(200,30,58,0.1)' }}>Upgrade</Button>
                  </Link>
              )}
            </div>
@@ -207,10 +206,10 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3 mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
            <div className="relative flex-1">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(232,34,26,0.4)' }} />
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(200,30,58,0.4)' }} />
              <Input
                placeholder="Search by title or document ID..."
-               className="pl-9 focus-visible:ring-[#E8221A]/50"
+               className="pl-9 focus-visible:ring-[var(--ring)]/50"
                style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                value={search}
                onChange={e => setSearch(e.target.value)}
@@ -239,7 +238,7 @@ export default function Dashboard() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
-           <FileText className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(232,34,26,0.2)' }} />
+           <FileText className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(200,30,58,0.2)' }} />
            <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
              {documents.length === 0 ? "You haven't started any procurements yet" : 'No procurements match your filters'}
            </h3>
@@ -324,7 +323,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                           {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                             <Button variant="ghost" size="sm"
-                                className="gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
+                                className="gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(200,30,58,0.3)' }}
                                     onClick={() => {
                                       try {
                                         localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -339,7 +338,7 @@ export default function Dashboard() {
                           )}
                           {doc.status === 'complete' && (
                             <Button variant="ghost" size="sm"
-                              className="gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
+                              className="gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(200,30,58,0.3)' }}
                                 onClick={() => navigate(`/document/${doc.id}`)}>
                                 <FileText className="w-3 h-3" />View
                               </Button>
@@ -434,7 +433,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-2 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
                     {doc.status === 'draft' && doc.questionnaire_type && !doc.final_content && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
+                        className="flex-1 gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(200,30,58,0.3)' }}
                           onClick={() => {
                             try {
                               localStorage.setItem(`tendex_draft_doc_${doc.questionnaire_type}`, doc.id);
@@ -449,7 +448,7 @@ export default function Dashboard() {
                     )}
                     {doc.status === 'complete' && (
                       <Button variant="ghost" size="sm"
-                        className="flex-1 gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(232,34,26,0.3)' }}
+                        className="flex-1 gap-1 text-xs h-7" style={{ color: 'var(--primary)', border: '1px solid rgba(200,30,58,0.3)' }}
                           onClick={() => navigate(`/document/${doc.id}`)}>
                           <FileText className="w-3 h-3" />View
                       </Button>

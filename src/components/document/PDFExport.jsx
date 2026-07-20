@@ -15,10 +15,10 @@ const DOC_TYPE_LABELS = {
   RFP: 'Request for Proposal',
 };
 
-// TendeX brand teal
-const TEAL = [0, 201, 167];
-const DARK = [8, 14, 26];
-const GRAY = [100, 116, 139];
+// TendeX brand — new red primary for PDF (RGB triplets)
+const TEAL = [200, 30, 58];   // primary red, used for brand accents
+const DARK = [17, 19, 24];    // dark text on white pages
+const GRAY = [108, 113, 128]; // muted gray
 const LIGHT = [203, 213, 225];
 const WHITE = [255, 255, 255];
 
@@ -332,7 +332,7 @@ export default function PDFExport({ doc, content, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="rounded-2xl border border-white/10 shadow-2xl w-full max-w-md p-8"
-        style={{ background: 'rgba(8,13,36,0.95)' }}>
+        style={{ background: 'var(--card)' }}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-display text-xl font-semibold text-white">Export Document</h2>
           <Button variant="ghost" size="icon" onClick={onClose} className="text-white/50 hover:text-white hover:bg-white/10">
@@ -379,7 +379,7 @@ export default function PDFExport({ doc, content, onClose }) {
             onClick={handleExportPDF}
             disabled={exportingPdf || exportingDocx || !hasContent}
             className="w-full gap-2 text-white border-0 disabled:opacity-50"
-            style={{ backgroundColor: '#00C9A7' }}
+            style={{ backgroundColor: 'var(--primary)' }}
           >
             {exportingPdf
               ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF...</>

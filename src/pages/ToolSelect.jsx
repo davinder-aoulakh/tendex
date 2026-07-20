@@ -133,13 +133,13 @@ export default function ToolSelect() {
 
         {/* Free plan limit reached */}
         {!isTrialExpired && subscription?.plan === 'free' && docsUsed >= subscription.documents_limit && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg p-6" style={{ border: '1px solid rgba(232,34,26,0.3)', background: 'rgba(232,34,26,0.1)' }}>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-lg p-6" style={{ border: '1px solid rgba(200,30,58,0.3)', background: 'rgba(200,30,58,0.1)' }}>
             <div className="flex items-start gap-4">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#E8221A' }} />
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
               <div className="flex-1">
-                <h3 className="font-semibold mb-1" style={{ color: '#EF9A9A' }}>Document Limit Reached</h3>
-                <p className="text-sm mb-4" style={{ color: 'rgba(232,34,26,0.6)' }}>You've created {docsUsed} of {subscription.documents_limit} allowed document(s) on your free plan. Upgrade to create more.</p>
-                <Button size="sm" className="text-white border-0" style={{ backgroundColor: '#E8221A' }} onClick={() => navigate('/billing')}>Upgrade Plan</Button>
+                <h3 className="font-semibold mb-1" style={{ color: 'var(--primary)' }}>Document Limit Reached</h3>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>You've created {docsUsed} of {subscription.documents_limit} allowed document(s) on your free plan. Upgrade to create more.</p>
+                <Button size="sm" className="text-white border-0" style={{ backgroundColor: 'var(--primary)' }} onClick={() => navigate('/billing')}>Upgrade Plan</Button>
               </div>
             </div>
           </motion.div>
@@ -166,7 +166,7 @@ export default function ToolSelect() {
               style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
             />
             <Button onClick={handleAiSelect} disabled={aiLoading || !aiQuery.trim()}
-              className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+              className="self-end gap-2 whitespace-nowrap text-white border-0" style={{ backgroundColor: 'var(--primary)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }}>
               {aiLoading ? <><Sparkles className="w-4 h-4 animate-spin" />Analysing...</> : <><Sparkles className="w-4 h-4" />Suggest Type</>}
             </Button>
           </div>
@@ -180,13 +180,13 @@ export default function ToolSelect() {
 
         {/* SECTION A — Full Procurement Journey (SOW) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#5C7A99' }}>Start a full procurement</p>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>Start a full procurement</p>
           <div
             className="rounded-2xl border-2 p-6 mb-10 cursor-pointer transition-all"
             style={{
-              background: selected === 'JOURNEY' ? 'rgba(0,201,167,0.08)' : 'var(--card)',
+              background: selected === 'JOURNEY' ? 'var(--action-subtle)' : 'var(--card)',
               borderColor: selected === 'JOURNEY' ? 'var(--primary)' : 'var(--border)',
-              boxShadow: selected === 'JOURNEY' ? '0 0 24px rgba(0,201,167,0.1)' : 'none',
+              boxShadow: selected === 'JOURNEY' ? '0 0 24px rgba(91,155,224,0.15)' : 'none',
             }}
             onClick={() => setSelected('JOURNEY')}
             role="button"
@@ -194,18 +194,18 @@ export default function ToolSelect() {
           >
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(0,201,167,0.12)', border: '1px solid rgba(0,201,167,0.25)' }}>
-                <Layers className="w-6 h-6" style={{ color: '#00C9A7' }} />
+                style={{ background: 'var(--action-subtle)', border: '1px solid var(--action-border)' }}>
+                <Layers className="w-6 h-6" style={{ color: 'var(--action)' }} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1 flex-wrap">
                   <h3 className="font-syne font-700 text-lg" style={{ color: 'var(--text-primary)' }}>Full Procurement Journey</h3>
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(0,201,167,0.1)', color: '#00C9A7', border: '1px solid rgba(0,201,167,0.2)' }}>
+                    style={{ background: 'var(--action-subtle)', color: 'var(--action)', border: '1px solid var(--action-border)' }}>
                     Recommended starting point
                   </span>
                 </div>
-                <p className="text-sm mb-3" style={{ color: '#8FA5C0' }}>
+                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
                   Start here if you are beginning a new procurement from scratch. TendeX will help you define your scope, score its quality, and recommend the right market document (EOI, RFQ, or RFP) — all in one guided flow.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -223,7 +223,7 @@ export default function ToolSelect() {
 
         {/* SECTION B — Standalone document types */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#5C7A99' }}>Or create a standalone document</p>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>Or create a standalone document</p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             {standaloneTools.map((tool, i) => (
               <motion.button key={tool.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 + 0.25 }}
@@ -231,8 +231,8 @@ export default function ToolSelect() {
                 className="text-left p-6 rounded-2xl border-2 transition-all"
                 style={{
                   borderColor: selected === tool.id ? 'var(--primary)' : 'var(--border)',
-                  background: selected === tool.id ? 'rgba(232,34,26,0.12)' : 'var(--card)',
-                  boxShadow: selected === tool.id ? '0 0 20px rgba(232,34,26,0.15)' : 'none',
+                  background: selected === tool.id ? 'rgba(200,30,58,0.12)' : 'var(--card)',
+                  boxShadow: selected === tool.id ? '0 0 20px rgba(200,30,58,0.15)' : 'none',
                 }}>
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
                   <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
@@ -255,7 +255,7 @@ export default function ToolSelect() {
       {selected && (
         <div className="fixed bottom-6 right-6 z-[200]">
           <Button size="lg" onClick={handleProceed}
-            className="gap-2 px-8 border-0 shadow-2xl" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 4px 24px rgba(232,34,26,0.4)' }}>
+            className="gap-2 px-8 border-0 shadow-2xl" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', boxShadow: '0 4px 24px rgba(200,30,58,0.4)' }}>
             {continueLabel()} <ArrowRight className="w-4 h-4" />
           </Button>
         </div>

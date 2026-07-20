@@ -34,7 +34,7 @@ export default function OnboardingBanner({ documentCount }) {
         >
           {/* Glow */}
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(232,34,26,0.12) 0%, transparent 70%)' }} />
+            style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(200,30,58,0.12) 0%, transparent 70%)' }} />
 
           <button onClick={dismiss} className="absolute top-4 right-4 transition-colors" style={{ color: 'var(--text-muted)' }}>
             <X className="w-4 h-4" />
@@ -42,14 +42,14 @@ export default function OnboardingBanner({ documentCount }) {
 
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5" style={{ color: '#E8221A' }} />
+              <Sparkles className="w-5 h-5" style={{ color: 'var(--primary)' }} />
               <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Welcome to TendeX! Here's how it works:</h3>
             </div>
             <div className="grid sm:grid-cols-4 gap-4 mb-5">
               {steps.map((step, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(232,34,26,0.1)', border: '1px solid rgba(232,34,26,0.2)' }}>
-                    <step.icon className="w-3.5 h-3.5" style={{ color: '#E8221A' }} />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(200,30,58,0.1)', border: '1px solid rgba(200,30,58,0.2)' }}>
+                    <step.icon className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
                   </div>
                   <div>
                     <div className="text-xs font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>{step.title}</div>
@@ -60,7 +60,7 @@ export default function OnboardingBanner({ documentCount }) {
             </div>
             <div className="flex items-center gap-3">
               <Link to="/tool-select">
-                <Button size="sm" className="gap-1.5 text-white border-0" style={{ backgroundColor: '#E8221A', boxShadow: '0 0 20px rgba(232,34,26,0.3)' }}>
+                <Button size="sm" className="gap-1.5 text-white border-0" style={{ backgroundColor: 'var(--primary)', boxShadow: '0 0 20px rgba(200,30,58,0.3)' }}>
                   Create your first document <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
