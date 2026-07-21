@@ -87,27 +87,14 @@ export default function Settings() {
     }
     setSavingAccount(true);
     try {
-      // Persist first_name / last_name / phone on the custom User entity.
-      // (base44.auth.updateMe cannot override the built-in full_name, so we
-      // store the split names here — the dashboard reads first_name from this record.)
-      const payload = {
+      // Use updateMe to persist custom fields (first_name, last_name, phone)
+      // on the current user's own record. Direct User.update() is blocked by
+      // the built-in row-level security on the User entity for non-admins.
+      await base44.auth.updateMe({
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         phone: phone,
-      };
-      if (userRecord) {
-        const updated = await base44.entities.User.update(userRecord.id, payload);
-        setUserRecord(updated);
-      } else if (user?.email) {
-        // User entity not found yet — try to find and update, else create is not allowed for User.
-        const users = await base44.entities.User.filter({ email: user.email });
-        if (users.length > 0) {
-          const updated = await base44.entities.User.update(users[0].id, payload);
-          setUserRecord(updated);
-        }
-      }
-      // Also keep phone in sync on the auth record (phone is not a built-in)
-      try { await base44.auth.updateMe({ phone: phone }); } catch {}
+      });
 
       // Invalidate the cached User record so the Dashboard greeting refreshes
       queryClient.invalidateQueries({ queryKey: ['user-record'] });
