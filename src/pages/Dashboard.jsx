@@ -620,9 +620,9 @@ export default function Dashboard() {
             <div className="dashboard-doc-tiles">
               {[
                 { key: 'SOW', label: 'Scope of Work',          hint: 'Define what you need.',  accent: 'action', path: '/questionnaire/SOW?mode=standalone' },
-                { key: 'EOI', label: 'Expression of Interest', hint: 'Gauge interest.',         accent: 'purple', path: '/questionnaire/EOI' },
-                { key: 'RFQ', label: 'Request for Quote',      hint: 'Get pricing.',            accent: 'warning', path: '/questionnaire/RFQ' },
-                { key: 'RFP', label: 'Request for Proposal',   hint: 'Ask for approach.',       accent: 'success', path: '/questionnaire/RFP' },
+                { key: 'EOI', label: 'Expression of Interest', hint: 'Gauge interest.',         accent: 'purple', path: '/questionnaire/EOI?mode=standalone' },
+                { key: 'RFQ', label: 'Request for Quote',      hint: 'Get pricing.',            accent: 'warning', path: '/questionnaire/RFQ?mode=standalone' },
+                { key: 'RFP', label: 'Request for Proposal',   hint: 'Ask for approach.',       accent: 'success', path: '/questionnaire/RFP?mode=standalone' },
               ].map(tile => (
                 <button
                   key={tile.key}

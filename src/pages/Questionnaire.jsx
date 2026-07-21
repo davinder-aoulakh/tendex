@@ -126,7 +126,10 @@ export default function Questionnaire() {
   const isStandaloneMode = type === 'SOW' && mode === 'standalone';
 
   // Load from sessionStorage first, fall back to localStorage (cross-session persistence)
+  // In standalone mode (creating a new single document) always start fresh — ignore any
+  // draft ID or answers left over from a guided procurement process or a previous session.
   const loadSaved = () => {
+    if (mode === 'standalone') return {};
     try {
       const session = sessionStorage.getItem(SESSION_KEY(type));
       if (session) return JSON.parse(session);
@@ -138,6 +141,7 @@ export default function Questionnaire() {
 
   // Draft document ID for auto-save (persisted to localStorage so it survives page refresh)
   const loadDraftDocId = () => {
+    if (mode === 'standalone') return null;
     try { return localStorage.getItem(DRAFT_DOC_KEY(type)) || null; } catch { return null; }
   };
 
