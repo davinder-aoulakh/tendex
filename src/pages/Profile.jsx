@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import AppLayout from '@/components/layout/AppLayout';
 import ABNLookup from '@/components/questionnaire/ABNLookup';
 import LogoUpload from '@/components/questionnaire/LogoUpload';
+import AddressSearchField from '@/components/questionnaire/AddressSearchField';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function Profile() {
@@ -340,18 +341,18 @@ export default function Profile() {
               />
             </div>
 
-            {/* Business Address */}
+            {/* Business Address — with Australian address autocomplete */}
             <div>
               <label style={LabelStyle}>Business Address</label>
-              <input
-                type="text"
+              <AddressSearchField
                 value={formData.address}
-                onChange={e => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Street, suburb, state, postcode"
+                onChange={val => setFormData({ ...formData, address: val })}
+                placeholder="Start typing your business address..."
                 style={inputStyle}
-                onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
+              <p style={HintStyle}>
+                Search for your address to auto-fill from verified Australian address data, or type it manually.
+              </p>
             </div>
 
           </div>
