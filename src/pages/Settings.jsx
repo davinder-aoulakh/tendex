@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft, User, Shield, Lock, Bell,
   Laptop, Phone, Check, AlertTriangle, Loader2, Mail
@@ -11,6 +12,7 @@ import { useToast } from '@/components/ui/use-toast';
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [user, setUser]       = useState(null);
   const [userRecord, setUserRecord] = useState(null);
@@ -106,6 +108,9 @@ export default function Settings() {
       }
       // Also keep phone in sync on the auth record (phone is not a built-in)
       try { await base44.auth.updateMe({ phone: phone }); } catch {}
+
+      // Invalidate the cached User record so the Dashboard greeting refreshes
+      queryClient.invalidateQueries({ queryKey: ['user-record'] });
 
       toast({ title: 'Account updated', description: 'Your details have been saved.' });
     } catch {
