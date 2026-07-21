@@ -18,6 +18,10 @@
       "type": "string",
       "description": "User's last name (optional)"
     },
+    "phone": {
+      "type": "string",
+      "description": "User's phone number for account recovery and SMS two-factor codes"
+    },
     "logo_url": {
       "type": "string",
       "description": "URL to the organisation logo uploaded by this user"

@@ -38,11 +38,12 @@ const toastVariants = cva(
 );
 
 const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
+  const isDestructive = variant === 'destructive';
   return (
     <div
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
-      style={{ backgroundColor: 'var(--card)', boxShadow: '0 4px 24px rgba(0,0,0,0.4)' }}
+      style={!isDestructive ? { backgroundColor: 'var(--card)', boxShadow: '0 4px 24px rgba(0,0,0,0.4)' } : undefined}
       {...props}
     />
   );
