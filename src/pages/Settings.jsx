@@ -15,7 +15,6 @@ export default function Settings() {
   const queryClient = useQueryClient();
 
   const [user, setUser]       = useState(null);
-  const [userRecord, setUserRecord] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Account section state
@@ -49,25 +48,11 @@ export default function Settings() {
         setNewEmail(u.email || '');
         setWeeklySummary(u.notification_weekly_summary ?? false);
 
-        // Fetch the custom User entity to read first_name / last_name / phone
-        try {
-          const users = await base44.entities.User.filter({ email: u.email });
-          if (users.length > 0) {
-            const rec = users[0];
-            setUserRecord(rec);
-            setFirstName(rec.first_name || '');
-            setLastName(rec.last_name || '');
-            setPhone(rec.phone || u.phone || '');
-          } else {
-            setFirstName(u.full_name ? u.full_name.split(' ')[0] : '');
-            setLastName(u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '');
-            setPhone(u.phone || '');
-          }
-        } catch {
-          setFirstName(u.full_name ? u.full_name.split(' ')[0] : '');
-          setLastName(u.full_name ? u.full_name.split(' ').slice(1).join(' ') : '');
-          setPhone(u.phone || '');
-        }
+        // Read first_name / last_name / phone from the auth user (me()).
+        // These are persisted via base44.auth.updateMe() and returned by me().
+        setFirstName(u.first_name || (u.full_name ? u.full_name.split(' ')[0] : ''));
+        setLastName(u.last_name || (u.full_name ? u.full_name.split(' ').slice(1).join(' ') : ''));
+        setPhone(u.phone || '');
       } catch {
         toast({ title: 'Error', description: 'Failed to load settings.', variant: 'destructive' });
       } finally {
