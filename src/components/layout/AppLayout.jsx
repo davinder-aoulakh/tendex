@@ -35,6 +35,7 @@ export default function AppLayout({ children }) {
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [profileIncomplete, setProfileIncomplete] = useState(false);
+  const [docsCount, setDocsCount] = useState(0);
   const [theme, setThemeState] = useState(() => {
     try { return localStorage.getItem('tendex_theme') || 'dark'; } catch { return 'dark'; }
   });
@@ -72,15 +73,28 @@ export default function AppLayout({ children }) {
             else setTrialDaysRemaining(days);
           }
         }
+        // Count the user's actual documents for the sidebar usage display
+        try {
+          const docs = await base44.entities.Document.filter({}, '-created_date', 500);
+          setDocsCount(docs.length);
+        } catch {}
       } catch {}
     };
     load();
   }, [isAuthenticated]);
 
+  // Refresh document count whenever the route changes (after create/delete)
+  useEffect(() => {
+    if (!isAuthenticated || !user?.email) return;
+    base44.entities.Document.filter({}, '-created_date', 500)
+      .then(docs => setDocsCount(docs.length))
+      .catch(() => {});
+  }, [isAuthenticated, user?.email, location.pathname]);
+
   const currentPlan = subscription?.plan || 'free';
   const planLimits = { free: 25, starter: 50, professional: 999 };
   const docsLimit = subscription?.documents_limit || planLimits[currentPlan] || 25;
-  const docsUsed = subscription?.documents_used || 0;
+  const docsUsed = docsCount;
 
   // Nav item component
   const NavItem = ({ icon: Icon, label, path, incomplete }) => {
