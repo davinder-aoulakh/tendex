@@ -71,10 +71,8 @@ export default function LandingNew() {
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo */}
           <img
-            src={theme === 'dark'
-              ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png'
-              : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/619512359_Gemini_Generated_Image_nymk92nymk92nymk.png'}
-            alt="TendeX" style={{ display: 'block', height: 32, width: 'auto', filter: theme === 'dark' ? 'brightness(10)' : 'none' }} />
+            src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png"
+            alt="TendeX" style={{ display: 'block', height: 34, width: 'auto', borderRadius: 6 }} />
 
           {/* Nav links (desktop) */}
           <div className="hidden-mobile" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>

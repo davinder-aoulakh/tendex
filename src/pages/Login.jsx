@@ -80,7 +80,7 @@ export default function Login() {
 
         {/* Logo */}
         <div>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/75545adb6_Gemini_Generated_Image_cmmc92cmmc92cmmc.png" alt="TendeX" style={{ height: 28, width: 'auto', filter: 'brightness(10)' }} />
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png" alt="TendeX" style={{ height: 34, width: 'auto', borderRadius: 6 }} />
         </div>
 
         {/* Mascot and headline */}

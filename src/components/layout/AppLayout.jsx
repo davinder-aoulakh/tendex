@@ -166,13 +166,12 @@ export default function AppLayout({ children }) {
           <button
             onClick={() => handleSidebarNav('/dashboard')}
             style={{
-              display: 'flex', alignItems: 'center', fontWeight: 800,
-              fontSize: '1.25rem', letterSpacing: '-0.02em',
+              display: 'flex', alignItems: 'center',
               padding: '4px 10px 18px', background: 'none',
-              border: 'none', cursor: 'pointer', color: 'var(--text-primary)',
+              border: 'none', cursor: 'pointer',
             }}
           >
-            Tende<span style={{ color: 'var(--primary)' }}>X</span>
+            <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png" alt="TendeX" style={{ display: 'block', height: 32, width: 'auto', borderRadius: 6 }} />
           </button>
 
           {/* Appearance toggle */}
