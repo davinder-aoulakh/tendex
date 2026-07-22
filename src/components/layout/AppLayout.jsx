@@ -171,7 +171,10 @@ export default function AppLayout({ children }) {
               border: 'none', cursor: 'pointer',
             }}
           >
-            <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png" alt="TendeX" style={{ display: 'block', height: 32, width: 'auto', borderRadius: 6 }} />
+            <img src={theme === 'dark'
+              ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/d91cd1b61_T_BB.png'
+              : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/9e5ef92b4_T_LB.png'}
+              alt="TendeX" style={{ display: 'block', height: 32, width: 'auto', borderRadius: 6 }} />
           </button>
 
           {/* Appearance toggle */}

@@ -70,9 +70,11 @@ export default function LandingNew() {
       }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo */}
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png"
-
-          alt="TendeX" style={{ display: 'block', height: 34, width: 'auto', borderRadius: 6 }} />
+          <img
+            src={theme === 'dark'
+              ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/d91cd1b61_T_BB.png'
+              : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/9e5ef92b4_T_LB.png'}
+            alt="TendeX" style={{ display: 'block', height: 34, width: 'auto', borderRadius: 6 }} />
 
           {/* Nav links (desktop) */}
           <div className="hidden-mobile" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
