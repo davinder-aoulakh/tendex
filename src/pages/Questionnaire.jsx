@@ -129,7 +129,7 @@ export default function Questionnaire() {
   // In standalone mode (creating a new single document) always start fresh — ignore any
   // draft ID or answers left over from a guided procurement process or a previous session.
   const loadSaved = () => {
-    if (mode === 'standalone') return {};
+    if (mode === 'standalone') return { has_own_scope: 'no' };
     try {
       const session = sessionStorage.getItem(SESSION_KEY(type));
       if (session) return JSON.parse(session);
@@ -318,7 +318,10 @@ export default function Questionnaire() {
   const atLimit = documents.length >= docsLimit && currentPlan !== 'professional';
 
   // Recompute visible pages whenever answers change
-  const visiblePages = getVisiblePages(type, answers);
+  const rawVisiblePages = getVisiblePages(type, answers);
+  const visiblePages = isStandaloneMode
+    ? rawVisiblePages.filter(p => p.id !== 's3_own_scope_option')
+    : rawVisiblePages;
   const totalSteps = visiblePages.length;
   const page = visiblePages[currentStep] || visiblePages[0];
   const isLastStep = currentStep === totalSteps - 1;
