@@ -500,8 +500,7 @@ export default function Dashboard() {
 
   // Split into procurement processes vs standalone documents
   const procurementDocs = documents.filter(d =>
-    d.is_procurement_process === true ||
-    (d.questionnaire_type === 'SOW' && d.status === 'draft' && !d.final_content)
+    d.is_procurement_process === true
   );
   const standaloneDocs = documents.filter(d => !procurementDocs.includes(d));
 
