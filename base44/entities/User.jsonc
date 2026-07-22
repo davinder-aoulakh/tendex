@@ -22,6 +22,22 @@
       "type": "string",
       "description": "User's phone number for account recovery and SMS two-factor codes"
     },
+    "organisation_name": {
+      "type": "string",
+      "description": "The organisation name for this user's company, used to pre-fill document headers."
+    },
+    "primary_contact_name": {
+      "type": "string",
+      "description": "Full name of the primary contact person on procurement documents. May be different from the logged-in user."
+    },
+    "primary_contact_email": {
+      "type": "string",
+      "description": "Email address of the primary contact on procurement documents. May differ from the login email \u2014 e.g. the signer could be the business owner, not the administrator who logs in."
+    },
+    "business_address": {
+      "type": "string",
+      "description": "Business street address, used on procurement documents."
+    },
     "logo_url": {
       "type": "string",
       "description": "URL to the organisation logo uploaded by this user"
