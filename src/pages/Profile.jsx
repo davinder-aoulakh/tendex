@@ -16,6 +16,7 @@ export default function Profile() {
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
   const [profile, setProfile]   = useState({});
+  const [profileId, setProfileId] = useState(null);
   const [formData, setFormData] = useState({
     org_name:      '',
     abn:           '',
@@ -37,16 +38,17 @@ export default function Profile() {
         const users = await base44.entities.User.filter({ email: currentUser.email });
         const userProfile = users[0] || {};
         setProfile(userProfile);
+        setProfileId(userProfile.id || null);
 
         setFormData({
-          org_name:      currentUser.organisation_name || '',
-          abn:           currentUser.abn || '',
-          abn_entity_name: currentUser.abn_entity_name || '',
-          logo_url:      currentUser.logo_url || '',
-          contact_name:  currentUser.primary_contact_name || '',
-          contact_email: currentUser.email,
-          phone:         currentUser.phone || '',
-          address:       currentUser.business_address || '',
+          org_name:      userProfile.organisation_name      || '',
+          abn:           userProfile.abn                    || currentUser.abn || '',
+          abn_entity_name: userProfile.abn_entity_name      || currentUser.abn_entity_name || '',
+          logo_url:      userProfile.logo_url               || currentUser.logo_url || '',
+          contact_name:  userProfile.primary_contact_name   || '',
+          contact_email: userProfile.primary_contact_email  || '',
+          phone:         userProfile.phone                  || currentUser.phone || '',
+          address:       userProfile.business_address       || '',
         });
       } catch (err) {
         console.error('Error loading profile:', err);
@@ -63,24 +65,69 @@ export default function Profile() {
         title: 'Validation error',
         description: 'Organisation name is required.',
         variant: 'destructive',
+        duration: 5000,
       });
       return;
     }
     setSaving(true);
     try {
+      const updatePayload = {
+        organisation_name:     formData.org_name,
+        abn:                   formData.abn,
+        abn_entity_name:       formData.abn_entity_name,
+        logo_url:              formData.logo_url,
+        primary_contact_name:  formData.contact_name,
+        primary_contact_email: formData.contact_email,
+        phone:                 formData.phone,
+        business_address:      formData.address,
+      };
+
+      if (profileId) {
+        await base44.entities.User.update(profileId, updatePayload);
+      } else {
+        const created = await base44.entities.User.create({
+          email: user.email,
+          role:  'user',
+          ...updatePayload,
+        });
+        setProfileId(created.id);
+        setProfile(created);
+      }
+
       await base44.auth.updateMe({
-        organisation_name:    formData.org_name,
-        abn:                  formData.abn,
-        abn_entity_name:      formData.abn_entity_name,
-        logo_url:             formData.logo_url,
-        primary_contact_name: formData.contact_name,
-        phone:                formData.phone,
-        business_address:     formData.address,
+        full_name: formData.contact_name || undefined,
+        phone:     formData.phone        || undefined,
       });
-      toast({ title: 'Profile updated', description: 'Your changes have been saved.' });
+
+      toast({
+        title: 'Profile updated',
+        description: 'Your changes have been saved.',
+        duration: 4000,
+      });
+
+      const reloaded = await base44.entities.User.filter({ email: user.email });
+      if (reloaded.length > 0) {
+        setProfile(reloaded[0]);
+        setProfileId(reloaded[0].id);
+        setFormData({
+          org_name:      reloaded[0].organisation_name      || '',
+          abn:           reloaded[0].abn                    || '',
+          abn_entity_name: reloaded[0].abn_entity_name      || '',
+          logo_url:      reloaded[0].logo_url               || '',
+          contact_name:  reloaded[0].primary_contact_name   || '',
+          contact_email: reloaded[0].primary_contact_email  || '',
+          phone:         reloaded[0].phone                  || '',
+          address:       reloaded[0].business_address       || '',
+        });
+      }
     } catch (err) {
       console.error('Error saving profile:', err);
-      toast({ title: 'Error', description: 'Failed to save profile changes.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save profile changes.',
+        variant: 'destructive',
+        duration: 6000,
+      });
     } finally {
       setSaving(false);
     }
@@ -101,12 +148,18 @@ export default function Profile() {
       abn_verified_at:       new Date().toISOString(),
     };
     await base44.auth.updateMe(abnFields);
+    if (profileId) {
+      await base44.entities.User.update(profileId, abnFields);
+    }
     setFormData(prev => ({ ...prev, abn: data.abn, abn_entity_name: data.entityName || '' }));
     setProfile(prev => ({ ...prev, ...abnFields }));
   };
 
   const handleRemoveABN = async () => {
     await base44.auth.updateMe({ abn_confirmed: false, abn: '', abn_entity_name: '' });
+    if (profileId) {
+      await base44.entities.User.update(profileId, { abn_confirmed: false, abn: '', abn_entity_name: '' });
+    }
     setProfile(prev => ({ ...prev, abn_confirmed: false, abn: '', abn_entity_name: '' }));
     setFormData(prev => ({ ...prev, abn: '', abn_entity_name: '' }));
   };
@@ -293,7 +346,9 @@ export default function Profile() {
             Primary Contact
           </div>
           <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: '0 0 22px' }}>
-            This person is the default contact on all procurement documents.
+            The person and contact details shown on procurement documents. This
+            can be the business owner or a shared inbox — it does not need to
+            match the account used to log in.
           </p>
 
           {/* Contact Name + Login Email — 2 column grid */}
@@ -313,17 +368,21 @@ export default function Profile() {
               />
             </div>
 
-            {/* Login Email (read-only) */}
+            {/* Contact Email (editable) */}
             <div>
-              <label style={LabelStyle}>Login Email</label>
+              <label style={LabelStyle}>Contact Email</label>
               <input
                 type="email"
                 value={formData.contact_email}
-                disabled
-                style={inputDisabledStyle}
+                onChange={e => setFormData({ ...formData, contact_email: e.target.value })}
+                placeholder="contact@yourcompany.com.au"
+                style={inputStyle}
+                onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
               <p style={HintStyle}>
-                This is your authentication email and cannot be changed here.
+                The email shown on procurement documents — can be a shared inbox
+                or the business owner, separate from the person who logs in.
               </p>
             </div>
 
