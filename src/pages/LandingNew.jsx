@@ -60,8 +60,8 @@ export default function LandingNew() {
       <div style={{ height: 4, background: 'linear-gradient(to right, #C81E3A, #C2570A)', width: '100%' }} />
 
       {/* ════════════════════════════════════════════════
-           NAV
-        ════════════════════════════════════════════════ */}
+            NAV
+         ════════════════════════════════════════════════ */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
         backgroundColor: s.bg,
@@ -70,7 +70,7 @@ export default function LandingNew() {
       }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo */}
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/0117e47a3_T_LB.png"
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png"
 
           alt="TendeX" style={{ display: 'block', height: 34, width: 'auto', borderRadius: 6 }} />
 
@@ -141,8 +141,8 @@ export default function LandingNew() {
       </nav>
 
       {/* ════════════════════════════════════════════════
-           HERO
-        ════════════════════════════════════════════════ */}
+            HERO
+         ════════════════════════════════════════════════ */}
       <section style={{ padding: '68px 28px', maxWidth: 1120, margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 56, alignItems: 'center' }} className="hero-grid">
 
@@ -231,8 +231,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           STATS BAR
-        ════════════════════════════════════════════════ */}
+            STATS BAR
+         ════════════════════════════════════════════════ */}
       <div style={{ borderTop: `1px solid ${s.border}`, borderBottom: `1px solid ${s.border}` }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }} className="stats-grid">
           {[
@@ -249,8 +249,8 @@ export default function LandingNew() {
       </div>
 
       {/* ════════════════════════════════════════════════
-           WHY TENDEX
-        ════════════════════════════════════════════════ */}
+            WHY TENDEX
+         ════════════════════════════════════════════════ */}
       <section id="why-tendex" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Why TendeX</div>
@@ -276,8 +276,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           PROBLEM SECTION
-        ════════════════════════════════════════════════ */}
+            PROBLEM SECTION
+         ════════════════════════════════════════════════ */}
       <section id="problem" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Where procurement goes wrong</div>
@@ -317,8 +317,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           HOW IT WORKS
-        ════════════════════════════════════════════════ */}
+            HOW IT WORKS
+         ════════════════════════════════════════════════ */}
       <section id="how-it-works" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>How it works</div>
@@ -347,8 +347,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           PLATFORM FEATURES
-        ════════════════════════════════════════════════ */}
+            PLATFORM FEATURES
+         ════════════════════════════════════════════════ */}
       <section id="platform-features" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Platform features</div>
@@ -379,8 +379,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           DOCUMENT TYPES
-        ════════════════════════════════════════════════ */}
+            DOCUMENT TYPES
+         ════════════════════════════════════════════════ */}
       <section id="document-types" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Document types</div>
@@ -408,8 +408,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           PRICING
-        ════════════════════════════════════════════════ */}
+            PRICING
+         ════════════════════════════════════════════════ */}
       <section id="pricing" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Pricing</div>
@@ -454,8 +454,8 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           CLOSING CTA
-        ════════════════════════════════════════════════ */}
+            CLOSING CTA
+         ════════════════════════════════════════════════ */}
       <section style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt, textAlign: 'center' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '2rem', color: s.text, marginBottom: 14 }}>A scope suppliers can quote against with confidence.</h2>
@@ -470,11 +470,11 @@ export default function LandingNew() {
       </section>
 
       {/* ════════════════════════════════════════════════
-           FOOTER
-        ════════════════════════════════════════════════ */}
+            FOOTER
+         ════════════════════════════════════════════════ */}
       <footer style={{ borderTop: `1px solid ${s.border}`, padding: '36px 28px', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/0117e47a3_T_LB.png"
+          <img src="https://media.base44.com/images/public/69e23169311147ecf99b113d/6a1a37706_image.png"
 
 
 
@@ -484,8 +484,8 @@ export default function LandingNew() {
       </footer>
 
       {/* ════════════════════════════════════════════════
-           RESPONSIVE CSS
-        ════════════════════════════════════════════════ */}
+            RESPONSIVE CSS
+         ════════════════════════════════════════════════ */}
       <style>{`
         @media (max-width: 860px) {
           .hero-grid       { grid-template-columns: 1fr !important; }
