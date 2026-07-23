@@ -145,7 +145,7 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             HERO
          ════════════════════════════════════════════════ */}
-      <section style={{ padding: '68px 28px', maxWidth: 1120, margin: '0 auto' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', maxWidth: 1120, margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 56, alignItems: 'center' }} className="hero-grid">
 
           {/* Left */}
@@ -157,12 +157,12 @@ export default function LandingNew() {
             </div>
 
             {/* H1 */}
-            <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '2.7rem', lineHeight: 1.15, color: s.text, marginBottom: 20 }}>
+            <h1 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(2rem, 6vw, 2.7rem)', lineHeight: 1.15, color: s.text, marginBottom: 20 }}>
               Procurement<br />made simple.
             </h1>
 
             {/* Body */}
-            <p style={{ color: s.textMuted, fontSize: '1.06rem', lineHeight: 1.7, marginBottom: 24 }}>
+            <p style={{ color: s.textMuted, fontSize: 'clamp(0.95rem, 2.5vw, 1.06rem)', lineHeight: 1.7, marginBottom: 24 }}>
               The TendeX platform is designed to make procurement fast and simple. Whether you're a small to medium sized business or a procurement professional yourself, TendeX will guide you through the procurement process, help you make better decisions along the way, and turn your requirements into structured, market-ready documents:
             </p>
 
@@ -253,10 +253,10 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             WHY TENDEX
          ════════════════════════════════════════════════ */}
-      <section id="why-tendex" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
+      <section id="why-tendex" style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.surfaceAlt }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Why TendeX</div>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 48, maxWidth: 560 }}>Built for the way small and mid-sized teams actually buy.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: s.text, marginBottom: 48, maxWidth: 560 }}>Built for the way small and mid-sized teams actually buy.</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="cards-grid">
             {[
@@ -280,10 +280,10 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             PROBLEM SECTION
          ════════════════════════════════════════════════ */}
-      <section id="problem" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
+      <section id="problem" style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Where procurement goes wrong</div>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 16 }}>Get the scope wrong and the whole thing falls apart.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: s.text, marginBottom: 16 }}>Get the scope wrong and the whole thing falls apart.</h2>
           <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 640 }}>When requirements are underspecified, suppliers price against their own assumptions rather than yours. That gap tends to surface later: in mismatched quotes, disputed variations, and costs that shift once work is underway.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }} className="compare-grid">
@@ -321,10 +321,10 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             HOW IT WORKS
          ════════════════════════════════════════════════ */}
-      <section id="how-it-works" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
+      <section id="how-it-works" style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.surfaceAlt }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>How it works</div>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>A guided process for making better procurement decisions.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: s.text, marginBottom: 12 }}>A guided process for making better procurement decisions.</h2>
           <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 680 }}>Running the full process means you're never guessing. A solid scope forms the foundation for everything that follows. You are guided through the decisions at each step, from scope creation, through document selection and risk assessment, instead of figuring it out alone.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="steps-grid">
@@ -351,10 +351,10 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             PLATFORM FEATURES
          ════════════════════════════════════════════════ */}
-      <section id="platform-features" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
+      <section id="platform-features" style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Platform features</div>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>Everything you need, built into one platform.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: s.text, marginBottom: 12 }}>Everything you need, built into one platform.</h2>
           <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 640 }}>TendeX is designed to remove the overhead that normally comes with running a procurement process, so you can focus on the outcome, not the admin.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }} className="feat-grid">
@@ -383,10 +383,10 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             DOCUMENT TYPES
          ════════════════════════════════════════════════ */}
-      <section id="document-types" style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt }}>
+      <section id="document-types" style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.surfaceAlt }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Document types</div>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>What these mean, even when we choose for you.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: s.text, marginBottom: 12 }}>What these mean, even when we choose for you.</h2>
           <p style={{ color: s.textMuted, fontSize: '1rem', lineHeight: 1.7, marginBottom: 48, maxWidth: 660 }}>Start with a checked scope, and the rest is easy. We guide you through each decision, what type of document to use, what to watch for and what's next, so nothing is missed. Already have a scope, or only need one document? Enjoy the flexibility of using any step in isolation or as part of a larger procurement process.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }} className="term-grid">
@@ -412,10 +412,10 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             PRICING
          ════════════════════════════════════════════════ */}
-      <section id="pricing" style={{ padding: '68px 28px', backgroundColor: s.bg }}>
+      <section id="pricing" style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: s.red, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Pricing</div>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '1.9rem', color: s.text, marginBottom: 12 }}>Simple, transparent pricing.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: s.text, marginBottom: 12 }}>Simple, transparent pricing.</h2>
           <p style={{ color: s.textMuted, fontSize: '1rem', marginBottom: 48 }}>Start free. Scale as you grow. No credit card required for the trial.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 760, margin: '0 auto 20px' }} className="pricing-grid">
@@ -458,9 +458,9 @@ export default function LandingNew() {
       {/* ════════════════════════════════════════════════
             CLOSING CTA
          ════════════════════════════════════════════════ */}
-      <section style={{ padding: '68px 28px', backgroundColor: s.surfaceAlt, textAlign: 'center' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 68px) clamp(20px, 4vw, 28px)', backgroundColor: s.surfaceAlt, textAlign: 'center' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: '2rem', color: s.text, marginBottom: 14 }}>A scope suppliers can quote against with confidence.</h2>
+          <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontWeight: 700, fontSize: 'clamp(1.5rem, 4.5vw, 2rem)', color: s.text, marginBottom: 14 }}>A scope suppliers can quote against with confidence.</h2>
           <p style={{ color: s.textMuted, fontSize: '1rem', marginBottom: 32 }}>Most procurement disputes are avoidable with a complete brief.</p>
           <Link to={START_URL}
           style={{ display: 'inline-block', backgroundColor: s.red, color: '#fff', padding: '14px 28px', borderRadius: 9, fontWeight: 600, fontSize: '1rem', textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}
@@ -500,7 +500,6 @@ export default function LandingNew() {
           .stats-grid      { grid-template-columns: 1fr !important; }
           .hidden-mobile   { display: none !important; }
           .show-mobile     { display: flex !important; }
-          h1               { font-size: 2.05rem !important; }
         }
         @media (min-width: 861px) {
           .show-mobile { display: none !important; }
