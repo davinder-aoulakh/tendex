@@ -480,7 +480,7 @@ export default function LandingNew() {
             src={theme === 'dark'
               ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/d91cd1b61_T_BB.png'
               : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/9e5ef92b4_T_LB.png'}
-            alt="TendeX" height={20} style={{ display: 'block', borderRadius: 6 }} />
+            alt="TendeX" height={15} style={{ display: 'block', borderRadius: 6 }} />
           <p style={{ fontSize: '0.85rem', color: s.textMuted }}>Structured procurement documentation for Australian business.</p>
         </div>
       </footer>
