@@ -267,7 +267,7 @@ export default function Profile() {
           </p>
 
           {/* Org Name + ABN — 2 column grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 20px', marginBottom: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '18px 20px', marginBottom: 18 }}>
 
             {/* Organisation Name */}
             <div>
@@ -352,7 +352,7 @@ export default function Profile() {
           </p>
 
           {/* Contact Name + Login Email — 2 column grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 20px', marginBottom: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '18px 20px', marginBottom: 18 }}>
 
             {/* Primary Contact Name */}
             <div>

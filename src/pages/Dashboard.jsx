@@ -525,11 +525,11 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              gap: 12, borderRadius: 11, padding: '13px 18px', marginBottom: 26,
+              flexWrap: 'wrap', gap: 12, borderRadius: 11, padding: '13px 18px', marginBottom: 26,
               background: 'var(--card)', border: '1px solid rgba(239,68,68,0.35)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13.5px', color: 'var(--destructive)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13.5px', color: 'var(--destructive)', flex: '1 1 220px', minWidth: 0 }}>
               <AlertTriangle style={{ width: 16, height: 16, flexShrink: 0 }} />
               <span>
                 <strong>You have reached your {docsLimit}-document limit</strong> on the {currentPlan} plan.

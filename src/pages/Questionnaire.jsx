@@ -827,7 +827,7 @@ export default function Questionnaire() {
                   background: 'var(--card)',
                   border: '1px solid var(--border)',
                   borderRadius: 16,
-                  padding: '28px 24px',
+                  padding: 'clamp(20px, 4vw, 28px) clamp(18px, 4vw, 24px)',
                   boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
                 }}
               >
