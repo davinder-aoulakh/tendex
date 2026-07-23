@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   LayoutDashboard, CreditCard, Settings,
-  Building2, HelpCircle, LogOut, Plus
+  Building2, HelpCircle, LogOut, Plus, Menu, X
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import TrialBanner from '@/components/pricing/TrialBanner';
@@ -39,6 +39,10 @@ export default function AppLayout({ children }) {
   const [theme, setThemeState] = useState(() => {
     try { return localStorage.getItem('tendex_theme') || 'dark'; } catch { return 'dark'; }
   });
+  const [isMobile, setIsMobile] = useState(() => {
+    try { return window.matchMedia('(max-width: 900px)').matches; } catch { return false; }
+  });
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const applyTheme = (t) => {
     setThemeState(t);
@@ -48,6 +52,7 @@ export default function AppLayout({ children }) {
   };
 
   const handleSidebarNav = (path) => {
+    setDrawerOpen(false);
     if (isDirty) { setPendingNav(path); setShowGuard(true); }
     else { navigate(path); }
   };
@@ -55,6 +60,16 @@ export default function AppLayout({ children }) {
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsAuthenticated);
   }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)');
+    const handler = (e) => { setIsMobile(e.matches); if (!e.matches) setDrawerOpen(false); };
+    try { mq.addEventListener('change', handler); } catch { mq.addListener(handler); }
+    return () => { try { mq.removeEventListener('change', handler); } catch { mq.removeListener(handler); } };
+  }, []);
+
+  // Close the mobile drawer whenever the route changes
+  useEffect(() => { setDrawerOpen(false); }, [location.pathname]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -152,6 +167,41 @@ export default function AppLayout({ children }) {
         Skip to main content
       </a>
 
+      {/* MOBILE TOP BAR */}
+      {isAuthenticated && isMobile && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, height: 56,
+          background: 'var(--card)', borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 14px', zIndex: 50,
+        }}>
+          <button onClick={() => setDrawerOpen(o => !o)} aria-label="Open menu"
+            style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid var(--border)',
+              background: 'var(--background)', color: 'var(--text-primary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            {drawerOpen ? <X style={{ width: 20, height: 20 }} /> : <Menu style={{ width: 20, height: 20 }} />}
+          </button>
+          <button onClick={() => handleSidebarNav('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <img src={theme === 'dark'
+              ? 'https://media.base44.com/images/public/69e23169311147ecf99b113d/d91cd1b61_T_BB.png'
+              : 'https://media.base44.com/images/public/69e23169311147ecf99b113d/9e5ef92b4_T_LB.png'}
+              alt="TendeX" style={{ display: 'block', height: 30, width: 'auto', borderRadius: 6 }} />
+          </button>
+          <button onClick={() => handleSidebarNav('/start-procurement')} aria-label="New procurement"
+            style={{ width: 40, height: 40, borderRadius: 8, border: 'none',
+              background: 'var(--primary)', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <Plus style={{ width: 20, height: 20 }} />
+          </button>
+        </div>
+      )}
+
+      {/* MOBILE DRAWER BACKDROP */}
+      {isAuthenticated && isMobile && drawerOpen && (
+        <div onClick={() => setDrawerOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 55 }} />
+      )}
+
       {/* SIDEBAR */}
       {isAuthenticated && (
         <aside style={{
@@ -159,7 +209,11 @@ export default function AppLayout({ children }) {
           borderRight: '1px solid var(--border)', position: 'fixed',
           top: 0, left: 0, height: '100vh',
           display: 'flex', flexDirection: 'column',
-          padding: '22px 14px', overflowY: 'auto', zIndex: 40,
+          padding: '22px 14px', overflowY: 'auto',
+          zIndex: isMobile ? 60 : 40,
+          transform: isMobile && !drawerOpen ? 'translateX(-100%)' : 'translateX(0)',
+          transition: 'transform 0.2s ease',
+          boxShadow: isMobile && drawerOpen ? '0 0 40px rgba(0,0,0,0.3)' : 'none',
         }}>
 
           {/* Logo */}
@@ -347,9 +401,10 @@ export default function AppLayout({ children }) {
         id="main-content"
         style={{
           flex: 1,
-          marginLeft: isAuthenticated ? 236 : 0,
+          marginLeft: isAuthenticated && !isMobile ? 236 : 0,
           minHeight: '100vh',
           background: 'var(--background)',
+          paddingTop: isAuthenticated && isMobile ? 56 : 0,
         }}
       >
         {/* Trial banner */}
