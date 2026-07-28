@@ -13,279 +13,221 @@ import { base44 } from '@/api/base44Client';
 // ─────────────────────────────────────────────
 // SOW — Scope of Work
 // Branching logic:
-//   S1  → procurement_type (goods | services | both)
-//   S2  → procurement basics (always shown after S1)
-//   S3  → goods list        (goods | both)
-//   S4a → service type      (services | both)
-//   S4b → construction type (services|both + service_type === 'construction_trades')
-//   S4c → service details   (services | both)
-//   S5  → combined intent   (both only — shown BEFORE S3/S4)
-//   S6  → known suppliers   (always shown last)
+//   S1  → setup (always shown)
+//   S2  → procurement_type (goods | services)
+//   S3  → purpose statement (always shown after type)
+//   S4  → goods items        (goods only)
+//   S5  → construction type  (services + service_type === 'construction_trades')
+//   S6  → service scope      (services only)
+//   S7  → delivery           (goods only)
+//   S8  → warranty           (goods only)
+//   S9  → known suppliers    (always shown)
+//   S10 → supporting docs    (always shown)
 // ─────────────────────────────────────────────
 
 const IS_GOODS    = (a) => a.procurement_type === 'goods';
 const IS_SERVICES = (a) => a.procurement_type === 'services';
-const IS_BOTH     = (a) => a.procurement_type === 'both';
-const HAS_GOODS   = (a) => IS_GOODS(a) || IS_BOTH(a);
-const HAS_SERVICES= (a) => IS_SERVICES(a) || IS_BOTH(a);
 
 export const SOW_PAGES = [
-  // ── S1: Procurement type (Q1.1) ──
+
+  // ── S1: Procurement Setup (always shown) ──
   {
-    id: 's1_procurement_type',
-    title: 'What type of procurement is this?',
-    description: 'Select the category that best describes what you need to procure.',
-    sectionLabel: 'Procurement Type',
+    id: 's1_setup',
+    title: 'Procurement Setup',
+    description: 'Basic details about this procurement. These appear on the front of every document.',
+    sectionLabel: 'Setup',
     fields: [
       {
-        key: 'procurement_type',
-        label: 'What best describes what you need to procure?',
-        type: 'radio-cards',
+        key: 'project_name',
+        label: 'Procurement Title',
+        type: 'text',
+        placeholder: 'e.g. Office Fit-Out 2027',
         required: true,
-        options: [
-          { value: 'goods',    label: 'Goods — supply only',            description: 'Physical products, equipment, or materials supplied by a vendor' },
-          { value: 'services', label: 'Services — labour or expertise only', description: 'Professional services, labour, consulting, or trades' },
-          { value: 'both',     label: 'Both — goods and services together', description: 'A procurement that requires the supplier to provide goods AND deliver services as part of the same engagement' },
-        ],
+        helpText: 'A short, descriptive title for this procurement activity.',
       },
-    ],
-  },
-
-  // ── S2: Procurement basics (always shown) ──
-  {
-    id: 's2_basics',
-    title: 'Business Profile',
-    description: 'Tell us about your organisation. This information is saved to your profile and used across all your documents.',
-    sectionLabel: 'Basics',
-    condition: (a) => !!a.procurement_type,
-    fields: [
-      { 
-        key: 'organisation_name', 
-        label: 'Organisation Name', 
-        type: 'text', 
-        placeholder: 'Your organisation', 
+      {
+        key: 'reference_number',
+        label: 'Reference Number',
+        type: 'text',
+        placeholder: 'e.g. PROC-2027-001 (leave blank to auto-generate)',
+        required: false,
+        helpText: 'Your internal reference number. If left blank, one will be generated automatically.',
+      },
+      {
+        key: 'description_of_need',
+        label: 'Description of Need',
+        type: 'textarea',
+        placeholder: 'Describe what your organisation needs to procure and why...',
+        required: true,
+        helpText: 'A plain-language summary of what you are procuring and the business reason.',
+      },
+      {
+        key: 'estimated_budget',
+        label: 'Estimated Budget (excluding GST)',
+        type: 'text',
+        placeholder: 'e.g. $50,000',
+        required: false,
+        helpText: 'Approximate budget available. Used to contextualise the scope — not disclosed to suppliers unless you choose to.',
+      },
+      {
+        key: 'required_timeline',
+        label: 'Required Timeline',
+        type: 'text',
+        placeholder: 'e.g. Delivery by 30 June 2027, or within 8 weeks of contract award',
+        required: false,
+        helpText: 'When do you need this delivered or completed?',
+      },
+      {
+        key: 'organisation_name',
+        label: 'Organisation Name',
+        type: 'text',
+        placeholder: 'Your organisation',
         required: true,
         defaultValue: async () => {
           try {
             const user = await base44.auth.me();
-            return user?.organisation_name || '';
-          } catch {
-            return '';
-          }
-        }
+            if (user?.organisation_name) return user.organisation_name;
+            const users = await base44.entities.User.filter({ email: user?.email });
+            return users[0]?.organisation_name || '';
+          } catch { return ''; }
+        },
       },
       {
         key: 'abn',
         label: 'Australian Business Number (ABN)',
-        type: 'abn-lookup', // handled by special component in Questionnaire.jsx
+        type: 'abn-lookup',
         required: true,
         helpText: 'Your 11-digit ABN will be verified against the ABN Register.',
         defaultValue: async () => {
           try {
             const user = await base44.auth.me();
             return user?.abn || '';
-          } catch {
-            return '';
-          }
-        }
+          } catch { return ''; }
+        },
       },
       {
         key: 'logo_url',
         label: 'Organisation Logo (optional)',
-        type: 'logo-upload', // handled by special component in Questionnaire.jsx
+        type: 'logo-upload',
         required: false,
         helpText: 'Upload your logo (PNG or JPEG, max 2MB). It will appear in all generated documents.',
         defaultValue: async () => {
           try {
             const user = await base44.auth.me();
             return user?.logo_url || '';
-          } catch {
-            return '';
-          }
-        }
+          } catch { return ''; }
+        },
       },
-      { key: 'project_name', label: 'Project Name', type: 'text', placeholder: 'e.g. Office Fit-Out 2027', required: true },
+    ],
+  },
+
+  // ── S2: Procurement Type ──
+  {
+    id: 's2_procurement_type',
+    title: 'Procurement Type',
+    description: 'Tell us what you are primarily looking to procure.',
+    sectionLabel: 'Procurement Type',
+    fields: [
+      {
+        key: 'procurement_type',
+        label: 'What are you primarily looking to procure?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          {
+            value: 'goods',
+            label: 'Goods — supply',
+            description: 'Physical products, equipment, or materials supplied by a vendor. Use this for supply-and-install too — classify by primary intent.',
+          },
+          {
+            value: 'services',
+            label: 'Services — labour or expertise',
+            description: 'Professional services, labour, consulting, or trades. Select this when the primary output is what a person or team does, not a physical product.',
+          },
+        ],
+      },
       {
         key: 'purchase_type',
         label: 'Purchase Type',
         type: 'radio-cards',
         required: true,
         options: [
-          { value: 'once_off', label: 'Once-Off', description: 'A single, one-time engagement' },
-          { value: 'ongoing',  label: 'Ongoing / Panel', description: 'Recurring or standing arrangement' },
+          { value: 'once_off', label: 'Once-Off', description: 'A single, one-time engagement or purchase' },
+          { value: 'ongoing',  label: 'Ongoing / Panel', description: 'Recurring or standing arrangement over time' },
+        ],
+      },
+      {
+        key: 'service_type',
+        label: 'Service Type',
+        type: 'radio-cards',
+        required: true,
+        condition: (a) => a.procurement_type === 'services',
+        options: [
+          { value: 'design',                    label: 'Design Services',              description: 'Graphic, product, or UX design' },
+          { value: 'marketing',                 label: 'Marketing Services',            description: 'Campaigns, media, branding' },
+          { value: 'consulting',                label: 'Consulting Services',           description: 'Risk advisory, legal advice, auditing' },
+          { value: 'construction_trades',       label: 'Construction and Trades',       description: 'Builders, trades, civil works, installations' },
+          { value: 'construction_professional', label: 'Construction — Professional',   description: 'Architects, engineers, project managers' },
+          { value: 'it',                        label: 'IT Services',                   description: 'Software, infrastructure, support' },
+          { value: 'transport',                 label: 'Transport Services',            description: 'Bus drivers, logistics, fleet' },
+          { value: 'other',                     label: 'Other Services',                description: 'Cleaning, printing, security, and other services not listed above' },
         ],
       },
     ],
   },
 
-  // ── S3-BYPASS: Own scope document (shown after S2, replaces S3-S4 if user provides scope) ──
+  // ── S3: Purpose Statement (always shown) ──
   {
-    id: 's3_own_scope_option',
-    title: 'Do You Have a Scope Document?',
-    description: 'Tell us if you already have a scope of work document, or if you need help building one.',
-    sectionLabel: 'Scope Source',
+    id: 's3_purpose',
+    title: 'Purpose Statement',
+    description: 'Describe the purpose of this procurement. This statement is used throughout the document to give context to suppliers.',
+    sectionLabel: 'Purpose',
     condition: (a) => !!a.procurement_type,
     fields: [
       {
-        key: 'has_own_scope',
-        label: 'Do you already have a scope of work document?',
-        type: 'radio-cards',
+        key: '_scope_purpose',
+        label: 'What is the purpose of this procurement activity?',
+        type: 'ai-enhanced-textarea',
+        placeholder: 'e.g. The organisation requires office furniture to support the fit-out of its new Perth CBD premises, which will accommodate 45 staff from 1 February 2027...',
         required: true,
-        options: [
-          { value: 'yes', label: 'Yes — I have my own scope document', description: 'Upload your existing scope document and skip the scope-building questions' },
-          { value: 'no',  label: 'No — help me build one', description: 'Answer questions to help us build a scope for you' },
-        ],
-      },
-      {
-        key: 'own_scope_document',
-        label: 'Upload Your Scope Document',
-        type: 'scope-upload', // custom field type, handled in Questionnaire.jsx
-        required: true,
-        helpText: 'PDF or Word (.docx) documents only, maximum 20MB.',
-        condition: (a) => a.has_own_scope === 'yes',
+        helpText: 'Be specific: what does your organisation need, why, and what outcome are you trying to achieve? AI will use this as the foundation of the scope document.',
       },
     ],
   },
 
-  // ── S5: Combined intent (both only — shown before S3/S4) ──
+  // ── S4: Goods Items (goods only) ──
   {
-    id: 's5_combined_intent',
-    title: 'Combined Procurement Intent',
-    description: 'Because you are procuring goods and services together, help us understand how they are linked.',
-    sectionLabel: 'Combined Scope',
-    condition: (a) => IS_BOTH(a) && a.has_own_scope !== 'yes',
-    fields: [
-      {
-        key: 'combined_scope_description',
-        label: 'Describe how the goods and services are connected',
-        type: 'textarea',
-        placeholder: 'e.g. We need a supplier to both manufacture custom signage (goods) and install it on-site across our network of venues (services)...',
-        required: true,
-        helpText: 'This helps AI understand that these are linked — not two separate procurements.',
-      },
-      {
-        key: 'combined_primary_outcome',
-        label: 'What is the primary outcome you are trying to achieve?',
-        type: 'textarea',
-        placeholder: 'e.g. Fully installed, branded signage across all locations within 90 days...',
-        required: true,
-      },
-    ],
-  },
-
-  // ── S3.2: Goods items list (repeating entry) ──
-  {
-    id: 's3_goods_items',
+    id: 's4_goods_items',
     title: 'Goods Items',
     description: 'Add the items you need to procure. All items will be procured together from a single supplier.',
     sectionLabel: 'Goods Items',
-    condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
+    condition: (a) => IS_GOODS(a),
     fields: [
       {
         key: 'goods_items',
         label: 'Items to Procure',
-        type: 'goods-items-table', // custom component, handled in Questionnaire.jsx
+        type: 'goods-items-table',
         required: true,
         helpText: 'Each item row has: name, quantity, unit of measure, size/spec, and brand. Add unlimited items.',
       },
-    ],
-  },
-
-  // ── S3.4: Per-item delivery ──
-  {
-    id: 's3_delivery',
-    title: 'Delivery Requirements',
-    description: 'Specify delivery locations and dates.',
-    sectionLabel: 'Delivery',
-    condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
-    fields: [
       {
-        key: 'delivery_required',
-        label: 'Is delivery to a specific location required?',
-        type: 'radio-cards',
-        required: true,
-        options: [
-          { value: 'yes', label: 'Yes — delivery to specific address', description: 'Supplier delivers to our site' },
-          { value: 'no', label: 'No — we will collect', description: 'We will collect from supplier' },
-        ],
-      },
-      {
-        key: 'primary_delivery_address',
-        label: 'Primary Delivery Address',
-        type: 'text', // TODO: replace with google-maps-autocomplete later
-        placeholder: 'Street address, suburb, state, postcode',
-        required: true,
-        condition: (a) => a.delivery_required === 'yes',
-      },
-      {
-        key: 'delivery_date_required',
-        label: 'Required Delivery Date or Window',
-        type: 'date',
-        required: true,
-        condition: (a) => a.delivery_required === 'yes',
-      },
-      {
-        key: 'per_item_delivery_config',
-        label: 'Per-Item Delivery Configuration',
-        type: 'per-item-delivery', // custom component, handles per-item addresses and dates
+        key: 'optional_additional_services',
+        label: 'Are there any additional services required alongside supply? (optional)',
+        type: 'textarea',
+        placeholder: 'e.g. Installation, configuration, training, or commissioning of the above items...',
         required: false,
-        condition: (a) => a.delivery_required === 'yes',
+        helpText: 'Describe any service component that must be delivered alongside the goods — e.g. installation or setup.',
       },
     ],
   },
 
-  // ── S3.5: Per-item warranty ──
+  // ── S5: Construction sub-branch (services + construction_trades only) ──
   {
-    id: 's3_warranty',
-    title: 'Warranty Requirements',
-    description: 'Specify warranty requirements for each item. These will appear as scope requirements.',
-    sectionLabel: 'Warranty',
-    condition: (a) => HAS_GOODS(a) && a.has_own_scope !== 'yes',
-    fields: [
-      {
-        key: 'warranty_config',
-        label: 'Warranty Requirements',
-        type: 'warranty-table', // custom component, shows table of items with warranty toggles
-        required: false,
-        helpText: 'For each item, toggle warranty and specify duration.',
-      },
-    ],
-  },
-
-  // ── S4a: Service type selector (services | both, skip if user has own scope) ──
-  {
-    id: 's4a_service_type',
-    title: 'Service Type',
-    description: 'What category of service are you procuring?',
-    sectionLabel: 'Services',
-    condition: (a) => HAS_SERVICES(a) && a.has_own_scope !== 'yes',
-    fields: [
-      {
-        key: 'service_type',
-        label: 'Select Service Type',
-        type: 'radio-cards',
-        required: true,
-        options: [
-          { value: 'design',                 label: 'Design Services',          description: 'Graphic, product, or UX design' },
-          { value: 'marketing',              label: 'Marketing Services',        description: 'Campaigns, media, branding' },
-          { value: 'construction_trades',    label: 'Construction and trades',   description: 'Builders, trades, civil works, installations' },
-          { value: 'construction_professional', label: 'Construction — Professional', description: 'Architects, engineers, project managers' },
-          { value: 'it',                     label: 'IT Services',              description: 'Software, infrastructure, support' },
-          { value: 'transport',              label: 'Transport Services',        description: 'Logistics, freight, fleet' },
-          { value: 'safety',                 label: 'Safety & Risk Services',    description: 'WHS, risk assessment, compliance' },
-          { value: 'other',                  label: 'Other Professional Services', description: 'Consulting, legal, finance, etc.' },
-        ],
-      },
-    ],
-  },
-
-  // ── S4b: Construction sub-branch (skip if user has own scope) ──
-  {
-    id: 's4b_construction_type',
+    id: 's5_construction_type',
     title: 'Construction Type',
     description: 'Select the specific type of construction or trades work required.',
     sectionLabel: 'Construction Detail',
-    condition: (a) => HAS_SERVICES(a) && a.service_type === 'construction_trades' && a.has_own_scope !== 'yes',
+    condition: (a) => IS_SERVICES(a) && a.service_type === 'construction_trades',
     fields: [
       {
         key: 'construction_type',
@@ -293,39 +235,163 @@ export const SOW_PAGES = [
         type: 'radio-cards',
         required: true,
         options: [
-          { value: 'new_build',       label: 'New Build',            description: 'Construction of a new structure or facility' },
-          { value: 'fit_out',         label: 'Fit-Out / Refurbishment', description: 'Interior fit-out, renovation, or upgrade' },
-          { value: 'civil',           label: 'Civil Works',           description: 'Roads, drainage, earthworks, utilities' },
-          { value: 'mechanical',      label: 'Mechanical & HVAC',     description: 'Heating, ventilation, air conditioning, plumbing' },
-          { value: 'electrical',      label: 'Electrical',            description: 'Electrical installation or maintenance' },
-          { value: 'maintenance',     label: 'Maintenance & Repair',  description: 'Ongoing or reactive maintenance of existing assets' },
-          { value: 'other_trades',    label: 'Other Trades',          description: 'Painting, tiling, landscaping, or other specialist trades' },
+          { value: 'new_build',    label: 'New Build',              description: 'Construction of a new structure or facility' },
+          { value: 'fit_out',      label: 'Fit-Out / Refurbishment', description: 'Interior fit-out, renovation, or upgrade' },
+          { value: 'civil',        label: 'Civil Works',             description: 'Roads, drainage, earthworks, utilities' },
+          { value: 'mechanical',   label: 'Mechanical & HVAC',       description: 'Heating, ventilation, air conditioning, plumbing' },
+          { value: 'electrical',   label: 'Electrical',              description: 'Electrical installation or maintenance' },
+          { value: 'maintenance',  label: 'Maintenance & Repair',    description: 'Ongoing or reactive maintenance of existing assets' },
+          { value: 'other_trades', label: 'Other Trades',            description: 'Painting, tiling, landscaping, or other specialist trades' },
         ],
       },
     ],
   },
 
-  // ── S4c: Service details (skip if user has own scope) ──
+  // ── S6: Service Scope (services only) ──
   {
-    id: 's4c_service_details',
-    title: 'Service Details',
+    id: 's6_service_details',
+    title: 'Service Scope',
     description: 'Provide detailed information about the services required.',
     sectionLabel: 'Service Scope',
-    condition: (a) => HAS_SERVICES(a) && !!a.service_type && a.has_own_scope !== 'yes',
+    condition: (a) => IS_SERVICES(a) && !!a.service_type,
     fields: [
-      { key: 'summary_of_services', label: 'Summary of Services Required', type: 'textarea', placeholder: 'Describe what you need the service provider to do...', required: true },
-      { key: 'provider_responsibilities', label: 'Responsibilities of Service Provider', type: 'textarea', placeholder: 'What will the supplier be responsible for?', required: true },
-      { key: 'requester_responsibilities', label: 'Responsibilities of Your Organisation', type: 'textarea', placeholder: 'What will your organisation provide or be responsible for?', required: true },
-      { key: 'timeline', label: 'Timeline', type: 'text', placeholder: 'e.g. 6 months commencing July 2027', required: true },
-      { key: 'key_deliverables', label: 'Key Deliverables', type: 'textarea', placeholder: 'List the specific outputs or milestones expected...', required: true },
-      { key: 'key_personnel', label: 'Key Personnel Requirements', type: 'textarea', placeholder: 'Roles and experience required from the supplier...', required: false },
-      { key: 'additional_info', label: 'Relevant Additional Information', type: 'textarea', placeholder: 'Any other relevant context or requirements...', required: false },
+      {
+        key: 'key_deliverables',
+        label: 'Key Deliverables',
+        type: 'textarea',
+        placeholder: 'List the specific outputs, milestones, or outcomes expected from the service provider...',
+        required: true,
+        helpText: 'What must the supplier produce or achieve? Be as specific as possible.',
+      },
+      {
+        key: 'provider_responsibilities',
+        label: 'Responsibilities of Service Provider',
+        type: 'textarea',
+        placeholder: 'What will the supplier be responsible for? Include compliance, reporting, staffing...',
+        required: true,
+      },
+      {
+        key: 'requester_responsibilities',
+        label: 'Responsibilities of Your Organisation',
+        type: 'textarea',
+        placeholder: 'What will your organisation provide or be responsible for during the engagement?',
+        required: true,
+      },
+      {
+        key: 'activity_schedule',
+        label: 'Activity / Delivery Schedule',
+        type: 'textarea',
+        placeholder: 'Describe the expected schedule, phases, or frequency of activities. If the supplier will propose the schedule, note that here...',
+        required: false,
+        helpText: 'Include phases, start/end dates, milestones, or recurring frequency. You may note "schedule to be proposed by vendor" if preferred.',
+      },
+      {
+        key: 'key_personnel',
+        label: 'Key Personnel Requirements',
+        type: 'textarea',
+        placeholder: 'What qualifications, licences, or experience must key personnel hold?',
+        required: false,
+      },
+      {
+        key: 'additional_info',
+        label: 'Relevant Additional Information',
+        type: 'ai-enhanced-textarea',
+        placeholder: 'Any other relevant context, constraints, or requirements — e.g. consumables to be provided, access arrangements, reporting requirements...',
+        required: false,
+        helpText: 'Anything not captured above that a supplier would need to know.',
+      },
+      {
+        key: 'regulatory_compliance',
+        label: 'Regulatory Compliance Requirements',
+        type: 'ai-enhanced-textarea',
+        placeholder: 'Any legislative, regulatory, or standards compliance requirements — e.g. Work Health and Safety Act, Privacy Act, ISO standards...',
+        required: false,
+        helpText: 'List any regulations or standards the supplier must comply with in delivering this work.',
+      },
     ],
   },
 
-  // ── S6: Known suppliers (always last) ──
+  // ── S7: Delivery (goods only) ──
   {
-    id: 's6_supplier',
+    id: 's7_delivery',
+    title: 'Delivery Requirements',
+    description: 'Specify delivery locations, dates, and any additional delivery details.',
+    sectionLabel: 'Delivery',
+    condition: (a) => IS_GOODS(a),
+    fields: [
+      {
+        key: 'delivery_required',
+        label: 'Is delivery to a specific location required?',
+        type: 'radio-cards',
+        required: true,
+        options: [
+          { value: 'yes', label: 'Yes — deliver to address', description: 'Supplier delivers to our nominated address' },
+          { value: 'no',  label: 'No — we will collect',    description: 'We will collect from the supplier' },
+        ],
+      },
+      {
+        key: 'primary_delivery_address',
+        label: 'Primary Delivery Address',
+        type: 'address-search',
+        placeholder: 'Start typing your delivery address...',
+        required: true,
+        condition: (a) => a.delivery_required === 'yes',
+        helpText: 'Search for the address or type it manually.',
+      },
+      {
+        key: 'delivery_date_required',
+        label: 'Required Delivery / Collection Date',
+        type: 'date',
+        required: true,
+      },
+      {
+        key: 'per_item_delivery_config',
+        label: 'Per-Item Delivery Configuration',
+        type: 'per-item-delivery',
+        required: false,
+        condition: (a) => a.delivery_required === 'yes',
+        helpText: 'If individual items require delivery to different addresses or dates, specify here.',
+      },
+      {
+        key: 'additional_delivery_details',
+        label: 'Additional Delivery Details',
+        type: 'textarea',
+        placeholder: 'e.g. Access restrictions, loading dock requirements, booking process, contact on delivery...',
+        required: false,
+        condition: (a) => a.delivery_required === 'yes',
+      },
+    ],
+  },
+
+  // ── S8: Warranty (goods only) ──
+  {
+    id: 's8_warranty',
+    title: 'Warranty Requirements',
+    description: 'Specify warranty requirements. These will appear as contractual scope requirements.',
+    sectionLabel: 'Warranty',
+    condition: (a) => IS_GOODS(a),
+    fields: [
+      {
+        key: 'warranty_config',
+        label: 'Warranty Requirements',
+        type: 'warranty-table',
+        required: false,
+        helpText: 'For each item, toggle warranty on or off and specify the required duration.',
+      },
+      {
+        key: 'additional_warranty_details',
+        label: 'Additional Warranty Details',
+        type: 'textarea',
+        placeholder: 'e.g. On-site warranty servicing required, replacement parts to be held in Australia, response time SLAs...',
+        required: false,
+        helpText: 'Any additional warranty terms or conditions beyond duration.',
+      },
+    ],
+  },
+
+  // ── S9: Known Suppliers (always shown) ──
+  {
+    id: 's9_suppliers',
     title: 'Known Suppliers',
     description: 'If you have any suppliers in mind, provide their details (optional). You can add multiple.',
     sectionLabel: 'Suppliers',
@@ -336,10 +402,45 @@ export const SOW_PAGES = [
         label: 'Known Suppliers',
         type: 'suppliers-list',
         required: false,
-        helpText: 'Add one or more suppliers. Leave blank if none are known.',
+        helpText: 'Add one or more suppliers if known. Leave blank if none are identified yet.',
       },
     ],
   },
+
+  // ── S10: Supporting Documentation (always shown) ──
+  {
+    id: 's10_supporting_docs',
+    title: 'Supporting Documentation',
+    description: 'Attach any supporting files that should be referenced in or sent with this document.',
+    sectionLabel: 'Documents',
+    condition: (a) => !!a.procurement_type,
+    fields: [
+      {
+        key: 'supporting_doc_1',
+        label: 'Attachment 1',
+        type: 'scope-upload',
+        required: false,
+        helpText: 'PDF or Word document, max 20MB.',
+      },
+      {
+        key: 'supporting_doc_2',
+        label: 'Attachment 2 (optional)',
+        type: 'scope-upload',
+        required: false,
+        helpText: 'PDF or Word document, max 20MB.',
+        condition: (a) => !!a.supporting_doc_1,
+      },
+      {
+        key: 'supporting_doc_3',
+        label: 'Attachment 3 (optional)',
+        type: 'scope-upload',
+        required: false,
+        helpText: 'PDF or Word document, max 20MB.',
+        condition: (a) => !!a.supporting_doc_2,
+      },
+    ],
+  },
+
 ];
 
 // ─────────────────────────────────────────────
