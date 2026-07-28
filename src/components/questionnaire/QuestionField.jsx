@@ -17,6 +17,12 @@ export default function QuestionField({ field, value, onChange, error, docType, 
     error && 'focus-visible:ring-[var(--destructive)]'
   );
 
+  // ai-enhanced-textarea renders as a normal textarea for now — AI enhancement
+  // is handled by the existing AIScopePurpose overlay or can be added later
+  if (field.type === 'ai-enhanced-textarea') {
+    field = { ...field, type: 'textarea' };
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">

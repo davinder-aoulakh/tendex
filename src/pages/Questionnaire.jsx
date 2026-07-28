@@ -22,6 +22,7 @@ import RFPMethodologyDraft from '@/components/questionnaire/RFPMethodologyDraft'
 import ABNLookup from '@/components/questionnaire/ABNLookup';
 import LogoUpload from '@/components/questionnaire/LogoUpload';
 import ScopeUpload from '@/components/questionnaire/ScopeUpload';
+import AddressSearchField from '@/components/questionnaire/AddressSearchField';
 import FallbackScopeQuestions from '@/components/questionnaire/FallbackScopeQuestions';
 import GoodsItemsTable from '@/components/questionnaire/GoodsItemsTable';
 import PerItemDelivery from '@/components/questionnaire/PerItemDelivery';
@@ -129,7 +130,7 @@ export default function Questionnaire() {
   // In standalone mode (creating a new single document) always start fresh — ignore any
   // draft ID or answers left over from a guided procurement process or a previous session.
   const loadSaved = () => {
-    if (mode === 'standalone') return { has_own_scope: 'no' };
+    if (mode === 'standalone') return {};
     try {
       const session = sessionStorage.getItem(SESSION_KEY(type));
       if (session) return JSON.parse(session);
@@ -319,9 +320,7 @@ export default function Questionnaire() {
 
   // Recompute visible pages whenever answers change
   const rawVisiblePages = getVisiblePages(type, answers);
-  const visiblePages = isStandaloneMode
-    ? rawVisiblePages.filter(p => p.id !== 's3_own_scope_option')
-    : rawVisiblePages;
+  const visiblePages = rawVisiblePages;
   const totalSteps = visiblePages.length;
   const page = visiblePages[currentStep] || visiblePages[0];
   const isLastStep = currentStep === totalSteps - 1;
@@ -399,24 +398,12 @@ export default function Questionnaire() {
     if (type === 'SOW') {
       if (isStandaloneMode) {
         // ── STANDALONE MODE: collect scope info, show review, then generate SOW directly ──
-        if (page?.id === 's3_own_scope_option' && answers.has_own_scope === 'yes') {
-          analyzeUploadedScope(answers.own_scope_document, answers.procurement_type).then(result => {
-            if (result.fallbackQuestions) {
-              setAiStep('fallback_scope_questions');
-            } else {
-              // In standalone mode, skip scoring — generate SOW directly
-              handleGenerate('SOW', 'SOW');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          });
-          return;
-        }
-        if (page?.id === 's2_basics' && !purposeConfirmed && answers.has_own_scope !== 'yes') {
+        if (page?.id === 's3_purpose' && !purposeConfirmed) {
           setAiStep('purpose');
           window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
-        if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both') && answers.has_own_scope !== 'yes') {
+        if (page?.id === 's6_service_details' && !deliverablesShown && answers.procurement_type === 'services') {
           setAiStep('deliverables');
           window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
@@ -437,26 +424,12 @@ export default function Questionnaire() {
       }
 
       // ── PROCUREMENT MODE (existing logic) ──
-      if (page?.id === 's3_own_scope_option' && answers.has_own_scope === 'yes') {
-        analyzeUploadedScope(answers.own_scope_document, answers.procurement_type).then(result => {
-          if (result.fallbackQuestions) {
-            setAiStep('fallback_scope_questions');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else {
-            setShowScoring(true);
-            setScoring(true);
-            setScoreData(result);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        });
-        return;
-      }
-      if (page?.id === 's2_basics' && !purposeConfirmed && answers.has_own_scope !== 'yes') {
+      if (page?.id === 's3_purpose' && !purposeConfirmed) {
         setAiStep('purpose');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
-      if (page?.id === 's4c_service_details' && !deliverablesShown && (answers.procurement_type === 'services' || answers.procurement_type === 'both') && answers.has_own_scope !== 'yes') {
+      if (page?.id === 's6_service_details' && !deliverablesShown && answers.procurement_type === 'services') {
         setAiStep('deliverables');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -513,9 +486,21 @@ export default function Questionnaire() {
     const resolvedType = overrideDocType || finalDocType || type;
     const title = answers.project_name || answers.rfq_title || answers.rfp_title || answers.eoi_title || `${resolvedType} Document — ${new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}`;
     const orgName = answers.organisation_name || answers.company_name || '';
+
+    let referenceNumber = answers.reference_number;
+    if (!referenceNumber || referenceNumber.trim() === '') {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const seq = String(Math.floor(Math.random() * 900) + 100);
+      referenceNumber = 'PROC-' + year + '-' + month + '-' + seq;
+      updateAnswer('reference_number', referenceNumber);
+    }
+
     const updateData = {
       title,
       document_type: resolvedType,
+      reference_number: referenceNumber,
       questionnaire_data: {
         ...answers,
         ...(scoreData ? { _ai_recommended_type: scoreData.recommendation } : {}),
@@ -528,7 +513,6 @@ export default function Questionnaire() {
       contract_type:
         answers.procurement_type === 'goods' ? 'Goods' :
         answers.procurement_type === 'services' ? 'Services' :
-        answers.procurement_type === 'both' ? 'Goods and Services' :
         undefined,
 
       current_stage:
@@ -1000,6 +984,27 @@ export default function Questionnaire() {
                           />
                           {errors.includes(field.key) && (
                             <p className="text-xs" style={{ color: 'var(--destructive)' }}>Please add at least one item before continuing.</p>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Address search field (delivery address autocomplete)
+                    if (field.type === 'address-search') {
+                      return (
+                        <div key={field.key} className="space-y-1.5">
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                            {field.label}
+                            {field.required && <span className="ml-1" style={{ color: 'var(--primary)' }}>*</span>}
+                          </div>
+                          {field.helpText && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{field.helpText}</p>}
+                          <AddressSearchField
+                            value={answers[field.key] || ''}
+                            onChange={val => updateAnswer(field.key, val)}
+                            placeholder={field.placeholder || 'Start typing your address...'}
+                          />
+                          {errors.includes(field.key) && (
+                            <p className="text-xs" style={{ color: 'var(--destructive)' }}>This field is required.</p>
                           )}
                         </div>
                       );
