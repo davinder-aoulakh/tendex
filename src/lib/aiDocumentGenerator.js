@@ -21,17 +21,25 @@ ${buildAbnContext(d)}
 Project Name: ${d.project_name || 'N/A'}
 Procurement Type: ${d.procurement_type || 'N/A'}
 Service Type: ${d.service_type || 'N/A'}
-Summary of Services: ${d.summary_of_services || 'N/A'}
+Reference Number: ${d.reference_number || 'To be assigned'}
+Description of Need: ${d.description_of_need || ''}
+Estimated Budget: ${d.estimated_budget || 'Not specified'} (excluding GST)
+Required Timeline: ${d.required_timeline || 'Not specified'}
+Procurement Purpose: ${d._scope_purpose || ''}
 Provider Responsibilities: ${d.provider_responsibilities || 'N/A'}
 Requester Responsibilities: ${d.requester_responsibilities || 'N/A'}
-Timeline: ${d.timeline || 'N/A'}
 Key Deliverables: ${d.key_deliverables || 'N/A'}
+Activity/Delivery Schedule: ${d.activity_schedule || 'N/A'}
+Regulatory Compliance: ${d.regulatory_compliance || 'N/A'}
 Key Personnel: ${d.key_personnel || 'N/A'}
 Product Description: ${d.product_description || 'N/A'}
 Specifications: ${d.technical_specs || 'N/A'}
 Quantity: ${d.quantity ? `${d.quantity} ${d.quantity_unit || 'units'}` : 'N/A'}
 Delivery Address: ${d.delivery_address || 'N/A'}
+Optional Additional Services: ${d.optional_additional_services || 'N/A'}
+Additional Delivery Details: ${d.additional_delivery_details || 'N/A'}
 Warranty Requirements: ${d.warranty_description || 'N/A'}
+Additional Warranty Details: ${d.additional_warranty_details || 'N/A'}
 Supplier: ${d.supplier_name || 'N/A'}
 Additional Info: ${d.additional_info || 'N/A'}
 
@@ -76,7 +84,7 @@ Contact for queries: ${d.eoi_contact_name || 'N/A'} — ${d.eoi_contact_email ||
 Submission method: ${submissionMethod}
 
 Scope of Work context (from previous SOW or uploaded document — always list as Attachment 1):
-${d.own_scope_document ? `[User uploaded their own scope document: ${d.own_scope_document}]` : (d.summary_of_services || d.concept_details || d.product_description || 'Refer to Attachment 1 — Scope of Work')}
+${d.own_scope_document ? `[User uploaded their own scope document: ${d.own_scope_document}]` : (d.description_of_need || d.concept_details || d.product_description || 'Refer to Attachment 1 — Scope of Work')}
 
 Provider responsibilities: ${d.provider_responsibilities || d.supplier_responsibilities || 'As per Attachment 1'}
 Requester responsibilities: ${d.requester_responsibilities || 'As per Attachment 1'}
@@ -134,7 +142,7 @@ const RFQ_PROMPT = (d) => {
     : 'None specified';
 
   // Scope carried from SOW
-  const scopeContent = d.summary_of_services || d.product_description || d.statement_of_requirements || 'Refer to specification section';
+  const scopeContent = d.description_of_need || d.product_description || d.statement_of_requirements || 'Refer to specification section';
 
   return `You are an expert Australian procurement consultant. Generate a professional, formal Request for Quotation (RFQ) document suitable for release to market.
 ${buildAbnContext(d)}
@@ -252,7 +260,7 @@ const RFP_PROMPT = (d) => {
     : 'None required';
 
   // Scope carried from SOW
-  const scopeContent = d.summary_of_services || d.product_description || d.statement_of_requirements || 'Refer to specification section';
+  const scopeContent = d.description_of_need || d.product_description || d.statement_of_requirements || 'Refer to specification section';
 
   const pricingStructureMap = {
     lump_sum: 'Lump sum (fixed price)',
