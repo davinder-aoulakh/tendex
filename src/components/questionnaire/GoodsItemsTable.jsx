@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Plus, Trash2, Loader2, Sparkles, Check, Pencil } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-const UNITS = ['each', 'kg', 'litres', 'metres', 'sets', 'boxes', 'pallets', 'other'];
+const UNITS = ['each', 'carton', 'kg', 'litres', 'metres', 'sets', 'boxes', 'pallets', 'other'];
 
 const inputStyle = {
   background: 'var(--input)',
