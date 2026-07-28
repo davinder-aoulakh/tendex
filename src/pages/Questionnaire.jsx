@@ -140,11 +140,15 @@ export default function Questionnaire() {
     return {};
   };
 
-  // Draft document ID for auto-save (persisted to localStorage so it survives page refresh)
-  const loadDraftDocId = () => {
+  // Draft document ID for auto-save.
+  // Priority: URL ?docId param (Start Procurement flow), then localStorage (survives refresh).
+  // Standalone mode always starts fresh with no pre-existing doc.
+  const docIdFromUrl = searchParams.get('docId');
+  const docIdFromStore = (() => {
     if (mode === 'standalone') return null;
     try { return localStorage.getItem(DRAFT_DOC_KEY(type)) || null; } catch { return null; }
-  };
+  })();
+  const initialDocId = docIdFromUrl || (type === 'SOW' ? docIdFromStore : null);
 
   const [user, setUser] = useState(undefined); // undefined = loading, null = not logged in
   const [anonId] = useState(() => getOrCreateAnonId());
@@ -155,7 +159,7 @@ export default function Questionnaire() {
   const [createdDocId, setCreatedDocId] = useState(null);
   const [errors, setErrors] = useState([]);
   // Auto-save draft document ID — created immediately when questionnaire starts
-  const [draftDocId, setDraftDocId] = useState(loadDraftDocId);
+  const [draftDocId, setDraftDocId] = useState(initialDocId);
   // Auto-save — triggers on navigation
   const { savedAt, saveNow } = useAutoSave({
     docId: draftDocId,

@@ -21,6 +21,7 @@ export function useAutoSave({ docId, answers, currentStep, enabled = true }) {
       await base44.entities.Document.update(docId, {
         questionnaire_data: data.answers,
         questionnaire_step: data.step,
+        ...(data.answers.project_name ? { title: data.answers.project_name } : {}),
       });
       setSavedAt(new Date());
       retryQueueRef.current = null;
