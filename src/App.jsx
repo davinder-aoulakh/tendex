@@ -16,6 +16,7 @@ import Questionnaire from './pages/Questionnaire';
 import DocumentEditor from './pages/DocumentEditor';
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
+import Connect from './pages/Connect';
 import Profile from './pages/Profile';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -61,6 +62,7 @@ const AuthenticatedApp = () => {
         <Route path="/document/:id" element={<DocumentEditor />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/connect" element={<Connect />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   LayoutDashboard, CreditCard, Settings,
-  Building2, HelpCircle, LogOut, Plus, Menu, X
+  Building2, HelpCircle, LogOut, Plus, Menu, X, Bot
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import TrialBanner from '@/components/pricing/TrialBanner';
@@ -294,6 +294,9 @@ export default function AppLayout({ children }) {
             <HelpCircle style={{ width: 16, height: 16, color: 'var(--text-muted)', flexShrink: 0 }} />
             Contact Support
           </a>
+
+          <SectionLabel text="Integrations" />
+          <NavItem icon={Bot} label="Connect AI Assistant" path="/connect" />
 
           {/* New Procurement CTA */}
           <div style={{ padding: '16px 4px 0' }}>
