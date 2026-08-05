@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { safeReturnTo } from '@/lib/authReturnTo';
 
 export default function Login() {
   const [email, setEmail]       = useState('');
@@ -11,10 +12,8 @@ export default function Login() {
   const [loading, setLoading]   = useState(false);
 
   const getReturnUrl = () => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('from_url') || '/dashboard';
-    } catch { return '/dashboard'; }
+    const dest = safeReturnTo();
+    return dest === '/' ? '/dashboard' : dest;
   };
 
   const handleEmailLogin = async (e) => {
