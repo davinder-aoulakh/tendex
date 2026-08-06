@@ -20,6 +20,39 @@ export default function StartProcurement() {
       try {
         const procId = generateProcurementId();
 
+        // Pre-populate company details from the user's saved business profile
+        let questionnaireData = {};
+        try {
+          const currentUser = await base44.auth.me();
+          if (currentUser) {
+            const users = await base44.entities.User.filter({ email: currentUser.email });
+            const profile = users[0] || {};
+            const prefill = {};
+
+            if (profile.organisation_name) {
+              prefill.organisation_name = profile.organisation_name;
+            } else if (profile.abn_entity_name) {
+              prefill.organisation_name = profile.abn_entity_name;
+            }
+
+            if (profile.logo_url) prefill.logo_url = profile.logo_url;
+
+            if (profile.abn_confirmed && profile.abn) {
+              prefill.abn = profile.abn;
+              prefill._abn_confirmed = true;
+              prefill._abn_entity_name = profile.abn_entity_name || '';
+              prefill._abn_entity_type_name = profile.abn_entity_type_name || '';
+              prefill._abn_gst_registered = profile.abn_gst_registered || false;
+              prefill._abn_active_since = profile.abn_active_since || null;
+              if (profile.abn_address_state) prefill.organisation_state = profile.abn_address_state;
+            }
+
+            questionnaireData = prefill;
+          }
+        } catch (profileErr) {
+          console.error('Failed to load business profile for pre-fill:', profileErr);
+        }
+
         const doc = await base44.entities.Document.create({
           title:                'New Procurement',
           document_type:        'SOW',
@@ -27,7 +60,7 @@ export default function StartProcurement() {
           procurement_id:       procId,
           questionnaire_type:   'SOW',
           questionnaire_step:   0,
-          questionnaire_data:   {},
+          questionnaire_data:   questionnaireData,
           is_procurement_process: true,
         });
 

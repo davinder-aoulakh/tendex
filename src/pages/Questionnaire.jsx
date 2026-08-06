@@ -268,9 +268,11 @@ export default function Questionnaire() {
         setTimeout(() => setCurrentStep(doc.questionnaire_step), 50);
       }
       
-      // Restore answers from DB if localStorage is empty
+      // Restore answers from DB, using saved data as the base so pre-filled
+      // company details (injected at creation) always show up, while any
+      // answers already entered in the current session take priority.
       if (doc.questionnaire_data && Object.keys(doc.questionnaire_data).length > 0) {
-        setAnswers(prev => (Object.keys(prev).length === 0 ? doc.questionnaire_data : prev));
+        setAnswers(prev => ({ ...doc.questionnaire_data, ...prev }));
       }
     }).catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
