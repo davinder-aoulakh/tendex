@@ -34,21 +34,18 @@ export default function Profile() {
         const currentUser = await base44.auth.me();
         if (!currentUser) { navigate('/'); return; }
         setUser(currentUser);
-
-        const users = await base44.entities.User.filter({ email: currentUser.email });
-        const userProfile = users[0] || {};
-        setProfile(userProfile);
-        setProfileId(userProfile.id || null);
+        setProfile(currentUser);
+        setProfileId(currentUser.id || null);
 
         setFormData({
-          org_name:      userProfile.organisation_name      || '',
-          abn:           userProfile.abn                    || currentUser.abn || '',
-          abn_entity_name: userProfile.abn_entity_name      || currentUser.abn_entity_name || '',
-          logo_url:      userProfile.logo_url               || currentUser.logo_url || '',
-          contact_name:  userProfile.primary_contact_name   || '',
-          contact_email: userProfile.primary_contact_email  || '',
-          phone:         userProfile.phone                  || currentUser.phone || '',
-          address:       userProfile.business_address       || '',
+          org_name:      currentUser.organisation_name      || '',
+          abn:           currentUser.abn                    || '',
+          abn_entity_name: currentUser.abn_entity_name      || '',
+          logo_url:      currentUser.logo_url               || '',
+          contact_name:  currentUser.primary_contact_name   || '',
+          contact_email: currentUser.primary_contact_email  || '',
+          phone:         currentUser.phone                  || '',
+          address:       currentUser.business_address       || '',
         });
       } catch (err) {
         console.error('Error loading profile:', err);
