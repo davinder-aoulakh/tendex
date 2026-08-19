@@ -80,24 +80,10 @@ export default function Profile() {
         primary_contact_email: formData.contact_email,
         phone:                 formData.phone,
         business_address:      formData.address,
+        full_name:             formData.contact_name || undefined,
       };
 
-      if (profileId) {
-        await base44.entities.User.update(profileId, updatePayload);
-      } else {
-        const created = await base44.entities.User.create({
-          email: user.email,
-          role:  'user',
-          ...updatePayload,
-        });
-        setProfileId(created.id);
-        setProfile(created);
-      }
-
-      await base44.auth.updateMe({
-        full_name: formData.contact_name || undefined,
-        phone:     formData.phone        || undefined,
-      });
+      await base44.auth.updateMe(updatePayload);
 
       toast({
         title: 'Profile updated',
@@ -105,21 +91,19 @@ export default function Profile() {
         duration: 4000,
       });
 
-      const reloaded = await base44.entities.User.filter({ email: user.email });
-      if (reloaded.length > 0) {
-        setProfile(reloaded[0]);
-        setProfileId(reloaded[0].id);
-        setFormData({
-          org_name:      reloaded[0].organisation_name      || '',
-          abn:           reloaded[0].abn                    || '',
-          abn_entity_name: reloaded[0].abn_entity_name      || '',
-          logo_url:      reloaded[0].logo_url               || '',
-          contact_name:  reloaded[0].primary_contact_name   || '',
-          contact_email: reloaded[0].primary_contact_email  || '',
-          phone:         reloaded[0].phone                  || '',
-          address:       reloaded[0].business_address       || '',
-        });
-      }
+      const reloaded = await base44.auth.me();
+      setProfile(reloaded);
+      setProfileId(reloaded.id || profileId);
+      setFormData({
+        org_name:      reloaded.organisation_name      || '',
+        abn:           reloaded.abn                    || '',
+        abn_entity_name: reloaded.abn_entity_name      || '',
+        logo_url:      reloaded.logo_url               || '',
+        contact_name:  reloaded.primary_contact_name   || '',
+        contact_email: reloaded.primary_contact_email  || '',
+        phone:         reloaded.phone                  || '',
+        address:       reloaded.business_address       || '',
+      });
     } catch (err) {
       console.error('Error saving profile:', err);
       toast({
@@ -148,18 +132,12 @@ export default function Profile() {
       abn_verified_at:       new Date().toISOString(),
     };
     await base44.auth.updateMe(abnFields);
-    if (profileId) {
-      await base44.entities.User.update(profileId, abnFields);
-    }
     setFormData(prev => ({ ...prev, abn: data.abn, abn_entity_name: data.entityName || '' }));
     setProfile(prev => ({ ...prev, ...abnFields }));
   };
 
   const handleRemoveABN = async () => {
     await base44.auth.updateMe({ abn_confirmed: false, abn: '', abn_entity_name: '' });
-    if (profileId) {
-      await base44.entities.User.update(profileId, { abn_confirmed: false, abn: '', abn_entity_name: '' });
-    }
     setProfile(prev => ({ ...prev, abn_confirmed: false, abn: '', abn_entity_name: '' }));
     setFormData(prev => ({ ...prev, abn: '', abn_entity_name: '' }));
   };
